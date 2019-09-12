@@ -532,7 +532,7 @@ result4= list(TwoStage_est,IVW_est,IVWs_est,
 
 
 result = list(result1,result2,result3,result4)
-save(result,file = paste0("./result/simulation_",i1,".Rdata"))
+save(result,file = paste0("./result/simulation/simulation_",i1,".Rdata"))
 # beta2 = beta1 = rep(0,times)
 # 
 # for(i in 1:times){

@@ -2,7 +2,7 @@ args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
 #test the type one error and coverage prob
 
-
+setwd("/spin1/users/zhangh24/MR_MA/")
 #Two-stage estimate
 TwoStage = function(Y,M,G,beta_M){
   n = length(Y)
@@ -532,7 +532,7 @@ result4= list(TwoStage_est,IVW_est,IVWs_est,
 
 
 result = list(result1,result2,result3,result4)
-
+save(result,file = paste0("./result/simulation_",i1,".Rdata"))
 # beta2 = beta1 = rep(0,times)
 # 
 # for(i in 1:times){

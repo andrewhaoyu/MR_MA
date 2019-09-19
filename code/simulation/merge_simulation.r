@@ -75,6 +75,7 @@ mean(IVW_est)-beta_M
 mean(IVWs_est)-beta_M
 IVWs_est_new = IVWs_est[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)]
 mean(IVWs_est_new)
+var(IVWs_est_new)
 mean(cover_TwoStage_est)
 mean(cover_IVW_est)
 mean(cover_IVWs_est,na.rm = T)

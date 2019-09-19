@@ -1,5 +1,5 @@
 #test the type one error and coverage prob of two-stage, IVW and IVW summary level statistics
-#IVW estimate the variance using the meta-analysis variance
+#IVW estimate the variance by plug in meta-analysis estimate first
 args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
 
@@ -15,10 +15,10 @@ TwoStage = function(Y,M,G,beta_M){
   model3 = lm(PRS_Y~PRS_M-1)
   coef_est = coefficients(model3)
   sigma_y_est = sum((Y-M*coef_est)^2)/(n-1)
- #sigma_y_est = sum(Y-M*beta_M)^2/(n-1)
-#  sigma_y_est = sigma_y
- #sigma_y_est = 0.1
-   sigma_beta_est = sigma_y_est/crossprod(PRS_M)
+  #sigma_y_est = sum(Y-M*beta_M)^2/(n-1)
+  #  sigma_y_est = sigma_y
+  #sigma_y_est = 0.1
+  sigma_beta_est = sigma_y_est/crossprod(PRS_M)
   coef_low = coef_est-1.96*sqrt(sigma_beta_est)
   coef_high = coef_est+1.96*sqrt(sigma_beta_est)
   cover = ifelse((beta_M>=coef_low&
@@ -58,24 +58,28 @@ IVW = function(Y,M,G,beta_M){
   coef_vec = rep(0,p)
   var_vec = rep(0,p)
   sigma_y_est_vec = rep(0,p)
+  
+  proj_total = 0
   for(k in 1:p){
     G_temp = G[,k]
     coef_vec[k] = crossprod(G_temp,Y)/crossprod(G_temp,M)
     sigma_y_est = sum((Y-M*coef_vec[k])^2)/(n-1)
     sigma_y_est_vec[k] <- sigma_y_est
-   # sigma_y_est = 0.1
+    # sigma_y_est = 0.1
     var_vec[k] = sigma_y_est*crossprod(G_temp)/crossprod(M,G_temp)^2
+    proj_total = proj_total+crossprod(G_temp)/crossprod(M,G_temp)^2
   }
   Meta_result = Meta(coef_vec,var_vec)
   coef_est =   Meta_result[1]
-  sigma_beta_est = Meta_result[2]
+  
+  sigma_y_est = sum((Y-Meta_result)^2)/(n-1)
+  sigma_beta_est = sigma_y_est*proj_total
+  
   coef_low = coef_est-1.96*sqrt(sigma_beta_est)
   coef_high = coef_est+1.96*sqrt(sigma_beta_est)
   cover = ifelse((beta_M>=coef_low&
                     beta_M<=coef_high),1,0)
-  return(c(coef_est,
-           cover,
-           sigma_beta_est))
+  return(c(coef_est,cover,sigma_beta_est))
 }
 #IVW estimate using summary level statistics
 IVW_s = function(Y,M,G,beta_M){
@@ -94,8 +98,8 @@ IVW_s = function(Y,M,G,beta_M){
     gamma = coef_temp2[1]
     var_gamma = coef_temp2[2]^2
     coef_vec[k] = Gamma/gamma
-    #var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4
-    var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4-2*Gamma*var(M)*coef_vec[k]/(gamma^3*crossprod(G_temp))
+    var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4
+    #var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4-2*Gamma*var(M)*coef_vec[k]/(gamma^3*crossprod(G_temp))
     #var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4-2*coef_vec[k]*var_gamma*Gamma/gamma^3
   }
   Meta_result = Meta(coef_vec,var_vec)
@@ -166,7 +170,7 @@ for(i in 1:times){
   IVWs_est[i] = IVWs_result[1]
   cover_IVWs_est[i] = IVWs_result[2]
   sigma_IVWs = IVWs_result[3]
- # sigma_est[i] = TwoStage_result[3]
+  # sigma_est[i] = TwoStage_result[3]
   #sigma_beta_est[i] = IVW_result[3]
   # TwoStage_result = TwoStage(Y,M,G,beta_M)  
   # Two_stage_est[i] = TwoStage_result[1]
@@ -253,7 +257,7 @@ for(i in 1:times){
     coef_temp = coef(summary(model_temp))
     p_vec[j] <- coef_temp[4]
   }
- 
+  
   r2_vec = rep(0,length(p_thres))
   for(l in 1:length(p_thres)){
     idx <- which(p_vec<=p_thres[l])
@@ -272,14 +276,14 @@ for(i in 1:times){
   kdx = which(p_vec<=p_thres[which.max(r2_vec)])
   twostage.nsnps[i] <- length(kdx)
   twostage.prop[i] <- sum(c(1:5)%in%kdx)/p
-
-    G_two = G[,kdx,drop=F]
-    
-    TwoStage_result = TwoStage(Y,M,G_two,beta_M)  
-    TwoStage_est[i] = TwoStage_result[1]
-    cover_TwoStage_est[i] = TwoStage_result[2]
-    sigma_TwoStage[i] = TwoStage_result[3]
-    
+  
+  G_two = G[,kdx,drop=F]
+  
+  TwoStage_result = TwoStage(Y,M,G_two,beta_M)  
+  TwoStage_est[i] = TwoStage_result[1]
+  cover_TwoStage_est[i] = TwoStage_result[2]
+  sigma_TwoStage[i] = TwoStage_result[3]
+  
   
   
   ldx = kdx
@@ -319,13 +323,13 @@ for(i in 1:times){
       TwoStage_est_all[i,l] = TwoStage(Y,M,G_two,beta_M)[1]
       IVW_est_all[i,l] = IVW(Y,M,G_two,beta_M)[1]
       IVWs_est_all[i,l] = IVW_s(Y,M,G_oth,beta_M)[1]  
-    #twostage.nsnps[i] <- length(kdx)
-    #twostage.prop[i] <- sum(c(1:5)%in%kdx)/p
-     }
-  
-  
-  
-  
+      #twostage.nsnps[i] <- length(kdx)
+      #twostage.prop[i] <- sum(c(1:5)%in%kdx)/p
+    }
+    
+    
+    
+    
   }
 }
 
@@ -568,33 +572,8 @@ result4 = list(TwoStage_est,IVW_est,IVWs_est,
                IVWs_est_all)
 
 
+
+
+
 result = list(result1,result2,result3,result4)
-save(result,file = paste0("./result/simulation/simulation_",i1,".Rdata"))
-# beta2 = beta1 = rep(0,times)
-# 
-# for(i in 1:times){
-#   print(i)
-#   beta_M = 0.1
-#   beta_U = 0.1
-#   alpha_G = 0.01
-#   alpha_U = 0.01
-#   U = rnorm(n)
-#   # p = 5
-#   # MAF=0.25
-#   beta_G = rep(0.01,p)
-#   sigma_y = 0.1
-#   sigma_m = 0.1
-#   #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
-#   #Y = M*beta_M +rnorm(n,sd = sqrt(sigma_x))
-#   
-#   M = G%*%beta_G+U*alpha_U+rnorm(n,sd = sqrt(sigma_m))
-#   Y = M*beta_M + U*beta_U+rnorm(n,sd = sqrt(sigma_y))
-#   model1 <- lm(Y~G[,1]-1)
-#   beta1[i] <- coefficients(model1)
-#   model2 <- lm(M~G[,1]-1)
-#   beta2[i] <- coefficients(model2)
-#   
-#   
-# }
-# cov(beta1,beta2)
-# beta_M*var(M)/crossprod(G[,1])
+save(result,file = paste0("./result/simulation/simulation_plug_in_meta",i1,".Rdata"))

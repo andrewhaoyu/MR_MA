@@ -1,4 +1,4 @@
-#goal: merge the simulations datasets
+#goal: merge the simulations datasets by pluging in true variance
 times = 10
 reps = 1000
 TwoStage_est = rep(0,times*reps)
@@ -19,7 +19,7 @@ setwd("/spin1/users/zhangh24/MR_MA/")
 
 total = 0
 for(i1 in 1:reps){
-  load(paste0("./result/simulation/simulation_",i1,".Rdata"))
+  load(paste0("./result/simulation/simulation_true_var",i1,".Rdata"))
   temp = length(result[[1]][[1]])
   TwoStage_est[total+(1:temp)] <- result[[1]][[1]]
   IVW_est[total+(1:temp)] <- result[[1]][[2]]
@@ -45,7 +45,7 @@ var(IVW_est)
 var(IVWs_est)
 mean(sigma_TwoStage)
 mean(sigma_IVW,na.rm = T)
-mean(sigma_IVWs[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)])
+mean(sigma_IVWs)[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)])
 
 
 

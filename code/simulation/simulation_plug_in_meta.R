@@ -72,7 +72,7 @@ IVW = function(Y,M,G,beta_M){
   Meta_result = Meta(coef_vec,var_vec)
   coef_est =   Meta_result[1]
   
-  sigma_y_est = sum((Y-Meta_result)^2)/(n-1)
+  sigma_y_est = sum((Y-M*Meta_result)^2)/(n-1)
   sigma_beta_est = sigma_y_est*proj_total
   
   coef_low = coef_est-1.96*sqrt(sigma_beta_est)

@@ -23,7 +23,7 @@ TwoStage = function(Y,M,G,beta_M){
   coef_high = coef_est+1.96*sqrt(sigma_beta_est)
   cover = ifelse((beta_M>=coef_low&
                     beta_M<=coef_high),1,0)
-  return(c(coef_est,cover,sigma_beta_est))
+  return(c(coef_est,cover,sigma_beta_est,sigma_y_est))
 }
 
 Meta = function(coef_vec,var_vec){
@@ -41,6 +41,15 @@ Project <- function(G){
   }
   
 }
+
+
+
+
+
+
+
+
+
 
 
 
@@ -63,19 +72,39 @@ IVW = function(Y,M,G,beta_M){
     coef_vec[k] = crossprod(G_temp,Y)/crossprod(G_temp,M)
     sigma_y_est = sum((Y-M*coef_vec[k])^2)/(n-1)
     sigma_y_est_vec[k] <- sigma_y_est
-   # sigma_y_est = 0.1
+    #sigma_y_est = 1
+    var_vec[k] = sigma_y_est*crossprod(G_temp)/crossprod(M,G_temp)^2
+  }
+  Meta_result = Meta(coef_vec,var_vec)
+  coef_est1 = Meta_result[1]
+  sigma_beta_est1 = Meta_result[2]
+  coef_est =   Meta_result[1]
+  sigma_y_est1 = sum((Y-M*coef_est)^2)/(n-1)
+  sigma_y_est = sum((Y-M*coef_est)^2)/(n-1)
+  for(k in 1:p){
+    G_temp = G[,k]
     var_vec[k] = sigma_y_est*crossprod(G_temp)/crossprod(M,G_temp)^2
   }
   Meta_result = Meta(coef_vec,var_vec)
   coef_est =   Meta_result[1]
   sigma_beta_est = Meta_result[2]
+  sigma_y_est = sum((Y-M*coef_est)^2)/(n-1)
   coef_low = coef_est-1.96*sqrt(sigma_beta_est)
   coef_high = coef_est+1.96*sqrt(sigma_beta_est)
   cover = ifelse((beta_M>=coef_low&
                     beta_M<=coef_high),1,0)
+  coef_low1 = coef_est1-1.96*sqrt(sigma_beta_est1)
+  coef_high1 = coef_est1+1.96*sqrt(sigma_beta_est1)
+  cover1 = ifelse((beta_M>=coef_low1&
+                     beta_M<=coef_high1),1,0)
   return(c(coef_est,
            cover,
-           sigma_beta_est))
+           sigma_beta_est,
+           sigma_y_est,
+           coef_est1,
+           cover1,
+           sigma_beta_est1,
+           sigma_y_est1))
 }
 #IVW estimate using summary level statistics
 IVW_s = function(Y,M,G,beta_M){
@@ -95,7 +124,8 @@ IVW_s = function(Y,M,G,beta_M){
     var_gamma = coef_temp2[2]^2
     coef_vec[k] = Gamma/gamma
     #var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4
-    var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4-2*Gamma*var(M)*coef_vec[k]/(gamma^3*crossprod(G_temp))
+    var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4
+    #-2*Gamma*var(M)*coef_vec[k]/(gamma^3*crossprod(G_temp))
     #var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4-2*coef_vec[k]*var_gamma*Gamma/gamma^3
   }
   Meta_result = Meta(coef_vec,var_vec)
@@ -117,8 +147,6 @@ IVW_s = function(Y,M,G,beta_M){
 
 
 
-
-
 set.seed(i1)
 times = 10
 n <- 15000
@@ -133,6 +161,12 @@ cover_IVWs_est = rep(0,times)
 sigma_TwoStage = rep(0,times)
 sigma_IVW = rep(0,times)
 sigma_IVWs = rep(0,times)
+sigma_y_TwoStage = rep(0,times)
+sigma_IVW1 = rep(0,times)
+IVW_est1 = rep(0,times)
+sigma_y_IVW = rep(0,times)
+sigma_y_IVW1 = rep(0,times)
+cover_IVW_est1 = rep(0,times)
 #sigma_est = rep(0,times)
 #sigma_beta_est = rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,p)
@@ -166,6 +200,12 @@ for(i in 1:times){
   IVWs_est[i] = IVWs_result[1]
   cover_IVWs_est[i] = IVWs_result[2]
   sigma_IVWs[i] = IVWs_result[3]
+  sigma_y_TwoStage[i] = TwoStage_result[4]
+  sigma_y_IVW[i] = IVW_result[4]
+  IVW_est1[i] = IVW_result[5]
+  cover_IVW_est1[i] = IVW_result[6]
+  sigma_IVW1[i] = IVW_result[7]
+  sigma_y_IVW1[i] = IVW_result[8]
  # sigma_est[i] = TwoStage_result[3]
   #sigma_beta_est[i] = IVW_result[3]
   # TwoStage_result = TwoStage(Y,M,G,beta_M)  
@@ -175,24 +215,32 @@ for(i in 1:times){
   # sigma_beta_est[i] = TwoStage_result[4]
 }
 
-result1 = list(TwoStage_est,IVW_est,IVWs_est,
+result1 = list(TwoStage_est,IVW_est,IVWs_est,IVW_est1,
                cover_TwoStage_est,cover_IVW_est,
-               cover_IVWs_est,
-               sigma_TwoStage,sigma_IVW,sigma_IVWs)
+               cover_IVWs_est,cover_IVW_est1,
+               sigma_TwoStage,sigma_IVW,sigma_IVWs,
+               sigma_IVW1,
+               sigma_y_TwoStage,sigma_y_IVW,sigma_y_IVW1
+               )
 
 # mean(TwoStage_est)-beta_M
 # mean(IVW_est)-beta_M
 # mean(IVWs_est)-beta_M
+# mean(IVW_est1)-beta_M
 # mean(cover_TwoStage_est)
 # mean(cover_IVW_est)
 # mean(cover_IVWs_est,na.rm = T)
 # var(TwoStage_est)
 # var(IVW_est)
 # var(IVWs_est)
+# var(IVW_est1)
 # mean(sigma_TwoStage)
 # mean(sigma_IVW)
 # mean(sigma_IVWs)
-
+# mean(sigma_IVW1)
+# mean(sigma_y_TwoStage)
+# mean(sigma_y_IVW)
+# mean(sigma_y_IVW1)
 
 n <- 15000
 p_thres = c(5E-04,1E-03,5E-03,1E-02,5E-02,1E-01,5E-01)
@@ -200,17 +248,20 @@ n_thres <- length(p_thres)
 TwoStage_est = rep(0,times)
 IVW_est = rep(0,times)
 IVWs_est = rep(0,times)
+IVW_est1 = rep(0,times)
 cover_TwoStage_est = rep(0,times)
 cover_IVW_est = rep(0,times)
 cover_IVWs_est = rep(0,times)
+cover_IVW_est1 = rep(0,times)
 sigma_TwoStage = rep(0,times)
 sigma_IVW = rep(0,times)
 sigma_IVWs = rep(0,times)
+sigma_IVW1 = rep(0,times)
 
 TwoStage_est_all = matrix(0,times,n_thres)
 IVW_est_all = matrix(0,times,n_thres)
 IVWs_est_all = matrix(0,times,n_thres)
-
+IVW_est_all1 = matrix(0,times,n_thres)
 
 
 #sigma_est = rep(0,times)
@@ -301,6 +352,10 @@ for(i in 1:times){
     IVW_est[i] = IVW_result[1]
     cover_IVW_est[i] = IVW_result[2]
     sigma_IVW[i] = IVW_result[3]
+    IVW_est1[i] = IVW_result[5]
+    cover_IVW_est1[i] = IVW_result[6]
+    sigma_IVW1[i] = IVW_result[7]
+    
     IVWs_result = IVW_s(Y,M,G_oth,beta_M)  
     IVWs_est[i] = IVWs_result[1]
     cover_IVWs_est[i] = IVWs_result[2]
@@ -314,11 +369,13 @@ for(i in 1:times){
       TwoStage_est_all[i,l] = NA
       IVW_est_all[i,l] = NA
       IVWs_est_all[i,l] = NA
+      IVW_est_all1[i,l] = NA
     }else{
       G_two = G[,kdx,drop=F]  
       TwoStage_est_all[i,l] = TwoStage(Y,M,G_two,beta_M)[1]
       IVW_est_all[i,l] = IVW(Y,M,G_two,beta_M)[1]
       IVWs_est_all[i,l] = IVW_s(Y,M,G_oth,beta_M)[1]  
+      IVW_est_all1[i,l] = IVW(Y,M,G_two,beta_M)[5]
     #twostage.nsnps[i] <- length(kdx)
     #twostage.prop[i] <- sum(c(1:5)%in%kdx)/p
      }
@@ -332,18 +389,23 @@ for(i in 1:times){
 
 
 result2 = list(TwoStage_est,IVW_est,IVWs_est,
+               IVW_est1,
                cover_TwoStage_est,cover_IVW_est,
                cover_IVWs_est,
-               sigma_TwoStage,sigma_IVW,sigma_IVWs,
+               cover_IVW_est1,
+               sigma_TwoStage,
+               sigma_IVW,
+               sigma_IVWs,
+               sigma_IVW1,
                twostage.nsnps,
                twostage.prop,
-               IVW.nsnps,
-               IVW.prop,
                TwoStage_est_all,
                IVW_est_all,
-               IVWs_est_all)
+               IVWs_est_all,
+               IVW_est_all1)
 
 
+times = 10
 n <- 150000
 MAF =0.25
 p <- 5
@@ -356,6 +418,12 @@ cover_IVWs_est = rep(0,times)
 sigma_TwoStage = rep(0,times)
 sigma_IVW = rep(0,times)
 sigma_IVWs = rep(0,times)
+sigma_y_TwoStage = rep(0,times)
+sigma_IVW1 = rep(0,times)
+IVW_est1 = rep(0,times)
+sigma_y_IVW = rep(0,times)
+sigma_y_IVW1 = rep(0,times)
+cover_IVW_est1 = rep(0,times)
 #sigma_est = rep(0,times)
 #sigma_beta_est = rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,p)
@@ -389,6 +457,12 @@ for(i in 1:times){
   IVWs_est[i] = IVWs_result[1]
   cover_IVWs_est[i] = IVWs_result[2]
   sigma_IVWs[i] = IVWs_result[3]
+  sigma_y_TwoStage[i] = TwoStage_result[4]
+  sigma_y_IVW[i] = IVW_result[4]
+  IVW_est1[i] = IVW_result[5]
+  cover_IVW_est1[i] = IVW_result[6]
+  sigma_IVW1[i] = IVW_result[7]
+  sigma_y_IVW1[i] = IVW_result[8]
   # sigma_est[i] = TwoStage_result[3]
   #sigma_beta_est[i] = IVW_result[3]
   # TwoStage_result = TwoStage(Y,M,G,beta_M)  
@@ -398,10 +472,13 @@ for(i in 1:times){
   # sigma_beta_est[i] = TwoStage_result[4]
 }
 
-result3 = list(TwoStage_est,IVW_est,IVWs_est,
+result3 = list(TwoStage_est,IVW_est,IVWs_est,IVW_est1,
                cover_TwoStage_est,cover_IVW_est,
-               cover_IVWs_est,
-               sigma_TwoStage,sigma_IVW,sigma_IVWs)
+               cover_IVWs_est,cover_IVW_est1,
+               sigma_TwoStage,sigma_IVW,sigma_IVWs,
+               sigma_IVW1,
+               sigma_y_TwoStage,sigma_y_IVW,sigma_y_IVW1
+)
 
 # mean(TwoStage_est)-beta_M
 # mean(IVW_est)-beta_M
@@ -418,23 +495,27 @@ result3 = list(TwoStage_est,IVW_est,IVWs_est,
 
 
 
+
 n <- 150000
 p_thres = c(5E-04,1E-03,5E-03,1E-02,5E-02,1E-01,5E-01)
 n_thres <- length(p_thres)
 TwoStage_est = rep(0,times)
 IVW_est = rep(0,times)
 IVWs_est = rep(0,times)
+IVW_est1 = rep(0,times)
 cover_TwoStage_est = rep(0,times)
 cover_IVW_est = rep(0,times)
 cover_IVWs_est = rep(0,times)
+cover_IVW_est1 = rep(0,times)
 sigma_TwoStage = rep(0,times)
 sigma_IVW = rep(0,times)
 sigma_IVWs = rep(0,times)
+sigma_IVW1 = rep(0,times)
 
 TwoStage_est_all = matrix(0,times,n_thres)
 IVW_est_all = matrix(0,times,n_thres)
 IVWs_est_all = matrix(0,times,n_thres)
-
+IVW_est_all1 = matrix(0,times,n_thres)
 
 
 #sigma_est = rep(0,times)
@@ -525,6 +606,10 @@ for(i in 1:times){
     IVW_est[i] = IVW_result[1]
     cover_IVW_est[i] = IVW_result[2]
     sigma_IVW[i] = IVW_result[3]
+    IVW_est1[i] = IVW_result[5]
+    cover_IVW_est1[i] = IVW_result[6]
+    sigma_IVW1[i] = IVW_result[7]
+    
     IVWs_result = IVW_s(Y,M,G_oth,beta_M)  
     IVWs_est[i] = IVWs_result[1]
     cover_IVWs_est[i] = IVWs_result[2]
@@ -538,11 +623,13 @@ for(i in 1:times){
       TwoStage_est_all[i,l] = NA
       IVW_est_all[i,l] = NA
       IVWs_est_all[i,l] = NA
+      IVW_est_all1[i,l] = NA
     }else{
       G_two = G[,kdx,drop=F]  
       TwoStage_est_all[i,l] = TwoStage(Y,M,G_two,beta_M)[1]
       IVW_est_all[i,l] = IVW(Y,M,G_two,beta_M)[1]
       IVWs_est_all[i,l] = IVW_s(Y,M,G_oth,beta_M)[1]  
+      IVW_est_all1[i,l] = IVW(Y,M,G_two,beta_M)[5]
       #twostage.nsnps[i] <- length(kdx)
       #twostage.prop[i] <- sum(c(1:5)%in%kdx)/p
     }
@@ -556,16 +643,20 @@ for(i in 1:times){
 
 
 result4 = list(TwoStage_est,IVW_est,IVWs_est,
+               IVW_est1,
                cover_TwoStage_est,cover_IVW_est,
                cover_IVWs_est,
-               sigma_TwoStage,sigma_IVW,sigma_IVWs,
+               cover_IVW_est1,
+               sigma_TwoStage,
+               sigma_IVW,
+               sigma_IVWs,
+               sigma_IVW1,
                twostage.nsnps,
                twostage.prop,
-               IVW.nsnps,
-               IVW.prop,
                TwoStage_est_all,
                IVW_est_all,
-               IVWs_est_all)
+               IVWs_est_all,
+               IVW_est_all1)
 
 
 result = list(result1,result2,result3,result4)

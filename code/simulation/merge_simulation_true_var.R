@@ -56,7 +56,7 @@ mean(sigma_IVWs)[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)])
 
 total = 0
 for(i1 in 1:reps){
-  load(paste0("./result/simulation/simulation_",i1,".Rdata"))
+  load(paste0("./result/simulation/simulation_true_var",i1,".Rdata"))
   temp = length(result[[3]][[1]])
   TwoStage_est[total+(1:temp)] <- result[[3]][[1]]
   IVW_est[total+(1:temp)] <- result[[3]][[2]]
@@ -97,7 +97,7 @@ IVW_est_all <- matrix(0,times*reps,n_thres)
 IVWs_est_all <- matrix(0,times*reps,n_thres)
 
 for(i1 in 1:reps){
-  load(paste0("./result/simulation/simulation_",i1,".Rdata"))
+  load(paste0("./result/simulation/simulation_true_var",i1,".Rdata"))
   temp = length(result[[2]][[1]])
   TwoStage_est[total+(1:temp)] <- result[[2]][[1]]
   IVW_est[total+(1:temp)] <- result[[2]][[2]]
@@ -136,6 +136,22 @@ mean(IVW.nsnps,na.rm = T)
 mean(IVW.prop)
 
 
+TwoStage_est_var = apply(TwoStage_est_all,2,function(x){var(x,na.rm=T)})
+IVW_est_all_var = apply(IVW_est_all,2,function(x){var(x,na.rm=T)})
+p_thres = c(5E-04,1E-03,5E-03,1E-02,5E-02,1E-01,5E-01)
+
+data <- data.frame(-log10(p_thres),TwoStage_est_var,
+                   IVW_est_all_var)
+colnames(data) <- c("-log10(p)","Two_stage","IVW")
+library(reshape2)
+data_plot = melt(data,id.var = "-log10(p)")
+colnames(data_plot) = c("p","method","emprical_var")
+
+library(ggplot2)
+ggplot(data_plot)+
+  geom_line(aes(x=p,y=emprical_var,color = method))+
+  xlab("-log10(p)")
+
 
 
 
@@ -144,7 +160,7 @@ mean(IVW.prop)
 
 total = 0
 for(i1 in 1:reps){
-  load(paste0("./result/simulation/simulation_",i1,".Rdata"))
+  load(paste0("./result/simulation/simulation_true_var",i1,".Rdata"))
   temp = length(result[[4]][[1]])
   TwoStage_est[total+(1:temp)] <- result[[4]][[1]]
   IVW_est[total+(1:temp)] <- result[[4]][[2]]

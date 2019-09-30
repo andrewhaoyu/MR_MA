@@ -389,7 +389,7 @@ for(i in 1:times){
   IVW_est[i] = IVW_result[1]
   cover_IVW_est[i] = IVW_result[2]
   sigma_IVW[i] = IVW_result[3]
-  IVWs_result[i] = IVW_s(Y,M,G,beta_M)  
+  IVWs_result = IVW_s(Y,M,G,beta_M)  
   IVWs_est[i] = IVWs_result[1]
   cover_IVWs_est[i] = IVWs_result[2]
   sigma_IVWs[i] = IVWs_result[3]

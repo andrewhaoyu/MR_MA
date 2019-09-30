@@ -116,11 +116,16 @@ for(i1 in 1:reps){
   TwoStage_est_all[total+(1:temp),] = result[[2]][[14]]
   IVW_est_all[total+(1:temp),] = result[[2]][[15]]
   IVWs_est_all[total+(1:temp),] = result[[2]][[16]]
+  
   total = total+temp
 }
 beta_M = 0.1
 mean(TwoStage_est)-beta_M
 mean(IVW_est,na.rm = T)-beta_M
+IVWs_est_new = IVWs_est[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)]
+mean(IVWs_est_new)
+var(IVWs_est_new)
+
 mean(IVWs_est,na.rm = T)-beta_M
 mean(cover_TwoStage_est,na.rm = T)
 mean(cover_IVW_est,na.rm = T)
@@ -136,8 +141,23 @@ mean(twostage.prop,na.rm = T)
 mean(IVW.nsnps,na.rm = T)
 mean(IVW.prop)
 
+TwoStage_est_var = apply(TwoStage_est_all,2,function(x){var(x,na.rm=T)})
+IVW_est_all_var = apply(IVW_est_all,2,function(x){var(x,na.rm=T)})
+p_thres = c(5E-04,1E-03,5E-03,1E-02,5E-02,1E-01,5E-01)
 
+data <- data.frame(-log10(p_thres),TwoStage_est_var,
+                   IVW_est_all_var)
+colnames(data) <- c("-log10(p)","Two_stage","IVW")
+library(reshape2)
+data_plot = melt(data,id.var = "-log10(p)")
+colnames(data_plot) = c("p","method","emprical_var")
 
+library(ggplot2)
+ggplot(data_plot)+
+  geom_line(aes(x=p,y=emprical_var,color = method))+
+  xlab("-log10(p)")
+
+#apply(IVWs_est_all,2,function(x){var(x,na.rm=T)})
 
 
 
@@ -160,6 +180,9 @@ for(i1 in 1:reps){
   twostage.prop[total+(1:temp)] = result[[4]][[11]]
   IVW.nsnps[total+(1:temp)] = result[[4]][[12]]
   IVW.prop[total+(1:temp)] = result[[4]][[13]]
+  TwoStage_est_all[total+(1:temp),] = result[[4]][[14]]
+  IVW_est_all[total+(1:temp),] = result[[4]][[15]]
+  IVWs_est_all[total+(1:temp),] = result[[4]][[16]]
   
   total = total+temp
 }
@@ -181,3 +204,18 @@ mean(twostage.prop,na.rm = T)
 mean(IVW.nsnps,na.rm = T)
 mean(IVW.prop,na.rm = T)
 
+TwoStage_est_var = apply(TwoStage_est_all,2,function(x){var(x,na.rm=T)})
+IVW_est_all_var = apply(IVW_est_all,2,function(x){var(x,na.rm=T)})
+p_thres = c(5E-04,1E-03,5E-03,1E-02,5E-02,1E-01,5E-01)
+
+data <- data.frame(-log10(p_thres),TwoStage_est_var,
+                   IVW_est_all_var)
+colnames(data) <- c("-log10(p)","Two_stage","IVW")
+library(reshape2)
+data_plot = melt(data,id.var = "-log10(p)")
+colnames(data_plot) = c("p","method","emprical_var")
+
+library(ggplot2)
+ggplot(data_plot)+
+  geom_line(aes(x=p,y=emprical_var,color = method))+
+  xlab("-log10(p)")

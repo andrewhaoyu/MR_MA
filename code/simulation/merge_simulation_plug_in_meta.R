@@ -45,7 +45,8 @@ var(IVW_est)
 var(IVWs_est)
 mean(sigma_TwoStage)
 mean(sigma_IVW,na.rm = T)
-mean(sigma_IVWs[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)])
+mean(sigma_IVWs)
+[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)])
 
 
 
@@ -56,7 +57,7 @@ mean(sigma_IVWs[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)])
 
 total = 0
 for(i1 in 1:reps){
-  load(paste0("./result/simulation/simulation_",i1,".Rdata"))
+  load( paste0("./result/simulation/simulation_plug_in_meta",i1,".Rdata"))
   temp = length(result[[3]][[1]])
   TwoStage_est[total+(1:temp)] <- result[[3]][[1]]
   IVW_est[total+(1:temp)] <- result[[3]][[2]]
@@ -77,7 +78,7 @@ IVWs_est_new = IVWs_est[order(IVWs_est)][(times*reps*0.05):(times*reps*0.95)]
 mean(IVWs_est_new)
 mean(cover_TwoStage_est)
 mean(cover_IVW_est)
-mean(cover_IVWs_est,na.rm = T)
+mean(cover_IVWs_est)
 var(TwoStage_est)
 var(IVW_est)
 var(IVWs_est)
@@ -97,7 +98,7 @@ IVW_est_all <- matrix(0,times*reps,n_thres)
 IVWs_est_all <- matrix(0,times*reps,n_thres)
 
 for(i1 in 1:reps){
-  load(paste0("./result/simulation/simulation_",i1,".Rdata"))
+  load( paste0("./result/simulation/simulation_plug_in_meta",i1,".Rdata"))
   temp = length(result[[2]][[1]])
   TwoStage_est[total+(1:temp)] <- result[[2]][[1]]
   IVW_est[total+(1:temp)] <- result[[2]][[2]]

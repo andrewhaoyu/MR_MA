@@ -40,3 +40,4 @@ ggplot(data_plot)+
                 color=NIH.Institute_Center))+
   ylab("Number of Application")+
   xlab("Fiscal Year")
+

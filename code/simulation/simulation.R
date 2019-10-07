@@ -185,7 +185,7 @@ IVW_s = function(Y,M,G,beta_M){
 
 
 set.seed(i1)
-times = 1000
+times = 100
 n <- 15000
 MAF =0.25
 p <- 5
@@ -455,7 +455,7 @@ mean(sigma_y_IVW1)
 #                IVW_est_all1)
 
 
-times = 1000
+times = 100
 n <- 150000
 MAF =0.25
 p <- 5
@@ -719,7 +719,7 @@ result3 = list(TwoStage_est,IVW_est,IVWs_est,IVW_est1,IVWs_est1,
 
 
 result = list(result1,result3)
-save(result,file = paste0("./result/simulation/simulation_0.05_",i1,".Rdata"))
+save(result,file = paste0("./result/simulation/simulation",i1,".Rdata"))
 
 
 

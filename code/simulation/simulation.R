@@ -134,6 +134,7 @@ IVW_s = function(Y,M,G,beta_M){
     coef_vec[k] = Gamma/gamma
     #var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4
     var_vec[k] = var_Gamma/gamma^2
+    #var_vec_1[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4
     var_vec_1[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4
     #-2*Gamma*var(M)*coef_vec[k]/(gamma^3*crossprod(G_temp))
     #var_vec[k] = var_Gamma/gamma^2+Gamma^2*var_gamma/gamma^4-2*coef_vec[k]*var_gamma*Gamma/gamma^3
@@ -171,7 +172,7 @@ IVW_s = function(Y,M,G,beta_M){
 
 
 set.seed(i1)
-times = 10
+times = 1000
 n <- 15000
 MAF =0.25
 p <- 5
@@ -207,7 +208,7 @@ for(i in 1:times){
   U = rnorm(n)
   # p = 5
   # MAF=0.25
-  beta_G = rep(0.01,p)
+  beta_G = rep(0.05,p)
   sigma_y = 1
   sigma_m = 1
   #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
@@ -441,7 +442,7 @@ mean(sigma_y_IVW1)
 #                IVW_est_all1)
 
 
-times = 10
+times = 1000
 n <- 150000
 MAF =0.25
 p <- 5

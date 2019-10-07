@@ -73,7 +73,20 @@ IVW = function(Y,M,G,beta_M){
     sigma_y_est = sum((Y-M*coef_vec[k])^2)/(n-1)
     sigma_y_est_vec[k] <- sigma_y_est
     #sigma_y_est = 1
-    var_vec[k] = sigma_y_est*crossprod(G_temp)/crossprod(M,G_temp)^2
+    model1 = lm(Y~G_temp-1)
+    coef_temp = coef(summary(model1))
+    Gamma = coef_temp[1]
+    
+    var_Gamma = coef_temp[2]^2
+    
+    model2 = lm(M~G_temp-1)
+    coef_temp2 = coef(summary(model2))
+    gamma = coef_temp2[1]
+    
+    var_gamma = coef_temp2[2]^2
+    
+    var_vec[k] = sigma_y_est*crossprod(G_temp)/crossprod(M,G_temp)^2+var_gamma*Gamma^2/gamma^4
+    
   }
   Meta_result = Meta(coef_vec,var_vec)
   coef_est1 = Meta_result[1]
@@ -208,14 +221,14 @@ for(i in 1:times){
   U = rnorm(n)
   # p = 5
   # MAF=0.25
-  beta_G = rep(0.05,p)
+  beta_G = rep(0.01,p)
   sigma_y = 1
   sigma_m = 1
-  #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
-  #Y = M*beta_M +rnorm(n,sd = sqrt(sigma_x))
+  M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
+  Y = M*beta_M +rnorm(n,sd = sqrt(sigma_m))
   
-  M = G%*%beta_G+U*alpha_U+rnorm(n,sd = sqrt(sigma_m))
-  Y = M*beta_M + U*beta_U+rnorm(n,sd = sqrt(sigma_y))
+  #M = G%*%beta_G+U*alpha_U+rnorm(n,sd = sqrt(sigma_m))
+  #Y = M*beta_M + U*beta_U+rnorm(n,sd = sqrt(sigma_y))
   #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_m))
   #Y = M*beta_M + rnorm(n,sd = sqrt(sigma_y))
   TwoStage_result = TwoStage(Y,M,G,beta_M)  
@@ -263,7 +276,7 @@ mean(IVW_est1)-beta_M
 mean(cover_TwoStage_est)
 mean(cover_IVW_est)
 mean(cover_IVWs_est,na.rm = T)
-mean(cover_IVW_est1)
+mean(cover_IVW_est1,na.rm=T)
 mean(cover_IVWs_est1)
 var(TwoStage_est)
 var(IVW_est)

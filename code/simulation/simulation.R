@@ -207,16 +207,16 @@ for(i in 1:times){
   U = rnorm(n)
   # p = 5
   # MAF=0.25
-  beta_G = rep(0.05,p)
+  beta_G = rep(0.01,p)
   sigma_y = 1
   sigma_m = 1
   #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
   #Y = M*beta_M +rnorm(n,sd = sqrt(sigma_x))
   
-  #M = G%*%beta_G+U*alpha_U+rnorm(n,sd = sqrt(sigma_m))
-  #Y = M*beta_M + U*beta_U+rnorm(n,sd = sqrt(sigma_y))
-  M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_m))
-  Y = M*beta_M + rnorm(n,sd = sqrt(sigma_y))
+  M = G%*%beta_G+U*alpha_U+rnorm(n,sd = sqrt(sigma_m))
+  Y = M*beta_M + U*beta_U+rnorm(n,sd = sqrt(sigma_y))
+  #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_m))
+  #Y = M*beta_M + rnorm(n,sd = sqrt(sigma_y))
   TwoStage_result = TwoStage(Y,M,G,beta_M)  
   TwoStage_est[i] = TwoStage_result[1]
   cover_TwoStage_est[i] = TwoStage_result[2]
@@ -477,7 +477,7 @@ for(i in 1:times){
   U = rnorm(n)
   # p = 5
   # MAF=0.25
-  beta_G = rep(0.05,p)
+  beta_G = rep(0.01,p)
   sigma_y = 1
   sigma_m = 1
   #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
@@ -705,7 +705,7 @@ result3 = list(TwoStage_est,IVW_est,IVWs_est,IVW_est1,IVWs_est1,
 
 
 result = list(result1,result3)
-save(result,file = paste0("./result/simulation/simulation_0.25_",i1,".Rdata"))
+save(result,file = paste0("./result/simulation/simulation_",i1,".Rdata"))
 
 
 

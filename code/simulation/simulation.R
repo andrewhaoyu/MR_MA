@@ -96,7 +96,7 @@ IVW = function(Y,M,G,beta_M){
   sigma_y_est = sum((Y-M*coef_est)^2)/(n-1)
   for(k in 1:p){
     G_temp = G[,k]
-    var_vec[k] = sigma_y_est*crossprod(G_temp)/crossprod(M,G_temp)^2
+    var_vec[k] = sigma_y_est*crossprod(G_temp)/crossprod(M,G_temp)^2+var_gamma*Gamma^2/gamma^4
   }
   Meta_result = Meta(coef_vec,var_vec)
   coef_est =   Meta_result[1]
@@ -185,7 +185,7 @@ IVW_s = function(Y,M,G,beta_M){
 
 
 set.seed(i1)
-times = 100
+times = 500
 n <- 15000
 MAF =0.25
 p <- 5
@@ -221,7 +221,7 @@ for(i in 1:times){
   U = rnorm(n)
   # p = 5
   # MAF=0.25
-  beta_G = rep(0.05,p)
+  beta_G = rep(0.01,p)
   sigma_y = 1
   sigma_m = 1
   M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
@@ -270,24 +270,25 @@ result1 = list(TwoStage_est,IVW_est,IVWs_est,IVW_est1,IVWs_est1,
                )
 
 mean(TwoStage_est)-beta_M
-mean(IVW_est)-beta_M
-mean(IVWs_est)-beta_M
 mean(IVW_est1)-beta_M
+mean(IVWs_est)-beta_M
+mean(IVW_est)-beta_M
+mean(IVWs_est1)-beta_M
 mean(cover_TwoStage_est)
-mean(cover_IVW_est)
-mean(cover_IVWs_est,na.rm = T)
 mean(cover_IVW_est1,na.rm=T)
+mean(cover_IVWs_est,na.rm = T)
+mean(cover_IVW_est)
 mean(cover_IVWs_est1)
 var(TwoStage_est)
-var(IVW_est)
-var(IVWs_est)
 var(IVW_est1)
+var(IVWs_est)
+var(IVW_est)
 var(IVWs_est1)
 mean(sigma_TwoStage)
 mean(sigma_IVW)
 mean(sigma_IVWs)
-mean(sigma_IVW1)
 mean(sigma_IVWs1)
+mean(sigma_IVW1)
 mean(sigma_y_TwoStage)
 mean(sigma_y_IVW)
 mean(sigma_y_IVW1)

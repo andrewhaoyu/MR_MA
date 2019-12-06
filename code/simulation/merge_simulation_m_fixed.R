@@ -20,7 +20,7 @@ Genearte_result <- function(i2){
   setwd("/spin1/users/zhangh24/MR_MA/")
   total = 0
   for(i1 in 1:reps){
-    load(paste0("./result/simulation/simulation_",i1,"_",i2,".Rdata"))
+    load(paste0("./result/simulation/simulation_M_fixed",i1,"_",i2,".Rdata"))
     temp = length(result[[1]][[1]])
     TwoStage_est[total+(1:temp)] <- result[[1]][[1]]
     cover_TwoStage_est[total+(1:temp)] = result[[1]][[2]]
@@ -91,7 +91,7 @@ Genearte_result <- function(i2){
   setwd("/spin1/users/zhangh24/MR_MA/")
   total = 0
   for(i1 in 1:reps){
-    load(paste0("./result/simulation/simulation_",i1,"_",i2,".Rdata"))
+    load(paste0("./result/simulation/simulation_M_fixed",i1,"_",i2,".Rdata"))
     temp = length(result[[2]][[1]])
     TwoStage_est[total+(1:temp)] <- result[[2]][[1]]
     cover_TwoStage_est[total+(1:temp)] = result[[2]][[2]]
@@ -137,18 +137,19 @@ Genearte_result <- function(i2){
   est_var_y[1] <- mean(sigma_y_TwoStage)
   est_var_y[2] <- mean(sigma_y_IVW)
   est_var_y[3] <- mean(sigma_y_IVW_meta)
-  
+    
   data2 <- data.frame(bias,EM_var,est_var,cover,est_var_y)
+ 
   
   data <- rbind(data1,data2)
   return(data)
 }
 data <- Genearte_result(1)
 data <- round(data,4)
-write.csv(data,file = "./result/simulation/beta_g_0.01_result.csv")
+write.csv(data,file = "./result/simulation/beta_fixed_g_0.01_result.csv")
 data <- Genearte_result(2)
 data <- round(data,5)
-write.csv(data,file = "./result/simulation/beta_g_0.05_result.csv")
+write.csv(data,file = "./result/simulation/beta_fixed_g_0.05_result.csv")
 
 times = 100
 reps = 100

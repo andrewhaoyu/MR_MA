@@ -53,16 +53,22 @@ IVW = function(Y,M,G,beta_M){
   coef_vec = rep(0,p)
   var_vec = rep(0,p)
   sigma_y_est_vec = rep(0,p)
+  sigma_y_est_IVW = rep(0,p)
+  sigma_y_est_IVWs = rep(0,p)
   for(k in 1:p){
     G_temp = G[,k]
     coef_vec[k] = crossprod(G_temp,Y)/crossprod(G_temp,M)
+    #the key difference come from how you estimate sigma_y
     sigma_y_est = sum((Y-M*coef_vec[k])^2)/(n-1)
+    #sigma_y_est = sum((Y-G_temp*Gamma)^2)/(n-1)
     sigma_y_est_vec[k] <- sigma_y_est
+    sigma_y_est_IVW[k] <- sum((Y-M*coef_vec[k])^2)/(n-1)
+    
     #sigma_y_est = 1
     model1 = lm(Y~G_temp-1)
     coef_temp = coef(summary(model1))
     Gamma = coef_temp[1]
-    
+    sigma_y_est_IVWs[k] <- sum((Y-G_temp*Gamma)^2)/(n-1)
     var_Gamma = coef_temp[2]^2
     
     model2 = lm(M~G_temp-1)
@@ -85,7 +91,9 @@ IVW = function(Y,M,G,beta_M){
   return(c(coef_est,
            cover,
            sigma_beta_est,
-           sigma_y_est))
+           sigma_y_est,
+           sigma_y_est_IVW,
+           sigma_y_est_IVWs))
 }
 
 IVW_meta = function(Y,M,G,beta_M){
@@ -207,7 +215,7 @@ IVW_s = function(Y,M,G,beta_M){
 
 
 set.seed(i1)
-times = 500
+times = 2000
 n <- 15000
 MAF =0.25
 p <- 5
@@ -219,6 +227,8 @@ IVW_est = rep(0,times)
 cover_IVW_est = rep(0,times)
 sigma_IVW = rep(0,times)
 sigma_y_IVW = rep(0,times)
+sigma_y_est_IVW <- rep(0,times*p)
+sigma_y_est_IVWs <- rep(0,times*p)
 IVW_meta_est = rep(0,times)
 cover_IVW_meta_est = rep(0,times)
 sigma_IVW_meta = rep(0,times)
@@ -260,6 +270,8 @@ for(i in 1:times){
   cover_IVW_est[i] = IVW_result[2]
   sigma_IVW[i] = IVW_result[3]
   sigma_y_IVW[i] = IVW_result[4]
+  sigma_y_est_IVW[(i-1)*p+(1:p)] <- IVW_result[5]
+  sigma_y_est_IVWs[(i-1)*p+(1:p)] <- IVW_result[6]
   IVW_meta_result = IVW_meta(Y,M,G,beta_M)  
   IVW_meta_est[i] = IVW_meta_result[1]
   cover_IVW_meta_est[i] = IVW_meta_result[2]
@@ -273,12 +285,41 @@ for(i in 1:times){
 }
 
 library(ggplot2)
-data <- data.frame(TwoStage_est,IVW_est,
-                   IVW_meta_est,
-                   IVWs_est)
-ggplot(data,aes(TwoStage_est))+
-  geom_histogram()+
+
+
+
+data <- data.frame(ZTwoStage = TwoStage_est/sqrt(sigma_TwoStage),
+                   ZIVW_est = IVW_est/sqrt(sigma_IVW),
+                   ZIVWs_est = IVWs_est/sqrt(sigma_IVWs)
+                   )
+p1 = ggplot(data,aes(ZTwoStage))+
+  geom_density()+
+  stat_function(fun = dnorm,n=nrow(data),color="red")+
+  xlim(limits=c(-3,3))+
+  xlab("Two Stage Estimate")+
   theme_Publication()
+
+p2 = ggplot(data,aes(ZIVW_est))+
+  geom_density()+
+  stat_function(fun = dnorm,n=nrow(data),color="red")+
+  xlim(limits=c(-3,3))+
+  xlab("IVW Estimate")+
+  theme_Publication()
+
+p3 = ggplot(data,aes(ZIVWs_est))+
+  geom_density()+
+  stat_function(fun = dnorm,n=nrow(data),color="red")+
+  xlim(limits=c(-3,3))+
+  xlab("Summary Data IVW Estimate ")+
+  theme_Publication()
+
+library(gridExtra)
+library(grid)
+
+png(file = paste0("./result/simulation/density_compare_15k"),
+    height = 8, width = 15,units="in",res =300)
+grid.arrange(p1,p2,p3,nrow=1)
+dev.off()
 
 
 result1 = list(TwoStage_est,
@@ -481,7 +522,7 @@ mean(sigma_y_IVW_meta)
 #                IVW_est_all1)
 
 
-times = 100
+times = 1000
 n <- 150000
 MAF =0.25
 p <- 5
@@ -493,6 +534,8 @@ IVW_est = rep(0,times)
 cover_IVW_est = rep(0,times)
 sigma_IVW = rep(0,times)
 sigma_y_IVW = rep(0,times)
+sigma_y_est_IVW <- rep(0,times*p)
+sigma_y_est_IVWs <- rep(0,times*p)
 IVW_meta_est = rep(0,times)
 cover_IVW_meta_est = rep(0,times)
 sigma_IVW_meta = rep(0,times)
@@ -534,11 +577,13 @@ for(i in 1:times){
   cover_IVW_est[i] = IVW_result[2]
   sigma_IVW[i] = IVW_result[3]
   sigma_y_IVW[i] = IVW_result[4]
-  IVW_meta_result = IVW_meta(Y,M,G,beta_M)  
-  IVW_meta_est[i] = IVW_meta_result[1]
-  cover_IVW_meta_est[i] = IVW_meta_result[2]
-  sigma_IVW_meta[i] = IVW_meta_result[3]
-  sigma_y_IVW_meta[i] = IVW_meta_result[4]
+  sigma_y_est_IVW[(i-1)*p+(1:p)] <- IVW_result[5]
+  sigma_y_est_IVWs[(i-1)*p+(1:p)] <- IVW_result[6]
+  #IVW_meta_result = IVW_meta(Y,M,G,beta_M)  
+  #IVW_meta_est[i] = IVW_meta_result[1]
+  #cover_IVW_meta_est[i] = IVW_meta_result[2]
+  #sigma_IVW_meta[i] = IVW_meta_result[3]
+  #sigma_y_IVW_meta[i] = IVW_meta_result[4]
   IVWs_result = IVW_s(Y,M,G,beta_M)  
   IVWs_est[i] = IVWs_result[1]
   cover_IVWs_est[i] = IVWs_result[2]
@@ -546,204 +591,40 @@ for(i in 1:times){
   
 }
 
-result3 = list(TwoStage_est,
-               cover_TwoStage_est,
-               sigma_TwoStage,
-               sigma_y_TwoStage,
-               IVW_est,
-               cover_IVW_est,
-               sigma_IVW,
-               sigma_y_IVW,
-               IVW_meta_est,
-               cover_IVW_meta_est,
-               sigma_IVW_meta,
-               sigma_y_IVW_meta,
-               IVWs_est,
-               cover_IVWs_est,
-               sigma_IVWs
+library(ggplot2)
+
+
+
+data <- data.frame(ZTwoStage = TwoStage_est/sqrt(sigma_TwoStage),
+                   ZIVW_est = IVW_est/sqrt(sigma_IVW),
+                   ZIVWs_est = IVWs_est/sqrt(sigma_IVWs)
 )
+p1 = ggplot(data,aes(ZTwoStage))+
+  geom_density()+
+  stat_function(fun = dnorm,n=nrow(data),color="red")+
+  xlim(limits=c(-3,3))+
+  xlab("Two Stage Estimate")+
+  theme_Publication()
 
-# mean(TwoStage_est)-beta_M
-# mean(IVW_est)-beta_M
-# mean(IVWs_est)-beta_M
-# mean(cover_TwoStage_est)
-# mean(cover_IVW_est)
-# mean(cover_IVWs_est,na.rm = T)
-# var(TwoStage_est)
-# var(IVW_est)
-# var(IVWs_est)
-# mean(sigma_TwoStage)
-# mean(sigma_IVW)
-# mean(sigma_IVWs)
+p2 = ggplot(data,aes(ZIVW_est))+
+  geom_density()+
+  stat_function(fun = dnorm,args = list(mean = 0.1,sd = 1),
+                n=nrow(data),color="red")+
+  xlab("IVW Estimate")+
+  theme_Publication()
 
+p3 = ggplot(data,aes(ZIVWs_est))+
+  geom_density()+
+  stat_function(fun = dnorm,n=nrow(data),color="red")+
+  xlim(limits=c(-3,3))+
+  xlab("Summary Data IVW Estimate ")+
+  theme_Publication()
 
+library(gridExtra)
+library(grid)
 
-
-# n <- 150000
-# p_thres = c(5E-04,1E-03,5E-03,1E-02,5E-02,1E-01,5E-01)
-# n_thres <- length(p_thres)
-# TwoStage_est = rep(0,times)
-# IVW_est = rep(0,times)
-# IVWs_est = rep(0,times)
-# IVW_est1 = rep(0,times)
-# cover_TwoStage_est = rep(0,times)
-# cover_IVW_est = rep(0,times)
-# cover_IVWs_est = rep(0,times)
-# cover_IVW_est1 = rep(0,times)
-# sigma_TwoStage = rep(0,times)
-# sigma_IVW = rep(0,times)
-# sigma_IVWs = rep(0,times)
-# sigma_IVW1 = rep(0,times)
-# 
-# TwoStage_est_all = matrix(0,times,n_thres)
-# IVW_est_all = matrix(0,times,n_thres)
-# IVWs_est_all = matrix(0,times,n_thres)
-# IVW_est_all1 = matrix(0,times,n_thres)
-# 
-# 
-# #sigma_est = rep(0,times)
-# #sigma_beta_est = rep(0,times)
-# n.test = 1000
-# n.snp = 100
-# G_ori = matrix(rbinom((n+n.test)*n.snp,1,MAF),n+n.test,n.snp)
-# G_all = apply(G_ori,2,scale)
-# twostage.nsnps <- rep(0,times)
-# twostage.prop <- rep(0,times)
-# IVW.nsnps <- rep(0,times)
-# IVW.prop <- rep(0,times)
-# for(i in 1:times){
-#   print(i)
-#   beta_M = 0.1
-#   beta_U = 0.1
-#   alpha_G = 0.01
-#   alpha_U = 0.01
-#   U = rnorm(n+n.test)
-#   p = 5
-#   MAF=0.25
-#   beta_G = rep(0.01,p)
-#   sigma_y = 1
-#   sigma_x = 1
-#   #M = G%*%beta_G+rnorm(n,sd = sqrt(sigma_y))
-#   #Y = M*beta_M +rnorm(n,sd = sqrt(sigma_x))
-#   
-#   M_all = G_all[,1:p]%*%beta_G+U*alpha_U+rnorm(n+n.test,sd = sqrt(sigma_y))
-#   Y_all = M_all*beta_M + U*beta_U+rnorm(n+n.test,sd = sqrt(sigma_x))
-#   M = M_all[1:n,]
-#   Y = Y_all[1:n]
-#   G = G_all[1:n,]
-#   Y_test = Y_all[(n+1):(n+n.test)]
-#   G_test = G_all[(n+1):(n+n.test),]
-#   
-#   p_vec = rep(0,n.snp)
-#   beta_vec = rep(0,n.snp)
-#   for(j in 1:n.snp){
-#     model_temp = lm(M~G[,j]-1)
-#     coef_temp = coef(summary(model_temp))
-#     p_vec[j] <- coef_temp[4]
-#   }
-#   
-#   r2_vec = rep(0,length(p_thres))
-#   for(l in 1:length(p_thres)){
-#     idx <- which(p_vec<=p_thres[l])
-#     if(length(idx)==0){
-#       r2_vec[l] = 0
-#     }else{
-#       model_temp2 = lm(Y~G[,idx]-1)
-#       beta_temp = coefficients(model_temp2)
-#       PRS_test = G_test[,idx,drop=F]%*%beta_temp
-#       model_test = lm(Y_test~PRS_test-1)
-#       r2_vec[l] = summary(model_test)$r.squared  
-#     }
-#     
-#   }
-#   
-#   kdx = which(p_vec<=p_thres[which.max(r2_vec)])
-#   twostage.nsnps[i] <- length(kdx)
-#   twostage.prop[i] <- sum(c(1:5)%in%kdx)/p
-#   
-#   G_two = G[,kdx,drop=F]
-#   
-#   TwoStage_result = TwoStage(Y,M,G_two,beta_M)  
-#   TwoStage_est[i] = TwoStage_result[1]
-#   cover_TwoStage_est[i] = TwoStage_result[2]
-#   sigma_TwoStage[i] = TwoStage_result[3]
-#   
-#   
-#   
-#   ldx = kdx
-#   IVW.nsnps[i] <- length(ldx)
-#   IVW.prop[i] <- sum(c(1:5)%in%ldx)/p
-#   
-#   if(length(ldx)==0){
-#     IVW_result = NA
-#     IVW_est[i] = NA
-#     cover_IVW_est[i] = NA
-#     sigma_IVW[i] = NA
-#     IVWs_result = NA
-#     IVWs_est[i] = NA
-#     cover_IVWs_est[i] = NA
-#     sigma_IVWs[i] = NA
-#   }else{
-#     G_oth = G[,ldx,drop=F]
-#     IVW_result = IVW(Y,M,G_oth,beta_M)  
-#     IVW_est[i] = IVW_result[1]
-#     cover_IVW_est[i] = IVW_result[2]
-#     sigma_IVW[i] = IVW_result[3]
-#     IVW_est1[i] = IVW_result[5]
-#     cover_IVW_est1[i] = IVW_result[6]
-#     sigma_IVW1[i] = IVW_result[7]
-#     
-#     IVWs_result = IVW_s(Y,M,G_oth,beta_M)  
-#     IVWs_est[i] = IVWs_result[1]
-#     cover_IVWs_est[i] = IVWs_result[2]
-#     sigma_IVWs[i] = IVWs_result[3]
-#   }
-#   
-#   #get the estimate for every p.value threshold
-#   for(l in 1:n_thres){
-#     kdx = which(p_vec<=p_thres[l])
-#     if(length(kdx)==0){
-#       TwoStage_est_all[i,l] = NA
-#       IVW_est_all[i,l] = NA
-#       IVWs_est_all[i,l] = NA
-#       IVW_est_all1[i,l] = NA
-#     }else{
-#       G_two = G[,kdx,drop=F]  
-#       TwoStage_est_all[i,l] = TwoStage(Y,M,G_two,beta_M)[1]
-#       IVW_est_all[i,l] = IVW(Y,M,G_two,beta_M)[1]
-#       IVWs_est_all[i,l] = IVW_s(Y,M,G_oth,beta_M)[1]  
-#       IVW_est_all1[i,l] = IVW(Y,M,G_two,beta_M)[5]
-#       #twostage.nsnps[i] <- length(kdx)
-#       #twostage.prop[i] <- sum(c(1:5)%in%kdx)/p
-#     }
-#     
-#     
-#     
-#     
-#   }
-# }
-# 
-# 
-# 
-# result4 = list(TwoStage_est,IVW_est,IVWs_est,
-#                IVW_est1,
-#                cover_TwoStage_est,cover_IVW_est,
-#                cover_IVWs_est,
-#                cover_IVW_est1,
-#                sigma_TwoStage,
-#                sigma_IVW,
-#                sigma_IVWs,
-#                sigma_IVW1,
-#                twostage.nsnps,
-#                twostage.prop,
-#                TwoStage_est_all,
-#                IVW_est_all,
-#                IVWs_est_all,
-#                IVW_est_all1)
-
-
-result = list(result1,result3)
-save(result,file = paste0("./result/simulation/simulation_",i1,"_",i2,".Rdata"))
-
-
+png(file = paste0("./result/simulation/density_compare_150k"),
+    height = 8, width = 15,units="in",res =300)
+grid.arrange(p1,p2,p3,nrow=1)
+dev.off()
 

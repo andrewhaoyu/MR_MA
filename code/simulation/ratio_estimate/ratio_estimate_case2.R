@@ -31,7 +31,11 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   p = pchisq(4*z_est^2,df=1,lower.tail=F)
   cover = ifelse(p>=0.05,1,0)
   
-  return(c(ratio_est,var_ratio,cover))  
+  ci_low <- sqrt(qchisq(p=0.025,df=1)/4)*sqrt(var_ratio)+ratio_est
+  ci_high <- sqrt(qchisq(p=0.975,df=1)/4)*sqrt(var_ratio)+ratio_est
+  
+  return(c(ratio_est,var_ratio,cover,
+           ci_low,ci_high))  
 }
 
 set.seed(i3)
@@ -49,6 +53,8 @@ ratio_est <- rep(0,times)
 ratio_var <- rep(0,times)
 ratio_cover <- rep(0,times)
 cover_epi <- rep(0,times)
+ci_low_epi <- rep(0,times)
+ci_high_epi <- rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,1)
 G = apply(G_ori,2,scale)
 for(i in 1:times){
@@ -68,6 +74,8 @@ for(i in 1:times){
   ratio_est[i] <- ratio_temp[1]
   ratio_var[i] <- ratio_temp[2]
   cover_epi[i] <- ratio_temp[3]
+  ci_low_epi[i] <- ratio_temp[4]
+  ci_high_epi[i] <- ratio_temp[5]
 }
 
 z_est <- ratio_est/sqrt(ratio_var)
@@ -78,6 +86,8 @@ z_gamma <- rnorm(times,mean = beta_G*sqrt(n),sd = 1)
 true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
 p_est <- 2*pnorm(-abs(z_est))
 cover_ratio <- 1-sum(p_est<=0.05)/times
+ci_low_ratio <- ratio_est-sqrt(ratio_var)*1.96
+ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96
 
 q_result <- quantile(true_distribution,c(0.025,0.975))
 cover_vec = ifelse(z_est>=q_result[1]&
@@ -95,21 +105,25 @@ result <- list(Gamma_est,
                ratio_cover,
                cover_ratio,
                cover_true,
-               cover_epi)
-#save(result,file = paste0("./result/simulation/ratio_estimate_case2",i1,"_",i2,"_",i3,".Rdata"))
+               cover_epi,
+               ci_low_ratio,
+               ci_high_ratio,
+               ci_low_epi,
+               ci_high_epi)
+save(result,file = paste0("./result/simulation/ratio_estimate_case2",i1,"_",i2,"_",i3,".Rdata"))
 
 
 
 
 
-library(ggplot2)
-data <- data.frame(z_est,standard_norm,true_distribution)
-colnames(data) <- c("Ratio","Standard Normal","Derived_distribution")
-library(reshape2)
-data.m <- melt(data)
-ggplot(data.m,aes(value,colour=variable))+
-  geom_density()+
-  theme_Publication()
+# library(ggplot2)
+# data <- data.frame(z_est,standard_norm,true_distribution)
+# colnames(data) <- c("Ratio","Standard Normal","Derived_distribution")
+# library(reshape2)
+# data.m <- melt(data)
+# ggplot(data.m,aes(value,colour=variable))+
+#   geom_density()+
+#   theme_Publication()
 
 
 

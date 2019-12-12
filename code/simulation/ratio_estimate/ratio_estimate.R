@@ -24,7 +24,7 @@ Regression = function(Y,M,G){
 Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
   var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
-  n.simu <- 100000
+  n.simu <- 1000000
   z_Gamma <- rnorm(n.simu)
   z_gamma <- rnorm(n.simu,mean = gamma*sqrt(n),sd = 1)
   true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
@@ -41,7 +41,7 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.01,0.03,0.05)
 
-times = 1000
+times = 100
 n <- n_vec[i1]
 MAF =0.25
 Gamma_est <- rep(0,times)
@@ -57,7 +57,7 @@ ci_high_epi <- rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,1)
 G = apply(G_ori,2,scale)
 for(i in 1:times){
-  #print(i)
+  print(i)
   beta_M = 0
   alpha_G = alpha_vec[i2]
   sigma_y = 1

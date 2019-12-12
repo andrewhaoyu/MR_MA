@@ -53,24 +53,16 @@ for(i1 in 1:3){
     temp <- temp+1
   }
 }
-write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio.csv")
-write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true.csv")
-write.csv(cover_epi,file = "./result/simulation/ratio_estimate/cover_epi.csv")
-write.csv(ci_ratio,file = "./result/simulation/ratio_estimate/ci_ratio.csv")
-write.csv(ci_epi,file = "./result/simulation/ratio_estimate/ci_epi.csv")
+write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio_case2.csv")
+write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true_case2.csv")
+write.csv(cover_epi,file = "./result/simulation/ratio_estimate/cover_epi_case2.csv")
+write.csv(ci_ratio,file = "./result/simulation/ratio_estimate/ci_ratio_case2.csv")
+write.csv(ci_epi,file = "./result/simulation/ratio_estimate/ci_epi_case2.csv")
 
 
 library(gridExtra)
-png("./result/simulation/ratio_estimate/ratio_plot.png",width = 16,height = 8,
+png("./result/simulation/ratio_estimate/ratio_plot_case2.png",width = 16,height = 8,
     unit = "in",res = 300)
-grid.arrange(p[[1]],p[[4]],p[[7]],
-             p[[2]],p[[5]],p[[8]],
-             p[[3]],p[[6]],p[[9]],ncol=3)
+grid.arrange(p[[1]],p[[2]],p[[3]],ncol=3)
 dev.off()
 
-png("./result/simulation/ratio_estimate/ratio_plot_legend.png",width = 8,height = 8,
-    unit = "in",res = 300)
-ggplot(data.m,aes(value,colour=variable))+
-  geom_density()+
-  theme_Publication()
-dev.off()

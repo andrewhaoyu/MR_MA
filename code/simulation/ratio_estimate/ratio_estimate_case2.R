@@ -42,7 +42,7 @@ set.seed(i3)
 n_vec <- c(15000,75000,150000)
 beta_vec <- c(0)
 
-times = 10000
+times = 1000
 n <- n_vec[i1]
 MAF =0.25
 Gamma_est <- rep(0,times)

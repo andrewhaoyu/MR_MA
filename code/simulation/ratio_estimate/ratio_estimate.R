@@ -41,7 +41,7 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.01,0.03,0.05)
 
-times = 10000
+times = 1000
 n <- n_vec[i1]
 MAF =0.25
 Gamma_est <- rep(0,times)

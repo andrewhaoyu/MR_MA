@@ -31,8 +31,8 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   p = pchisq(4*z_est^2,df=1,lower.tail=F)
   cover = ifelse(p>=0.05,1,0)
   
-  ci_low <- sqrt(qchisq(p=0.025,df=1)/4)*sqrt(var_ratio)+ratio_est
-  ci_high <- sqrt(qchisq(p=0.975,df=1)/4)*sqrt(var_ratio)+ratio_est
+  ci_low <- -sqrt(qchisq(p=0.95,df=1)/4)*sqrt(var_ratio)+ratio_est
+  ci_high <- sqrt(qchisq(p=0.95,df=1)/4)*sqrt(var_ratio)+ratio_est
   
   return(c(ratio_est,var_ratio,cover,
            ci_low,ci_high))  
@@ -124,7 +124,6 @@ save(result,file = paste0("./result/simulation/ratio_estimate_case2",i1,"_",i2,"
 # ggplot(data.m,aes(value,colour=variable))+
 #   geom_density()+
 #   theme_Publication()
-
 
 
 

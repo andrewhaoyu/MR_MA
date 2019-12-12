@@ -1,26 +1,42 @@
 #plot the ratio estimate distribution
 n_vec <- c(15000,75000,150000)
-beta_vec <- c(0.01,0.03,0.05)
+alpha_vec <- c(0.01,0.03,0.05)
 setwd("/Users/zhangh24/GoogleDrive/MR_MA")
-times = 50000
+times = 100000
 library(ggplot2)
 cover_ratio <- matrix(0,3,3)
 cover_true <- matrix(0,3,3)
 cover_epi <- matrix(0,3,3)
+ci_low_ratio <- matrix(0,3,3)
+ci_high_ratio <- matrix(0,3,3)
+ci_ratio <- matrix(0,3,3)
+ci_low_epi <- matrix(0,3,3)
+ci_high_epi <- matrix(0,3,3)
+ci_epi <- matrix(0,3,3)
 p <- list()
 temp <- 1
+load("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata")
+#i1 correponding to n
+#i2 corresponding to alpha
 for(i1 in 1:3){
   for(i2 in 1:3){
-    load(paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,".Rdata"))
-    cover_ratio[i1,i2] <- result[[8]]
-    cover_true[i1,i2] <- result[[9]]
-    cover_epi[i1,i2] <- result[[10]]
+    result <- result_final[[temp]]
+    cover_ratio[i2,i1] <- mean(result[[8]])
+    cover_true[i2,i1] <- mean(result[[9]])
+    cover_epi[i2,i1] <- mean(result[[10]])
+    ci_low_ratio[i2,i1] <- mean(result[[11]])
+    ci_high_ratio[i2,i1] <- mean(result[[12]])
+    ci_ratio[i2,i1] <- paste0(ci_low_ratio[i2,i1],", ",ci_high_ratio[i2,i1])
+
+    ci_low_epi[i2,i1] <- mean(result[[13]])
+    ci_high_epi[i2,i1] <- mean(result[[14]])
+    ci_epi[i2,i1] <- paste0(ci_low_epi[i2,i1],", ",ci_high_epi[i2,i1])
 ratio_est = result[[5]]
 ratio_var = result[[6]]
 z_est = ratio_est/sqrt(ratio_var)
 standard_norm = rnorm(times)
 z_Gamma <- rnorm(times)
-z_gamma <- rnorm(times,mean = beta_vec[i2]*sqrt(n_vec[i1]),sd = 1)
+z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)
 
 true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
 
@@ -38,13 +54,16 @@ temp <- temp+1
 write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio.csv")
 write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true.csv")
 write.csv(cover_epi,file = "./result/simulation/ratio_estimate/cover_epi.csv")
+write.csv(ci_ratio,file = "./result/simulation/ratio_estimate/ci_ratio.csv")
+write.csv(ci_epi,file = "./result/simulation/ratio_estimate/ci_epi.csv")
+
 
 library(gridExtra)
 png("./result/simulation/ratio_estimate/ratio_plot.png",width = 16,height = 8,
     unit = "in",res = 300)
-grid.arrange(p[[1]],p[[2]],p[[3]],
-             p[[4]],p[[5]],p[[6]],
-             p[[7]],p[[8]],p[[9]],nrow=3)
+grid.arrange(p[[1]],p[[4]],p[[7]],
+             p[[2]],p[[5]],p[[8]],
+             p[[3]],p[[6]],p[[9]],ncol=3)
 dev.off()
 
 png("./result/simulation/ratio_estimate/ratio_plot_legend.png",width = 8,height = 8,

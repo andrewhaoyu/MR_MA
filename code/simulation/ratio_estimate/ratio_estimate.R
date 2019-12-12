@@ -32,8 +32,8 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   z_est <- ratio_est/sqrt(var_ratio)
   cover = ifelse(z_est>=q_result[1]&
                    z_est<=q_result[2],1,0)
-  ci_low <- q_result[1]*sqrt(var_ratio)
-  ci_high <- q_result[2]*sqrt(var_ratio)
+  ci_low <- q_result[1]*sqrt(var_ratio)+ratio_est
+  ci_high <- q_result[2]*sqrt(var_ratio)+ratio_est
   return(c(ratio_est,var_ratio,cover,ci_low,ci_high))  
 }
 

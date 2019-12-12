@@ -29,9 +29,6 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   z_gamma <- rnorm(n.simu,mean = gamma*sqrt(n),sd = 1)
   z_est = ratio_est/sqrt(var_ratio)
   p = pchisq(4*z_est^2,df=1,lower.tail=F)
-  # true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
-  # q_result <- quantile(true_distribution,c(0.025,0.975))
-  # z_est <- ratio_est/sqrt(var_ratio)
   cover = ifelse(p>=0.05,1,0)
   
   return(c(ratio_est,var_ratio,cover))  

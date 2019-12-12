@@ -3,56 +3,52 @@
 args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
 i2 = as.numeric(args[[2]])
+i3 = as.numeric(args[[3]])
 setwd("/data/zhangh24/MR_MA/")
-Regression = function(Y,M,G){
-  n = length(Y)
-    model1 = lm(Y~G-1)
-    coef_temp = coef(summary(model1))
-    Gamma = coef_temp[1]
-    var_Gamma = coef_temp[2]^2
-    model2 = lm(M~G-1)
-    coef_temp2 = coef(summary(model2))
-    gamma = coef_temp2[1]
-    var_gamma = coef_temp2[2]^2
-    return(c(Gamma,var_Gamma,
-             gamma,var_gamma))
-  
-  
-}
-
-Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
-  ratio_est = Gamma/gamma
-  var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
-  n.simu <- 10000
-  z_Gamma <- rnorm(n.simu)
-  z_gamma <- rnorm(n.simu,mean = gamma*sqrt(n),sd = 1)
-  true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
-  q_result <- quantile(true_distribution,c(0.025,0.975))
-  z_est <- ratio_est/sqrt(var_ratio)
-  cover = ifelse(z_est>=q_result[1]&
-                   z_est<=q_result[2],1,0)
-  
-  return(c(ratio_est,var_ratio,cover))  
-}
-
 
 n_vec <- c(15000,75000,150000)
-beta_vec <- c(0.01,0.03,0.05)
+beta_vec <- c(0)
 
-times = 50000
+times = 1000*50
 n <- n_vec[i1]
 MAF =0.25
-Gamma_est <- rep(0,times)
-Gamma_var <- rep(0,times)
-gamma_est <- rep(0,times)
-gamma_var <- rep(0,times)
-ratio_est <- rep(0,times)
-ratio_var <- rep(0,times)
-ratio_cover <- rep(0,times)
 cover_epi <- rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,1)
 G = apply(G_ori,2,scale)
-for(i in 1:times){
+for(i1 in 1:3){
+  for(i2 in 1){
+    Gamma_est <- rep(0,times)
+    Gamma_var <- rep(0,times)
+    gamma_est <- rep(0,times)
+    gamma_var <- rep(0,times)
+    ratio_est <- rep(0,times)
+    ratio_var <- rep(0,times)
+    ratio_cover <- rep(0,times)
+    total <- 0
+    for(i3 in 1:50){
+      load(paste0("./result/simulation/ratio_estimate_case2",i1,"_",i2,"_",i3,".Rdata"))
+      temp <- length(result[[1]])
+      Gamma_est[total+(1:temp)] <- result[[1]]
+      Gamma_var[total+(1:temp)] <- result[[2]]
+      gamma_est [total+(1:temp)] <- result[[3]]
+      gamma_var[total+(1:temp)] <- result[[4]]
+      ratio_est[total+(1:temp)] <- result[[5]]
+  result <- list(Gamma_est,
+                     Gamma_var,
+                     gamma_est,
+                     gamma_var,
+                     ratio_est,
+                     ratio_var,
+                     ratio_cover,
+                     cover_ratio,
+                     cover_true,
+                     cover_epi)
+      
+      }
+  }
+}
+
+  
   #print(i)
   beta_M = 0
   beta_G = beta_vec[i2]
@@ -82,22 +78,12 @@ cover_ratio <- 1-sum(p_est<=0.05)/times
 
 q_result <- quantile(true_distribution,c(0.025,0.975))
 cover_vec = ifelse(z_est>=q_result[1]&
-                 z_est<=q_result[2],1,0)
+                     z_est<=q_result[2],1,0)
 
 cover_true <- sum(cover_vec)/length(cover_vec)
 cover_epi <- sum(cover_epi)/length(cover_epi)
 
-result <- list(Gamma_est,
-               Gamma_var,
-               gamma_est,
-               gamma_var,
-               ratio_est,
-               ratio_var,
-               ratio_cover,
-               cover_ratio,
-               cover_true,
-               cover_epi)
-save(result,file = paste0("./result/simulation/ratio_estimate_",i1,"_",i2,".Rdata"))
+save(result,file = paste0("./result/simulation/ratio_estimate_case2",i1,"_",i2,"_",i3,".Rdata"))
 
 
 

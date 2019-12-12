@@ -3,6 +3,7 @@
 args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
 i2 = as.numeric(args[[2]])
+i3 = as.numeric(args[[3]])
 setwd("/data/zhangh24/MR_MA/")
 Regression = function(Y,M,G){
   n = length(Y)
@@ -111,7 +112,7 @@ result <- list(Gamma_est,
                ci_high_ratio,
                ci_low_epi,
                ci_high_epi)
-save(result,file = paste0("./result/simulation/ratio_estimate_",i1,"_",i2,".Rdata"))
+save(result,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,".Rdata"))
 
 
 

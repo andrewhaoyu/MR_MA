@@ -16,6 +16,7 @@ ci_low_epi <- matrix(0,n.row,n.col)
 ci_high_epi <- matrix(0,n.row,n.col)
 ci_epi <- matrix(0,n.row,n.col)
 p <- list()
+p_ratio <- list()
 temp <- 1
 load("./result/simulation/ratio_estimate/ratio_estimate_merged_case2.Rdata")
 #i1 correponding to n
@@ -43,16 +44,37 @@ for(i1 in 1:3){
     true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
     
     data <- data.frame(z_est,standard_norm,true_distribution)
-    colnames(data) <- c("Ratio","Standard Normal","Derived_distribution")
+    colnames(data) <- c("Ratio_est/sd","Standard Normal","Derived_distribution")
     library(reshape2)
     data.m <- melt(data)
+    data.legend <- data.m
     p[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
       geom_density()+
       theme_Publication()+
       theme(legend.position = "none")
+    
+    
+    quantemp <- quantile(ratio_est,c(0.025,0.975))
+    idx <- which(ratio_est>=quantemp[1]&
+                   ratio_est<=quantemp[2])
+    ratio_new <- ratio_est[idx]
+    standard_norm = rnorm(length(ratio_new))
+    data <- data.frame(ratio_new,standard_norm)
+    colnames(data) <- c("Ratio","Standard Normal")
+    data.m <- melt(data)
+    
+    p_ratio[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
+      geom_density()+
+      theme_Publication()+
+      theme(legend.position = "none")
+    
     temp <- temp+1
   }
 }
+
+
+
+
 write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio_case2.csv")
 write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true_case2.csv")
 write.csv(cover_epi,file = "./result/simulation/ratio_estimate/cover_epi_case2.csv")
@@ -61,8 +83,29 @@ write.csv(ci_epi,file = "./result/simulation/ratio_estimate/ci_epi_case2.csv")
 
 
 library(gridExtra)
-png("./result/simulation/ratio_estimate/ratio_plot_case2.png",width = 16,height = 8,
+png("./result/simulation/ratio_estimate/z_ratio_sd_plot_case2.png",width = 16,height = 8,
     unit = "in",res = 300)
 grid.arrange(p[[1]],p[[2]],p[[3]],ncol=3)
 dev.off()
 
+png("./result/simulation/ratio_estimate/ratio_plot_case2.png",width = 16,height = 8,
+    unit = "in",res = 300)
+grid.arrange(p_ratio[[1]],p_ratio[[2]],p_ratio[[3]],ncol=3)
+dev.off()
+
+png("./result/simulation/ratio_estimate/ratio_sd_plot_legend.png",width = 8,height = 8,
+    unit = "in",res = 300)
+ggplot(data.legend,aes(value,colour=variable))+
+  geom_density()+
+  theme_Publication()
+dev.off()
+
+
+
+
+png("./result/simulation/ratio_estimate/ratio_plot_legend.png",width = 8,height = 8,
+    unit = "in",res = 300)
+ggplot(data.m,aes(value,colour=variable))+
+  geom_density()+
+  theme_Publication()
+dev.off()

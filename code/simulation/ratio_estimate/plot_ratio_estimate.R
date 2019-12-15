@@ -3,24 +3,52 @@ n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.01,0.03,0.05)
 setwd("/Users/zhangh24/GoogleDrive/MR_MA")
 times = 100000
+
+
+#i1 correponding to n
+#i2 corresponding to alpha
 library(ggplot2)
 cover_ratio <- matrix(0,3,3)
 cover_true <- matrix(0,3,3)
 cover_epi <- matrix(0,3,3)
+cover_exact <- matrix(0,3,3)
 ci_low_ratio <- matrix(0,3,3)
 ci_high_ratio <- matrix(0,3,3)
 ci_ratio <- matrix(0,3,3)
 ci_low_epi <- matrix(0,3,3)
 ci_high_epi <- matrix(0,3,3)
 ci_epi <- matrix(0,3,3)
+ci_exact <- matrix(0,3,3)
+ci_low_exact <- matrix(0,3,3)
+ci_high_exact <- matrix(0,3,3)
+
+
 p <- list()
+p_ratio <- list()
 temp <- 1
 load("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata")
-#i1 correponding to n
-#i2 corresponding to alpha
 for(i1 in 1:3){
   for(i2 in 1:3){
     result <- result_final[[temp]]
+    Gamma = result[[1]]
+    var_Gamma = result[[2]]
+    gamma = result[[3]]
+    var_gamma = result[[4]]
+    n <- length(Gamma)
+    exact_result <- matrix(0,n,ncol=3)
+    for(k in 1:n){
+      if(k%%1000){
+        print(k)  
+      }
+      
+      exact_result[k,]<- RatioExact(Gamma[k],
+                                var_Gamma[k],
+                                gamma[k],
+                                var_gamma[k])
+    }
+    cover_exact[i2,i1] <- mean(exact_result[,1])
+    ci_low_exact[i2,i1] <- mean(exact_result[,2])
+    ci_high_exact[i2,i1] <- mean(exact_result[,3])
     cover_ratio[i2,i1] <- mean(result[[8]])
     cover_true[i2,i1] <- mean(result[[9]])
     cover_epi[i2,i1] <- mean(result[[10]])
@@ -45,6 +73,19 @@ colnames(data) <- c("Ratio","Standard Normal","Derived_distribution")
 library(reshape2)
 data.m <- melt(data)
 p[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
+  geom_density()+
+  theme_Publication()+
+  theme(legend.position = "none")
+quantemp <- quantile(ratio_est,c(0.025,0.975))
+idx <- which(ratio_est>=quantemp[1]&
+               ratio_est<=quantemp[2])
+ratio_new <- ratio_est[idx]
+standard_norm = rnorm(length(ratio_new))
+data <- data.frame(ratio_new,standard_norm)
+colnames(data) <- c("Ratio","Standard Normal")
+data.m <- melt(data)
+
+p_ratio[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
   geom_density()+
   theme_Publication()+
   theme(legend.position = "none")

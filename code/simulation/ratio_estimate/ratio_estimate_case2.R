@@ -116,6 +116,7 @@ save(result,file = paste0("./result/simulation/ratio_estimate_case2",i1,"_",i2,"
 
 
 
+
 # library(ggplot2)
 # data <- data.frame(z_est,standard_norm,true_distribution)
 # colnames(data) <- c("Ratio","Standard Normal","Derived_distribution")

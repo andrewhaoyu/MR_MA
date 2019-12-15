@@ -37,6 +37,19 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   return(c(ratio_est,var_ratio,cover,
            ci_low,ci_high))  
 }
+RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
+  ratio_est = Gamma/gamma
+  n.simu <- 100000
+  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
+  z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+  true_distribution <- z_Gamma/z_gamma
+  q_result <- quantile(true_distribution,c(0.025,0.975))
+  cover = ifelse(ratio_est>=q_result[1]&
+                   ratio_est<=q_result[2],1,0)
+  ci_low <- q_result[1]+ratio_est
+  ci_high <- q_result[2]+ratio_est
+  return(c(cover,ci_low,ci_high))  
+}
 
 set.seed(i3)
 n_vec <- c(15000,75000,150000)
@@ -53,8 +66,11 @@ ratio_est <- rep(0,times)
 ratio_var <- rep(0,times)
 ratio_cover <- rep(0,times)
 cover_epi <- rep(0,times)
+cover_exact <- rep(0,times)
 ci_low_epi <- rep(0,times)
 ci_high_epi <- rep(0,times)
+ci_low_exact <- rep(0,times)
+ci_high_exact <- rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,1)
 G = apply(G_ori,2,scale)
 for(i in 1:times){
@@ -76,6 +92,11 @@ for(i in 1:times){
   cover_epi[i] <- ratio_temp[3]
   ci_low_epi[i] <- ratio_temp[4]
   ci_high_epi[i] <- ratio_temp[5]
+  ratio_exact_temp <- RatioExact(est[1],est[2],est[3],est[4])
+  cover_exact[i] <- ratio_exact_temp[1]
+  ci_low_exact[i] <- ratio_exact_temp[4]
+  ci_high_exact[i] <- ratio_exact_temp[5]
+  
 }
 
 z_est <- ratio_est/sqrt(ratio_var)
@@ -92,9 +113,20 @@ ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96
 q_result <- quantile(true_distribution,c(0.025,0.975))
 cover_vec = ifelse(z_est>=q_result[1]&
                      z_est<=q_result[2],1,0)
+z_Gamma <- rnorm(times,mean = 0, sd = sqrt(sigma_y/n))
+z_gamma <- rnorm(times,mean = alpha_G,sd = sqrt(sigma_m/n))
+
+true_distribution <- z_Gamma/z_gamma
+q_result <- quantile(true_distribution,c(0.025,0.975))
+cover_vec_exact = ifelse(ratio_est>=q_result[1]&
+                           ratio_est<=q_result[2],1,0)
+
+
 
 cover_true <- sum(cover_vec)/length(cover_vec)
 cover_epi <- sum(cover_epi)/length(cover_epi)
+cover_exact <- sum(cover_exact)/length(cover_exact)
+cover_true_exact <- sum(cover_vec_exact)/length(cover_vec_exact)
 
 result <- list(Gamma_est,
                Gamma_var,
@@ -106,10 +138,14 @@ result <- list(Gamma_est,
                cover_ratio,
                cover_true,
                cover_epi,
+               cover_exact,
+               cover_true_exact,
                ci_low_ratio,
                ci_high_ratio,
                ci_low_epi,
-               ci_high_epi)
+               ci_high_epi,
+               ci_low_exact,
+               ci_high_exact)
 save(result,file = paste0("./result/simulation/ratio_estimate_case2",i1,"_",i2,"_",i3,".Rdata"))
 
 

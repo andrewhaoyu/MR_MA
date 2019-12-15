@@ -46,8 +46,8 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   q_result <- quantile(true_distribution,c(0.025,0.975))
   cover = ifelse(ratio_est>=q_result[1]&
                    ratio_est<=q_result[2],1,0)
-  ci_low <- q_result[1]+ratio_est
-  ci_high <- q_result[2]+ratio_est
+  ci_low <- ratio_est-q_result[2]
+  ci_high <- ratio_est-q_result[1]
   return(c(cover,ci_low,ci_high))  
 }
 
@@ -94,8 +94,8 @@ for(i in 1:times){
   ci_high_epi[i] <- ratio_temp[5]
   ratio_exact_temp <- RatioExact(est[1],est[2],est[3],est[4])
   cover_exact[i] <- ratio_exact_temp[1]
-  ci_low_exact[i] <- ratio_exact_temp[4]
-  ci_high_exact[i] <- ratio_exact_temp[5]
+  ci_low_exact[i] <- ratio_exact_temp[2]
+  ci_high_exact[i] <- ratio_exact_temp[3]
   
 }
 

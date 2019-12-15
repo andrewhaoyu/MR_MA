@@ -54,7 +54,7 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.01,0.03,0.05)
 
-times = 100
+times = 1000
 n <- n_vec[i1]
 MAF =0.25
 Gamma_est <- rep(0,times)
@@ -115,6 +115,7 @@ ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96
 q_result <- quantile(true_distribution,c(0.025,0.975))
 cover_vec = ifelse(z_est>=q_result[1]&
                  z_est<=q_result[2],1,0)
+cover_true <- sum(cover_vec)/length(cover_vec)
 
 z_Gamma <- rnorm(times,mean = 0, sd = sqrt(sigma_y/n))
 z_gamma <- rnorm(times,mean = alpha_G,sd = sqrt(sigma_m/n))
@@ -126,7 +127,7 @@ cover_vec_exact = ifelse(ratio_est>=q_result[1]&
 
 
 
-cover_true <- sum(cover_vec)/length(cover_vec)
+
 cover_epi <- sum(cover_epi)/length(cover_epi)
 cover_exact <- sum(cover_exact)/length(cover_exact)
 cover_true_exact <- sum(cover_vec_exact)/length(cover_vec_exact)

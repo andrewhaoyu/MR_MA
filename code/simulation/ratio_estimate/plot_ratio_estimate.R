@@ -12,6 +12,7 @@ cover_ratio <- matrix(0,3,3)
 cover_true <- matrix(0,3,3)
 cover_epi <- matrix(0,3,3)
 cover_exact <- matrix(0,3,3)
+cover_true_exact <- matrix(0,3,3)
 ci_low_ratio <- matrix(0,3,3)
 ci_high_ratio <- matrix(0,3,3)
 ci_ratio <- matrix(0,3,3)
@@ -21,7 +22,6 @@ ci_epi <- matrix(0,3,3)
 ci_exact <- matrix(0,3,3)
 ci_low_exact <- matrix(0,3,3)
 ci_high_exact <- matrix(0,3,3)
-
 
 p <- list()
 p_ratio <- list()
@@ -35,30 +35,20 @@ for(i1 in 1:3){
     gamma = result[[3]]
     var_gamma = result[[4]]
     n <- length(Gamma)
-    exact_result <- matrix(0,n,ncol=3)
-    for(k in 1:n){
-      if(k%%1000){
-        print(k)  
-      }
-      
-      exact_result[k,]<- RatioExact(Gamma[k],
-                                var_Gamma[k],
-                                gamma[k],
-                                var_gamma[k])
-    }
-    cover_exact[i2,i1] <- mean(exact_result[,1])
-    ci_low_exact[i2,i1] <- mean(exact_result[,2])
-    ci_high_exact[i2,i1] <- mean(exact_result[,3])
     cover_ratio[i2,i1] <- mean(result[[8]])
     cover_true[i2,i1] <- mean(result[[9]])
     cover_epi[i2,i1] <- mean(result[[10]])
-    ci_low_ratio[i2,i1] <- mean(result[[11]])
-    ci_high_ratio[i2,i1] <- mean(result[[12]])
+    cover_exact[i2,i1] <- mean(result[[11]])
+    cover_true_exact[i2,i1] <- mean(result[[12]])
+    ci_low_ratio[i2,i1] <- mean(result[[13]])
+    ci_high_ratio[i2,i1] <- mean(result[[14]])
     ci_ratio[i2,i1] <- paste0(ci_low_ratio[i2,i1],", ",ci_high_ratio[i2,i1])
-
-    ci_low_epi[i2,i1] <- mean(result[[13]])
-    ci_high_epi[i2,i1] <- mean(result[[14]])
+    ci_low_epi[i2,i1] <- mean(result[[15]])
+    ci_high_epi[i2,i1] <- mean(result[[16]])
     ci_epi[i2,i1] <- paste0(ci_low_epi[i2,i1],", ",ci_high_epi[i2,i1])
+    ci_low_exact[i2,i1] <- mean(result[[17]])
+    ci_high_exact[i2,i1] <- mean(result[[18]])
+    ci_exact[i2,i1] <- paste0(ci_low_exact[i2,i1],", ",ci_high_exact[i2,i1])
 ratio_est = result[[5]]
 ratio_var = result[[6]]
 z_est = ratio_est/sqrt(ratio_var)
@@ -69,7 +59,7 @@ z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)
 true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
 
 data <- data.frame(z_est,standard_norm,true_distribution)
-colnames(data) <- c("Ratio","Standard Normal","Derived_distribution")
+colnames(data) <- c("Ratio/sd","Standard Normal","Derived_distribution")
 library(reshape2)
 data.m <- melt(data)
 p[[temp]] <- ggplot(data.m,aes(value,colour=variable))+

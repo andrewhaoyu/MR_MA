@@ -113,6 +113,7 @@ ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96
 q_result <- quantile(true_distribution,c(0.025,0.975))
 cover_vec = ifelse(z_est>=q_result[1]&
                      z_est<=q_result[2],1,0)
+alpha_G <- 0
 z_Gamma <- rnorm(times,mean = 0, sd = sqrt(sigma_y/n))
 z_gamma <- rnorm(times,mean = alpha_G,sd = sqrt(sigma_m/n))
 

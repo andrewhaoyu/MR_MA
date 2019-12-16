@@ -37,19 +37,34 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   return(c(ratio_est,var_ratio,cover,ci_low,ci_high))  
 }
 #new ratio formula
+# RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
+#   ratio_est = Gamma/gamma
+#   n.simu <- 1000000
+#   z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
+#   z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+#   true_distribution <- z_Gamma/z_gamma
+#   q_result <- quantile(true_distribution,c(0.025,0.975))
+#   cover = ifelse(ratio_est>=q_result[1]&
+#                    ratio_est<=q_result[2],1,0)
+#   ci_low <- ratio_est-q_result[2]
+#   ci_high <- ratio_est-q_result[1]
+#   return(c(cover,ci_low,ci_high))
+# }
+
 RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
-  n.simu <- 100000
-  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
-  z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+  n.simu <- 1000000
+  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*var_Gamma))
+  z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
   true_distribution <- z_Gamma/z_gamma
   q_result <- quantile(true_distribution,c(0.025,0.975))
   cover = ifelse(ratio_est>=q_result[1]&
                    ratio_est<=q_result[2],1,0)
   ci_low <- ratio_est-q_result[2]
   ci_high <- ratio_est-q_result[1]
-  return(c(cover,ci_low,ci_high))  
+  return(c(cover,ci_low,ci_high))
 }
+
 
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.01,0.03,0.05)
@@ -94,7 +109,7 @@ for(i in 1:times){
   cover_epi[i] <- ratio_temp[3]
   ci_low_epi[i] <- ratio_temp[4]
   ci_high_epi[i] <- ratio_temp[5]
-  ratio_exact_temp <- RatioExact(est[1],est[2],est[3],est[4])
+  ratio_exact_temp <- RatioExact(est[1],est[2],est[3],est[4],n)
   cover_exact[i] <- ratio_exact_temp[1]
   ci_low_exact[i] <- ratio_exact_temp[2]
   ci_high_exact[i] <- ratio_exact_temp[3]

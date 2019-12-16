@@ -34,6 +34,7 @@ for(i1 in 1:3){
     var_Gamma = result[[2]]
     gamma = result[[3]]
     var_gamma = result[[4]]
+    var_ratio <- result[[6]]
     n <- length(Gamma)
     cover_ratio[i2,i1] <- mean(result[[8]])
     cover_true[i2,i1] <- mean(result[[9]])
@@ -62,6 +63,7 @@ data <- data.frame(z_est,standard_norm,true_distribution)
 colnames(data) <- c("Ratio/sd","Standard Normal","Derived_distribution")
 library(reshape2)
 data.m <- melt(data)
+data.m.temp <- data.m
 p[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
   geom_density()+
   theme_Publication()+
@@ -70,9 +72,11 @@ quantemp <- quantile(ratio_est,c(0.025,0.975))
 idx <- which(ratio_est>=quantemp[1]&
                ratio_est<=quantemp[2])
 ratio_new <- ratio_est[idx]
-standard_norm = rnorm(length(ratio_new))
+standard_norm <- rnorm(length(idx))
+
+
 data <- data.frame(ratio_new,standard_norm)
-colnames(data) <- c("Ratio","Standard Normal")
+colnames(data) <- c("Ratio","Standard Normal ")
 data.m <- melt(data)
 
 p_ratio[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
@@ -85,16 +89,33 @@ temp <- temp+1
 write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio.csv")
 write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true.csv")
 write.csv(cover_epi,file = "./result/simulation/ratio_estimate/cover_epi.csv")
+write.csv(cover_true_exact,file = "./result/simulation/ratio_estimate/cover_true_exact.csv")
+write.csv(cover_exact,file = "./result/simulation/ratio_estimate/cover_exact.csv")
 write.csv(ci_ratio,file = "./result/simulation/ratio_estimate/ci_ratio.csv")
 write.csv(ci_epi,file = "./result/simulation/ratio_estimate/ci_epi.csv")
+write.csv(ci_exact,file = "./result/simulation/ratio_estimate/ci_exact.csv")
 
 
 library(gridExtra)
-png("./result/simulation/ratio_estimate/ratio_plot.png",width = 16,height = 8,
+png("./result/simulation/ratio_estimate/ratio_sd_plot.png",width = 16,height = 8,
     unit = "in",res = 300)
 grid.arrange(p[[1]],p[[4]],p[[7]],
              p[[2]],p[[5]],p[[8]],
              p[[3]],p[[6]],p[[9]],ncol=3)
+dev.off()
+
+png("./result/simulation/ratio_estimate/ratio_sd_plot_legend.png",width = 8,height = 8,
+    unit = "in",res = 300)
+ggplot(data.m.temp,aes(value,colour=variable))+
+  geom_density()+
+  theme_Publication()
+dev.off()
+
+png("./result/simulation/ratio_estimate/ratio_plot.png",width = 16,height = 8,
+    unit = "in",res = 300)
+grid.arrange(p_ratio[[1]],p_ratio[[4]],p_ratio[[7]],
+             p_ratio[[2]],p_ratio[[5]],p_ratio[[8]],
+             p_ratio[[3]],p_ratio[[6]],p_ratio[[9]],ncol=3)
 dev.off()
 
 png("./result/simulation/ratio_estimate/ratio_plot_legend.png",width = 8,height = 8,

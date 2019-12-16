@@ -30,7 +30,7 @@ for(i1 in 1:3){
     ci_high_exact <- rep(0,times)
     
     total <- 0
-    for(i3 in 1:1000){
+    for(i3 in 1:100){
       load(paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,".Rdata"))
       temp <- length(result[[1]])
       Gamma_est[total+(1:temp)] <- result[[1]]
@@ -45,7 +45,7 @@ for(i1 in 1:3){
       cover_true[i3] <- result[[9]]
       cover_epi[i3] <- result[[10]]
       cover_exact[i3] <- result[[11]]
-      cover_true[i3] <- result[[12]]
+      cover_true_exact[i3] <- result[[12]]
       ci_low_ratio[total+(1:temp)] <- result[[13]]
       ci_high_ratio[total+(1:temp)] <- result[[14]]
       ci_low_epi[total+(1:temp)] <- result[[15]]

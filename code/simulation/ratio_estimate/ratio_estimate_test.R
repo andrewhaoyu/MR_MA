@@ -4,19 +4,20 @@ args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
 i2 = as.numeric(args[[2]])
 i3 = as.numeric(args[[3]])
+set.seed(i3)
 setwd("/data/zhangh24/MR_MA/")
 Regression = function(Y,M,G){
   n = length(Y)
-    model1 = lm(Y~G-1)
-    coef_temp = coef(summary(model1))
-    Gamma = coef_temp[1]
-    var_Gamma = coef_temp[2]^2
-    model2 = lm(M~G-1)
-    coef_temp2 = coef(summary(model2))
-    gamma = coef_temp2[1]
-    var_gamma = coef_temp2[2]^2
-    return(c(Gamma,var_Gamma,
-             gamma,var_gamma))
+  model1 = lm(Y~G-1)
+  coef_temp = coef(summary(model1))
+  Gamma = coef_temp[1]
+  var_Gamma = coef_temp[2]^2
+  model2 = lm(M~G-1)
+  coef_temp2 = coef(summary(model2))
+  gamma = coef_temp2[1]
+  var_gamma = coef_temp2[2]^2
+  return(c(Gamma,var_Gamma,
+           gamma,var_gamma))
   
   
 }
@@ -105,7 +106,6 @@ ci_low_exact <- rep(0,times)
 ci_high_exact <- rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,1)
 G = apply(G_ori,2,scale)
-set.seed(i3)
 for(i in 1:times){
   print(i)
   beta_M = 0
@@ -136,10 +136,6 @@ for(i in 1:times){
 }
 
 
-idx <- which(cover_exact==0)
-
-
-
 
 z_est <- ratio_est/sqrt(ratio_var)
 standard_norm <- rnorm(times)
@@ -153,24 +149,78 @@ ci_low_ratio <- ratio_est-sqrt(ratio_var)*1.96
 ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96
 
 q_result <- quantile(true_distribution,c(0.025,0.975))
-cover_true = ifelse(z_est>=q_result[1]&
-                 z_est<=q_result[2],1,0)
-#cover_true <- sum(cover_vec)/length(cover_vec)
+cover_vec = ifelse(z_est>=q_result[1]&
+                     z_est<=q_result[2],1,0)
+cover_true <- sum(cover_vec)/length(cover_vec)
 
 z_Gamma <- rnorm(times,mean = 0, sd = sqrt(sigma_y/n))
 z_gamma <- rnorm(times,mean = alpha_G,sd = sqrt(sigma_m/n))
 
 true_distribution <- z_Gamma/z_gamma
 q_result <- quantile(true_distribution,c(0.025,0.975))
-cover_true_exact = ifelse(ratio_est>=q_result[1]&
+cover_vec_exact = ifelse(ratio_est>=q_result[1]&
                            ratio_est<=q_result[2],1,0)
 
 
 
 
-#cover_epi <- sum(cover_epi)/length(cover_epi)
-#cover_exact <- sum(cover_exact)/length(cover_exact)
-#cover_true_exact <- sum(cover_vec_exact)/length(cover_vec_exact)
+
+
+cover_epi_p <- sum(cover_epi)/length(cover_epi)
+cover_exact_p <- sum(cover_exact)/length(cover_exact)
+cover_true_exact <- sum(cover_vec_exact)/length(cover_vec_exact)
+
+idx <- which(cover_vec_exact!=cover_exact)
+
+
+i <- idx[1]
+est1 = Gamma_est[i]
+est2 = Gamma_var[i]
+est3 = gamma_est[i]
+est4 = gamma_var[i]
+RatioExact(est1,est2,est3,est4,n)
+times <- 1000000
+z_Gamma <- rnorm(times,mean = 0, sd = sqrt(sigma_y/n))
+z_gamma <- rnorm(times,mean = alpha_G,sd = sqrt(sigma_m/n))
+
+true_distribution1 <- z_Gamma/z_gamma
+n.simu <- times
+#z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*est2))
+#z_gamma <- rnorm(n.simu,mean = sqrt(n)*est3,sd = sqrt((n-1)*est4))
+z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(est2))
+z_gamma <- rnorm(n.simu,mean = est3,sd = sqrt(est4))
+
+est2 = mean(Gamma_var)
+z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(est2))
+
+#est3 = mean(gamma_est)
+est3 = gamma_est[i]
+est4 = mean(gamma_var)
+
+z_gamma <- rnorm(n.simu,mean = est3,sd = sqrt(est4))
+
+true_distribution2 <- z_Gamma/z_gamma
+
+
+
+  q_temp <- quantile(true_distribution1,c(0.025,0.975))
+idx1 = which(true_distribution1>=q_temp[1]&
+               true_distribution1<=q_temp[2])
+true_distribution1_new <- true_distribution1[idx1]
+q_temp <- quantile(true_distribution2,c(0.025,0.975))
+idx2 = which(true_distribution2>=q_temp[1]&
+               true_distribution2<=q_temp[2])
+true_distribution2_new <- true_distribution2[idx2]
+
+new_data <- data.frame(true_distribution = true_distribution1_new,
+                       est_distribution = true_distribution2_new)
+library(reshape2)
+library(ggplot2)
+data.m <- melt(new_data)
+ggplot(data.m, aes(value,color=variable))+
+  geom_density()
+quantile(true_distribution1,c(0.025,0.975))
+quantile(true_distribution2,c(0.025,0.975))
 
 result <- list(Gamma_est,
                Gamma_var,

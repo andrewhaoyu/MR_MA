@@ -54,8 +54,11 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
 RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
   n.simu <- 1000000
-  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*var_Gamma))
-  z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
+  # z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*var_Gamma))
+  # z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
+  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
+  z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+  
   true_distribution <- z_Gamma/z_gamma
   q_result <- quantile(true_distribution,c(0.025,0.975))
   cover = ifelse(ratio_est>=q_result[1]&
@@ -65,6 +68,12 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   return(c(cover,ci_low,ci_high))
 }
 
+idx.temp <- which(cover_exact!=
+                    cover_true_exact)
+Gamma = Gamma_est[idx.temp[1]]
+var_Gamma = Gamma_var[idx.temp[1]]
+gamma = gamma_est[idx.temp[1]]
+var_gamma = gamma_var[idx.temp[1]]
 # RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
 #   ratio_est = Gamma/gamma
 #   n.simu <- 1000000
@@ -87,7 +96,7 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.01,0.03,0.05)
 
-times = 1000
+times = 34
 n <- n_vec[i1]
 MAF =0.25
 Gamma_est <- rep(0,times)
@@ -140,11 +149,11 @@ idx <- which(cover_exact==0)
 
 
 
-
+n.simu <- 1000000
 z_est <- ratio_est/sqrt(ratio_var)
 standard_norm <- rnorm(times)
-z_Gamma <- rnorm(times)
-z_gamma <- rnorm(times,mean = alpha_G*sqrt(n),sd = 1)
+z_Gamma <- rnorm(n.simu)
+z_gamma <- rnorm(n.simu,mean = alpha_G*sqrt(n),sd = 1)
 
 true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
 p_est <- 2*pnorm(-abs(z_est))
@@ -157,8 +166,8 @@ cover_true = ifelse(z_est>=q_result[1]&
                  z_est<=q_result[2],1,0)
 #cover_true <- sum(cover_vec)/length(cover_vec)
 
-z_Gamma <- rnorm(times,mean = 0, sd = sqrt(sigma_y/n))
-z_gamma <- rnorm(times,mean = alpha_G,sd = sqrt(sigma_m/n))
+z_Gamma <- rnorm(n.simu,mean = 0, sd = sqrt(sigma_y/n))
+z_gamma <- rnorm(n.simu,mean = alpha_G,sd = sqrt(sigma_m/n))
 
 true_distribution <- z_Gamma/z_gamma
 q_result <- quantile(true_distribution,c(0.025,0.975))

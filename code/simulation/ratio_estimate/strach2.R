@@ -22,7 +22,7 @@ for(i in 1:p){
 true_distribution_value <- true_distribution_value[1:total]
 alpha_G_value <- alpha_G_value[1:total]
 library(ggplot2)
-new.data <- data.frame(paste0("alpha=",alpha_G_value)),
+new.data <- data.frame(alpha_G_value=paste0("alpha=",alpha_G_value),
                       true_distribution_value)
 ggplot(new.data,aes(true_distribution_value,
                     color=alpha_G_value))+

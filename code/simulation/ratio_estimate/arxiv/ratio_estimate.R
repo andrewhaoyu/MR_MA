@@ -1,10 +1,4 @@
 #Get the coverage probability for single ratio distribution
-#Three different method were tested
-#1. Directly use ratio estimate
-#2. Use Zhonghua's Z statistics method (epi)
-#3. Use exact distribution method (exact)
-#method 1 and 2 are implemented in Ratio estimate
-#method 3 is implemented in RatioExact
 #Ratio estimate
 args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
@@ -101,7 +95,7 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
 
 
 n_vec <- c(15000,75000,150000)
-alpha_vec <- c(0.00,0.01,0.03,0.05)
+alpha_vec <- c(0.01,0.03,0.05)
 
 times = 1000
 n <- n_vec[i1]

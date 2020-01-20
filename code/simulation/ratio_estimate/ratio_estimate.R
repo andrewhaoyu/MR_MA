@@ -69,12 +69,12 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   return(c(cover,ci_low,ci_high))
 }
 
-idx.temp <- which(cover_exact!=
-                    cover_true_exact)
-Gamma = Gamma_est[idx.temp[1]]
-var_Gamma = Gamma_var[idx.temp[1]]
-gamma = gamma_est[idx.temp[1]]
-var_gamma = gamma_var[idx.temp[1]]
+# idx.temp <- which(cover_exact!=
+#                     cover_true_exact)
+# Gamma = Gamma_est[idx.temp[1]]
+# var_Gamma = Gamma_var[idx.temp[1]]
+# gamma = gamma_est[idx.temp[1]]
+# var_gamma = gamma_var[idx.temp[1]]
 # RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
 #   ratio_est = Gamma/gamma
 #   n.simu <- 1000000

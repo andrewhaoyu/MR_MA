@@ -22,6 +22,7 @@ for(i1 in 1:3){
     cover_true <- rep(0,replicates)
     cover_epi <- rep(0,replicates)
     cover_exact <- rep(0,replicates)
+    cover_true_exact <- rep(0,replicates)
     ci_low_ratio <- rep(0,times)
     ci_high_ratio <- rep(0,times)
     ci_low_epi <- rep(0,times)
@@ -78,9 +79,6 @@ for(i1 in 1:3){
   }
 }
 save(result_final,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_merged_case2.Rdata"))
-
-
-
 
 
 # library(ggplot2)

@@ -18,10 +18,10 @@ for(i1 in 1:3){
     ratio_est <- rep(0,times)
     ratio_var <- rep(0,times)
     ratio_cover <- rep(0,times)
-    cover_ratio <- rep(0,replicates)
-    cover_true <- rep(0,replicates)
-    cover_epi <- rep(0,replicates)
-    cover_exact <- rep(0,replicates)
+    cover_ratio <- rep(0,times)
+    cover_true <- rep(0,times)
+    cover_epi <- rep(0,times)
+    cover_exact <- rep(0,times)
     ci_low_ratio <- rep(0,times)
     ci_high_ratio <- rep(0,times)
     ci_low_epi <- rep(0,times)
@@ -40,12 +40,11 @@ for(i1 in 1:3){
       ratio_est[total+(1:temp)] <- result[[5]]
       ratio_var[total+(1:temp)] <- result[[6]]
       ratio_cover[total+(1:temp)] <- result[[7]]
-      #cover_ratio cover_true cover_epi already take the mean
-      cover_ratio[i3] <- result[[8]]
-      cover_true[i3] <- result[[9]]
-      cover_epi[i3] <- result[[10]]
-      cover_exact[i3] <- result[[11]]
-      cover_true_exact[i3] <- result[[12]]
+      cover_ratio[total+(1:temp)] <- result[[8]]
+      cover_true[total+(1:temp)] <- result[[9]]
+      cover_epi[total+(1:temp)] <- result[[10]]
+      cover_exact[total+(1:temp)] <- result[[11]]
+      cover_true_exact[total+(1:temp)] <- result[[12]]
       ci_low_ratio[total+(1:temp)] <- result[[13]]
       ci_high_ratio[total+(1:temp)] <- result[[14]]
       ci_low_epi[total+(1:temp)] <- result[[15]]
@@ -80,6 +79,65 @@ for(i1 in 1:3){
 }
 save(result_final,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata"))
 
+
+temp <- 3
+result <- result_final[[temp]]
+Gamma_est = result[[1]]
+Gamma_var = result[[2]]
+gamma_est = result[[3]]
+gamma_var = result[[4]]
+ratio_est = result[[5]]
+ratio_var = result[[6]]
+ratio_cover = result[[7]]
+cover_ratio = result[[8]]
+cover_true = result[[9]]
+cover_epi = result[[10]]
+cover_exact = result[[11]]
+cover_true_exact = result[[12]]
+mean(cover_ratio)
+mean(cover_true)
+mean(cover_epi)
+mean(cover_exact)
+mean(cover_true_exact)
+idx.temp <- which(cover_exact!=cover_true_exact)
+
+RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
+  ratio_est = Gamma/gamma
+  n.simu <- 1000000
+  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*var_Gamma))
+  z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
+  #z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
+  #z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+  z_gamma <- rnorm(n.simu,mean = sqrt(n)*alpha_G,sd = sqrt((n-1)*var_gamma))
+  
+  true_distribution <- z_Gamma/z_gamma
+  q_result <- quantile(true_distribution,c(0.025,0.975))
+  cover = ifelse(ratio_est>=q_result[1]&
+                   ratio_est<=q_result[2],1,0)
+  ci_low <- ratio_est-q_result[2]
+  ci_high <- ratio_est-q_result[1]
+  return(c(cover,ci_low,ci_high))
+}
+k <- 1
+n <- 15000
+alpha_G = 0.05
+Gamma = Gamma_est[idx.temp[k]]
+var_Gamma = Gamma_var[idx.temp[k]]
+gamma = gamma_est[idx.temp[k]]
+var_gamma = gamma_var[idx.temp[k]]
+
+
+
+
+
+
+
+ci_low_ratio = result[[13]]
+ci_high_ratio = result[[14]]
+ci_low_epi = result[[15]]
+ci_high_epi = result[[16]]
+ci_low_exact = result[[17]]
+ci_high_exact = result[[18]]
 
 
 

@@ -54,10 +54,11 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
 RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
   n.simu <- 1000000
-  # z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*var_Gamma))
-  # z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
-  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
-  z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+   z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*var_Gamma))
+   z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
+  #z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
+  #z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+   z_gamma <- rnorm(n.simu,mean = sqrt(n)*alpha_G,sd = sqrt((n-1)*var_gamma))
   
   true_distribution <- z_Gamma/z_gamma
   q_result <- quantile(true_distribution,c(0.025,0.975))
@@ -96,7 +97,7 @@ var_gamma = gamma_var[idx.temp[1]]
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.01,0.03,0.05)
 
-times = 34
+times = 1000
 n <- n_vec[i1]
 MAF =0.25
 Gamma_est <- rep(0,times)

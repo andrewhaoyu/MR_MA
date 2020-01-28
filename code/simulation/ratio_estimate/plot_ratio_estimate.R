@@ -1,6 +1,6 @@
 #plot the ratio estimate distribution
 n_vec <- c(15000,75000,150000)
-alpha_vec <- c(0.01,0.03,0.05)
+alpha_vec <- c(0.00,0.01,0.03,0.05)
 setwd("/Users/zhangh24/GoogleDrive/MR_MA")
 times = 100000
 
@@ -8,27 +8,29 @@ times = 100000
 #i1 correponding to n
 #i2 corresponding to alpha
 library(ggplot2)
-cover_ratio <- matrix(0,3,3)
-cover_true <- matrix(0,3,3)
-cover_epi <- matrix(0,3,3)
-cover_exact <- matrix(0,3,3)
-cover_true_exact <- matrix(0,3,3)
-ci_low_ratio <- matrix(0,3,3)
-ci_high_ratio <- matrix(0,3,3)
-ci_ratio <- matrix(0,3,3)
-ci_low_epi <- matrix(0,3,3)
-ci_high_epi <- matrix(0,3,3)
-ci_epi <- matrix(0,3,3)
-ci_exact <- matrix(0,3,3)
-ci_low_exact <- matrix(0,3,3)
-ci_high_exact <- matrix(0,3,3)
+n.row <- length(alpha_vec)
+n.col <- length(n_vec)
+cover_ratio <- matrix(0,n.row,n.col)
+cover_true <- matrix(0,n.row,n.col)
+cover_epi <- matrix(0,n.row,n.col)
+cover_exact <- matrix(0,n.row,n.col)
+cover_true_exact <- matrix(0,n.row,n.col)
+ci_low_ratio <- matrix(0,n.row,n.col)
+ci_high_ratio <- matrix(0,n.row,n.col)
+ci_ratio <- matrix(0,n.row,n.col)
+ci_low_epi <- matrix(0,n.row,n.col)
+ci_high_epi <- matrix(0,n.row,n.col)
+ci_epi <- matrix(0,n.row,n.col)
+ci_exact <- matrix(0,n.row,n.col)
+ci_low_exact <- matrix(0,n.row,n.col)
+ci_high_exact <- matrix(0,n.row,n.col)
 
 p <- list()
 p_ratio <- list()
 temp <- 1
 load("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata")
 for(i1 in 1:3){
-  for(i2 in 1:3){
+  for(i2 in 1:4){
     result <- result_final[[temp]]
     Gamma = result[[1]]
     var_Gamma = result[[2]]

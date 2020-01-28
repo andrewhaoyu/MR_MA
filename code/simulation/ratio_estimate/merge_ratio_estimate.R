@@ -2,14 +2,14 @@
 setwd("/data/zhangh24/MR_MA/")
 
 n_vec <- c(15000,75000,150000)
-alpha_vec <- c(0.01,0.03,0.05)
+alpha_vec <- c(0.0,0.01,0.03,0.05)
 
 times = 1000*100
 replicates <- 100
 result_final <- list()
 temp.idx <- 1
 for(i1 in 1:3){
-  for(i2 in 1:3){
+  for(i2 in 1:4){
      
     Gamma_est <- rep(0,times)
     Gamma_var <- rep(0,times)
@@ -80,7 +80,7 @@ for(i1 in 1:3){
 save(result_final,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata"))
 
 
-temp <- 3
+temp <- 1
 result <- result_final[[temp]]
 Gamma_est = result[[1]]
 Gamma_var = result[[2]]
@@ -99,28 +99,26 @@ mean(cover_true)
 mean(cover_epi)
 mean(cover_exact)
 mean(cover_true_exact)
-idx.temp <- which(cover_exact!=cover_true_exact)
+idx.temp <- which(cover_true!=cover_epi)
 
-RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
+Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
+  var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
   n.simu <- 1000000
-  z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt((n-1)*var_Gamma))
-  z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
-  #z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
-  #z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
-  z_gamma <- rnorm(n.simu,mean = sqrt(n)*alpha_G,sd = sqrt((n-1)*var_gamma))
-  
-  true_distribution <- z_Gamma/z_gamma
+  z_Gamma <- rnorm(n.simu)
+  z_gamma <- rnorm(n.simu,mean = gamma*sqrt(n),sd = 1)
+  true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
   q_result <- quantile(true_distribution,c(0.025,0.975))
-  cover = ifelse(ratio_est>=q_result[1]&
-                   ratio_est<=q_result[2],1,0)
-  ci_low <- ratio_est-q_result[2]
-  ci_high <- ratio_est-q_result[1]
-  return(c(cover,ci_low,ci_high))
+  z_est <- ratio_est/sqrt(var_ratio)
+  cover = ifelse(z_est>=q_result[1]&
+                   z_est<=q_result[2],1,0)
+  ci_low <- ratio_est-q_result[2]*sqrt(var_ratio)
+  ci_high <- ratio_est-q_result[1]*sqrt(var_ratio)
+  return(c(ratio_est,var_ratio,cover,ci_low,ci_high))  
 }
 k <- 1
 n <- 15000
-alpha_G = 0.05
+alpha_G = 0.00
 Gamma = Gamma_est[idx.temp[k]]
 var_Gamma = Gamma_var[idx.temp[k]]
 gamma = gamma_est[idx.temp[k]]

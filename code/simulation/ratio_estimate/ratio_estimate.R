@@ -64,7 +64,7 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
    z_gamma <- rnorm(n.simu,mean = sqrt(n)*gamma,sd = sqrt((n-1)*var_gamma))
   #z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
   #z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
-   z_gamma <- rnorm(n.simu,mean = sqrt(n)*alpha_G,sd = sqrt((n-1)*var_gamma))
+   #z_gamma <- rnorm(n.simu,mean = sqrt(n)*alpha_G,sd = sqrt((n-1)*var_gamma))
   
   true_distribution <- z_Gamma/z_gamma
   q_result <- quantile(true_distribution,c(0.025,0.975))

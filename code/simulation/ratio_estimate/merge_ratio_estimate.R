@@ -39,6 +39,8 @@ for(i1 in 1:3){
       gamma_var[total+(1:temp)] <- result[[4]]
       ratio_est[total+(1:temp)] <- result[[5]]
       ratio_var[total+(1:temp)] <- result[[6]]
+      #this ratio_cover is not useful
+      #just put there for now
       ratio_cover[total+(1:temp)] <- result[[7]]
       cover_ratio[total+(1:temp)] <- result[[8]]
       cover_true[total+(1:temp)] <- result[[9]]

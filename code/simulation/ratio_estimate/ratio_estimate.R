@@ -158,13 +158,12 @@ idx <- which(cover_exact==0)
 
 n.simu <- 1000000
 z_est <- ratio_est/sqrt(ratio_var)
+p_est <- 2*pnorm(-abs(z_est))
+cover_ratio <- ifelse(p_est>=0.05,1,0)
 standard_norm <- rnorm(times)
 z_Gamma <- rnorm(n.simu)
 z_gamma <- rnorm(n.simu,mean = alpha_G*sqrt(n),sd = 1)
-
 true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
-p_est <- 2*pnorm(-abs(z_est))
-cover_ratio <- 1-sum(p_est<=0.05)/times
 ci_low_ratio <- ratio_est-sqrt(ratio_var)*1.96
 ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96
 
@@ -194,7 +193,6 @@ result <- list(Gamma_est,
                gamma_var,
                ratio_est,
                ratio_var,
-               ratio_cover,
                cover_ratio,
                cover_true,
                cover_epi,

@@ -31,7 +31,35 @@ temp <- 1
 load("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata")
 for(i1 in 1:3){
   for(i2 in 1:4){
-   
+    result <- result_final[[temp]]
+    Gamma = result[[1]]
+    var_Gamma = result[[2]]
+    gamma = result[[3]]
+    var_gamma = result[[4]]
+    var_ratio <- result[[6]]
+    n <- length(Gamma)
+    cover_ratio[i2,i1] <- mean(result[[8]])
+    cover_true[i2,i1] <- mean(result[[9]])
+    cover_epi[i2,i1] <- mean(result[[10]])
+    cover_exact[i2,i1] <- mean(result[[11]])
+    cover_true_exact[i2,i1] <- mean(result[[12]])
+    ci_low_ratio[i2,i1] <- mean(result[[13]])
+    ci_high_ratio[i2,i1] <- mean(result[[14]])
+    ci_ratio[i2,i1] <- paste0(ci_low_ratio[i2,i1],", ",ci_high_ratio[i2,i1])
+    ci_low_epi[i2,i1] <- mean(result[[15]])
+    ci_high_epi[i2,i1] <- mean(result[[16]])
+    ci_epi[i2,i1] <- paste0(ci_low_epi[i2,i1],", ",ci_high_epi[i2,i1])
+    ci_low_exact[i2,i1] <- mean(result[[17]])
+    ci_high_exact[i2,i1] <- mean(result[[18]])
+    ci_exact[i2,i1] <- paste0(ci_low_exact[i2,i1],", ",ci_high_exact[i2,i1])
+    ratio_est = result[[5]]
+    ratio_var = result[[6]]
+    z_est = ratio_est/sqrt(ratio_var)
+    standard_norm = rnorm(times)
+    z_Gamma <- rnorm(times)
+    z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)
+    
+    true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
 data <- data.frame(z_est,standard_norm,true_distribution)
 colnames(data) <- c("Derived distribution","IVW","Real distribution")
 library(reshape2)

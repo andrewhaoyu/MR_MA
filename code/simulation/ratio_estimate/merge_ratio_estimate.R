@@ -3,23 +3,23 @@ setwd("/data/zhangh24/MR_MA/")
 
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.0,0.01,0.03,0.05)
-list(Gamma_est,
-     Gamma_var,
-     gamma_est,
-     gamma_var,
-     ratio_est,
-     ratio_var,
-     cover_ratio,
-     cover_true,
-     cover_epi,
-     cover_exact,
-     cover_true_exact,
-     ci_low_ratio,
-     ci_high_ratio,
-     ci_low_epi,
-     ci_high_epi,
-     ci_low_exact,
-     ci_high_exact)
+# list(Gamma_est,
+#      Gamma_var,
+#      gamma_est,
+#      gamma_var,
+#      ratio_est,
+#      ratio_var,
+#      cover_ratio,
+#      cover_true,
+#      cover_epi,
+#      cover_exact,
+#      cover_true_exact,
+#      ci_low_ratio,
+#      ci_high_ratio,
+#      ci_low_epi,
+#      ci_high_epi,
+#      ci_low_exact,
+#      ci_high_exact)
 times = 1000*100
 replicates <- 100
 result_final <- list()
@@ -44,10 +44,10 @@ for(i1 in 1:3){
     ci_high_epi <- rep(0,times)
     ci_low_exact <- rep(0,times)
     ci_high_exact <- rep(0,times)
-    idx <- which(ratio_est>=q_result[1]&
-                   ratio_est<=-6.24)
-    head(ci_low_exact[idx])
-    total <- 0
+    # idx <- which(ratio_est>=q_result[1]&
+    #                ratio_est<=-6.24)
+    # head(ci_low_exact[idx])
+     total <- 0
     for(i3 in 1:100){
       load(paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,".Rdata"))
       temp <- length(result[[1]])

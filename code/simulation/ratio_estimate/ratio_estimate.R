@@ -32,7 +32,14 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
   n.simu <- 1000000
   z_Gamma <- rnorm(n.simu)
-  z_gamma <- rnorm(n.simu,mean = gamma*sqrt(n),sd = 1)
+  
+  if((gamma)<=sqrt(var_gamma)&(gamma)>=-sqrt(var_gamma)){
+    plug_mean = 0
+  }else{
+    plug_mean = gamma*sqrt(n)
+  }
+  
+  z_gamma <- rnorm(n.simu,mean = plug_mean,sd = 1)
   true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
   q_result <- quantile(true_distribution,c(0.025,0.975))
   ci_low <- ratio_est-q_result[2]*sqrt(var_ratio)
@@ -70,9 +77,14 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   #z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
   #z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
    #z_gamma <- rnorm(n.simu,mean = sqrt(n)*alpha_G,sd = sqrt((n-1)*var_gamma))
-   z_Gamma <- rnorm(n.simu,mean =0,sd =sqrt(var_Gamma))
-   z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+  sigma_yg_est = var_Gamma*(n-1)
+  sigma_m_est = var_gamma*(n-1)
+  
+  
+   z_Gamma <- rnorm(n.simu,mean =Gamma,sd =sqrt(sigma_yg_est/n))
+   z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(sigma_m_est/n))
   true_distribution <- z_Gamma/z_gamma
+  
   q_result <- quantile(true_distribution,c(0.025,0.975))
   cover = ifelse(ratio_est>=q_result[1]&
                    ratio_est<=q_result[2],1,0)

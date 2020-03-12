@@ -53,9 +53,18 @@ for(i1 in 1:3){
     ci_low_exact[i2,i1] <- mean(result[[16]])
     ci_high_exact[i2,i1] <- mean(result[[17]])
     ci_exact[i2,i1] <- paste0(ci_low_exact[i2,i1],", ",ci_high_exact[i2,i1])
-    ratio_est = result[[5]]
-    ratio_var = result[[6]]
-#     z_est = ratio_est/sqrt(ratio_var)
+      z_est = ratio_est/sqrt(var_ratio)
+      idx <- which(result[[10]]==0&
+                     result[[11]]==1)
+      idx <- which(result[[10]]!=result[[11]])
+      
+      result[[10]][idx][1:100]
+      result[[11]][idx][1:100]
+      gamma[idx][1:100]
+      max(gamma[idx])
+      min(gamma[idx])
+      max(gamma)
+      min(gamma)
 #     standard_norm = rnorm(times)
 #     z_Gamma <- rnorm(times)
 #     z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)

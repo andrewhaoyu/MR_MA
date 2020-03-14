@@ -29,16 +29,16 @@ Regression = function(Y,M,G,G2){
 
 Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
+
   var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
   n.simu <- 1000000
   z_Gamma <- rnorm(n.simu)
   
-  if((gamma)<=sqrt(var_gamma)&(gamma)>=-sqrt(var_gamma)){
-    plug_mean = 0
-  }else{
-    plug_mean = gamma*sqrt(n)
-  }
-  
+  # if((gamma)<=1.96*sqrt(var_gamma)&(gamma)>=-1.96*sqrt(var_gamma)){
+  #   plug_mean = 0
+  # }else{
+  #   plug_mean = gamma*sqrt(n)
+  # }
   z_gamma <- rnorm(n.simu,mean = plug_mean,sd = 1)
   true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
   q_result <- quantile(true_distribution,c(0.025,0.975))
@@ -141,6 +141,7 @@ ci_low_epi <- rep(0,times)
 ci_high_epi <- rep(0,times)
 ci_low_exact <- rep(0,times)
 ci_high_exact <- rep(0,times)
+ratio_var_standard <- rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,1)
 G = apply(G_ori,2,scale)
 G_ori2 = matrix(rbinom(n*5,1,MAF),n,1)
@@ -171,6 +172,7 @@ for(i in 1:times){
   cover_epi[i] <- ratio_temp[3]
   ci_low_epi[i] <- ratio_temp[4]
   ci_high_epi[i] <- ratio_temp[5]
+  ratio_var_standard = ratio_temp[6]
   ratio_exact_temp <- RatioExact(est[1],est[2],est[3],est[4],n)
   cover_exact[i] <- ratio_exact_temp[1]
   ci_low_exact[i] <- ratio_exact_temp[2]
@@ -184,7 +186,8 @@ idx <- which(cover_exact==0)
 
 
 n.simu <- 1000000
-z_est <- ratio_est/sqrt(ratio_var)
+var_ratio_standard = Gamma_var/gamma_est^2
+z_est <- ratio_est/sqrt(var_ratio_standard)
 p_est <- 2*pnorm(-abs(z_est))
 ci_low_ratio <- ratio_est-sqrt(ratio_var)*1.96
 ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96

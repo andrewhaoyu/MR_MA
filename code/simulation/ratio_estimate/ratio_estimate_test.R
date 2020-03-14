@@ -100,7 +100,7 @@ n.simu <- 1000000
 z_Gamma <- rnorm(n.simu)
 z_gamma <- rnorm(n.simu,mean = 0,sd = 1)
 true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
-
+ratio_p2 <- ratio_p1
 for(i in 1:times){
   ratio_p2[i] = 2*sum(true_distribution<=-abs(T_ratio[i]))/n.simu
   

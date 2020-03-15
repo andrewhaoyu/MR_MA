@@ -32,18 +32,18 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
 
   var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
   n.simu <- 1000000
-  z_Gamma <- rnorm(n.simu)
+  z_Gamma <- rnorm(n.simu,mean = Gamma*sqrt(n),sd=1)
   
   # if((gamma)<=1.96*sqrt(var_gamma)&(gamma)>=-1.96*sqrt(var_gamma)){
   #   plug_mean = 0
   # }else{
   #   plug_mean = gamma*sqrt(n)
   # }
-  z_gamma <- rnorm(n.simu,mean = plug_mean,sd = 1)
+  z_gamma <- rnorm(n.simu,mean = gamma*sqrt(n),sd = 1)
   true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
   q_result <- quantile(true_distribution,c(0.025,0.975))
-  ci_low <- ratio_est-q_result[2]*sqrt(var_ratio)
-  ci_high <- ratio_est-q_result[1]*sqrt(var_ratio)
+  ci_low <- q_result[1]*sqrt(var_ratio)
+  ci_high <- q_result[2]*sqrt(var_ratio)
   cover = ifelse(beta_M>=ci_low&
                    beta_M<=ci_high,1,0)
   return(c(ratio_est,var_ratio,cover,ci_low,ci_high))  
@@ -86,14 +86,13 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
   true_distribution <- z_Gamma/z_gamma
   
   q_result <- quantile(true_distribution,c(0.025,0.975))
-  cover = ifelse(ratio_est>=q_result[1]&
-                   ratio_est<=q_result[2],1,0)
   #the q_result should always be bounded by quachy distribution
   #q_result[1] = ifelse(q_result[1]<=qcauchy(0.025),qcauchy(0.025),q_result[1])
   #q_result[2] = ifelse(q_result[2]>=qcauchy(0.975),qcauchy(0.975),q_result[2])
-  ci_low <- ratio_est-q_result[2]
-  ci_high <- ratio_est-q_result[1]
- 
+  ci_low <- q_result[1]
+  ci_high <- q_result[2]
+  cover = ifelse(beta_M>=ci_low&
+                   beta_M<=ci_high,1,0)
   return(c(cover,ci_low,ci_high))
 }
   
@@ -149,7 +148,7 @@ G2 = apply(G_ori2,2,scale)
 set.seed(i3)
 for(i in 1:times){
   print(i)
-  beta_M = 0
+  beta_M = 0.1
   alpha_G = alpha_vec[i2]
   sigma_y = 1
   sigma_m = 1
@@ -172,7 +171,6 @@ for(i in 1:times){
   cover_epi[i] <- ratio_temp[3]
   ci_low_epi[i] <- ratio_temp[4]
   ci_high_epi[i] <- ratio_temp[5]
-  ratio_var_standard = ratio_temp[6]
   ratio_exact_temp <- RatioExact(est[1],est[2],est[3],est[4],n)
   cover_exact[i] <- ratio_exact_temp[1]
   ci_low_exact[i] <- ratio_exact_temp[2]
@@ -189,34 +187,39 @@ n.simu <- 1000000
 var_ratio_standard = Gamma_var/gamma_est^2
 z_est <- ratio_est/sqrt(var_ratio_standard)
 p_est <- 2*pnorm(-abs(z_est))
-ci_low_ratio <- ratio_est-sqrt(ratio_var)*1.96
-ci_high_ratio <- ratio_est+sqrt(ratio_var)*1.96
+ci_low_ratio <- ratio_est-sqrt(var_ratio_standard)*1.96
+ci_high_ratio <- ratio_est+sqrt(var_ratio_standard)*1.96
 cover_ratio <- ifelse(beta_M>=ci_low_ratio&
                         beta_M<=ci_high_ratio,1,0)
 
 
 standard_norm <- rnorm(times)
-z_Gamma <- rnorm(n.simu)
+z_Gamma <- rnorm(n.simu,mean = beta_M*alpha_G*sqrt(n),sd= 1)
 z_gamma <- rnorm(n.simu,mean = alpha_G*sqrt(n),sd = 1)
 true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
 q_result <- quantile(true_distribution,c(0.025,0.975))
+ci_low <- q_result[1]*sqrt(ratio_var)
+ci_high <- q_result[2]*sqrt(ratio_var)
+cover_true = ifelse(beta_M>=ci_low&
+                 beta_M<=ci_high,1,0)
 
 
-cover_true = ifelse(z_est>=q_result[1]&
-                 z_est<=q_result[2],1,0)
+
+#cover_true = ifelse(z_est>=q_result[1]&
+#                 z_est<=q_result[2],1,0)
 #cover_true <- sum(cover_vec)/length(cover_vec)
 
-z_Gamma <- rnorm(n.simu,mean = 0, sd = sqrt(sigma_y/n))
+z_Gamma <- rnorm(n.simu,mean = beta_M*alpha_G, sd = sqrt(sigma_y/n))
 z_gamma <- rnorm(n.simu,mean = alpha_G,sd = sqrt(sigma_m/n))
 
 true_distribution <- z_Gamma/z_gamma
 q_result <- quantile(true_distribution,c(0.025,0.975))
-q_result[1] = ifelse(q_result[1]<=qcauchy(0.025),qcauchy(0.025),q_result[1])
-q_result[2] = ifelse(q_result[2]>=qcauchy(0.975),qcauchy(0.975),q_result[2])
+ci_low <- ratio_est-q_result[2]
+ci_high <- ratio_est-q_result[1]
+cover_true_exact = ifelse(beta_M>=ci_low&
+                 beta_M<=ci_high,1,0)
 
 print(q_result)
-cover_true_exact = ifelse(ratio_est>=q_result[1]&
-                           ratio_est<=q_result[2],1,0)
 
 
 

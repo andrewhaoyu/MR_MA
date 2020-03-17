@@ -32,14 +32,14 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
 
   var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
   n.simu <- 1000000
-  z_Gamma <- rnorm(n.simu,mean = Gamma*sqrt(n),sd=1)
+  z_Gamma <- rnorm(n.simu,mean = Gamma,sd=sqrt(var_Gamma))
   
   # if((gamma)<=1.96*sqrt(var_gamma)&(gamma)>=-1.96*sqrt(var_gamma)){
   #   plug_mean = 0
   # }else{
   #   plug_mean = gamma*sqrt(n)
   # }
-  z_gamma <- rnorm(n.simu,mean = gamma*sqrt(n),sd = 1)
+  z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
   true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
   q_result <- quantile(true_distribution,c(0.025,0.975))
   ci_low <- q_result[1]*sqrt(var_ratio)
@@ -155,10 +155,10 @@ for(i in 1:times){
   U = rnorm(n,sd = 1)
   alpha_U <- 0.1
   beta_U <- 0.1
-  M = G%*%alpha_G + rnorm(n,sd = sqrt(sigma_m))
-  Y = beta_M*M +rnorm(n,sd = sqrt(sigma_y))
+  M = G%*%alpha_G + alpha_U*U+rnorm(n,sd = sqrt(sigma_m))
+  Y = beta_M*M +beta_U*U+rnorm(n,sd = sqrt(sigma_y))
   U2 = rnorm(n,sd = 1)
-  M = G2%*%alpha_G + rnorm(n,sd = sqrt(sigma_m))
+  M = G2%*%alpha_G + alpha_U*U2+rnorm(n,sd = sqrt(sigma_m))
   est <- Regression(Y,M,G,G2)
   
   Gamma_est[i] <- est[1]

@@ -34,14 +34,14 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
 
   n.simu <- 1000000
-  z_Gamma <- rnorm(n.simu,mean = Gamma,sd=sqrt(var_Gamma))
+  z_Gamma <- rnorm(n.simu,mean = Gamma/sqrt(var_Gamma),sd=1)
 
   #  if((gamma)<=1.96*sqrt(var_gamma)&(gamma)>=-1.96*sqrt(var_gamma)){
   #   plug_mean = 0
   # }else{
   #   plug_mean = gamma*sqrt(n)
   # }
-  z_gamma <- rnorm(n.simu,mean = gamma,sd = sqrt(var_gamma))
+  z_gamma <- rnorm(n.simu,mean = gamma/sqrt(var_gamma),sd = 1)
   true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
   q_result <- quantile(true_distribution,c(0.025,0.975))
   ci_low <- q_result[1]*sqrt(var_ratio)
@@ -219,10 +219,10 @@ z_gamma <- rnorm(n.simu,mean = alpha_G,sd = sqrt(sigma_m/n))
 
 true_distribution <- z_Gamma/z_gamma
 q_result <- quantile(true_distribution,c(0.025,0.975))
-ci_low <- ratio_est-q_result[2]
-ci_high <- ratio_est-q_result[1]
-cover_true_exact = ifelse(beta_M>=ci_low&
-                 beta_M<=ci_high,1,0)
+ci_low <- q_result[1]
+ci_high <- q_result[2]
+cover_true_exact = ifelse(ratio_est>=ci_low&
+                            ratio_est<=ci_high,1,0)
 
 print(q_result)
 

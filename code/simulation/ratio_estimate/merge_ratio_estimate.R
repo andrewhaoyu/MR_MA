@@ -3,6 +3,7 @@ setwd("/data/zhangh24/MR_MA/")
 
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.0,0.01,0.03,0.05)
+beta_vec <-  c(0,0.3,0.5,1)
 # list(Gamma_est,
 #      Gamma_var,
 #      gamma_est,
@@ -24,77 +25,80 @@ times = 1000*100
 replicates <- 100
 result_final <- list()
 temp.idx <- 1
-for(i1 in 1:3){
-  for(i2 in 1:4){
-     
-    Gamma_est <- rep(0,times)
-    Gamma_var <- rep(0,times)
-    gamma_est <- rep(0,times)
-    gamma_var <- rep(0,times)
-    ratio_est <- rep(0,times)
-    ratio_var <- rep(0,times)
-    cover_ratio <- rep(0,times)
-    cover_true <- rep(0,times)
-    cover_epi <- rep(0,times)
-    cover_exact <- rep(0,times)
-    cover_true_exact <- rep(0,times)
-    ci_low_ratio <- rep(0,times)
-    ci_high_ratio <- rep(0,times)
-    ci_low_epi <- rep(0,times)
-    ci_high_epi <- rep(0,times)
-    ci_low_exact <- rep(0,times)
-    ci_high_exact <- rep(0,times)
-    # idx <- which(ratio_est>=q_result[1]&
-    #                ratio_est<=-6.24)
-    # head(ci_low_exact[idx])
-     total <- 0
-    for(i3 in 1:100){
-      load(paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,".Rdata"))
-      temp <- length(result[[1]])
-      Gamma_est[total+(1:temp)] <- result[[1]]
-      Gamma_var[total+(1:temp)] <- result[[2]]
-      gamma_est [total+(1:temp)] <- result[[3]]
-      gamma_var[total+(1:temp)] <- result[[4]]
-      ratio_est[total+(1:temp)] <- result[[5]]
-      ratio_var[total+(1:temp)] <- result[[6]]
-      cover_ratio[total+(1:temp)] <- result[[7]]
-      cover_true[total+(1:temp)] <- result[[8]]
-      cover_epi[total+(1:temp)] <- result[[9]]
-      cover_exact[total+(1:temp)] <- result[[10]]
-      cover_true_exact[total+(1:temp)] <- result[[11]]
-      ci_low_ratio[total+(1:temp)] <- result[[12]]
-      ci_high_ratio[total+(1:temp)] <- result[[13]]
-      ci_low_epi[total+(1:temp)] <- result[[14]]
-      ci_high_epi[total+(1:temp)] <- result[[15]]
-      ci_low_exact[total+(1:temp)] <- result[[16]]
-      ci_high_exact[total+(1:temp)] <- result[[17]]
-      total <- total+temp
+for(i4 in 1:4){
+  for(i1 in 1:3){
+    for(i2 in 1:4){
       
-   idx <- which(cover_exact==1&
-                  cover_true_exact==0)
+      Gamma_est <- rep(0,times)
+      Gamma_var <- rep(0,times)
+      gamma_est <- rep(0,times)
+      gamma_var <- rep(0,times)
+      ratio_est <- rep(0,times)
+      ratio_var <- rep(0,times)
+      cover_ratio <- rep(0,times)
+      cover_true <- rep(0,times)
+      cover_epi <- rep(0,times)
+      cover_exact <- rep(0,times)
+      cover_true_exact <- rep(0,times)
+      ci_low_ratio <- rep(0,times)
+      ci_high_ratio <- rep(0,times)
+      ci_low_epi <- rep(0,times)
+      ci_high_epi <- rep(0,times)
+      ci_low_exact <- rep(0,times)
+      ci_high_exact <- rep(0,times)
+      # idx <- which(ratio_est>=q_result[1]&
+      #                ratio_est<=-6.24)
+      # head(ci_low_exact[idx])
+      total <- 0
+      for(i3 in 1:100){
+        load(paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,"_",i4,".Rdata"))
+        temp <- length(result[[1]])
+        Gamma_est[total+(1:temp)] <- result[[1]]
+        Gamma_var[total+(1:temp)] <- result[[2]]
+        gamma_est [total+(1:temp)] <- result[[3]]
+        gamma_var[total+(1:temp)] <- result[[4]]
+        ratio_est[total+(1:temp)] <- result[[5]]
+        ratio_var[total+(1:temp)] <- result[[6]]
+        cover_ratio[total+(1:temp)] <- result[[7]]
+        cover_true[total+(1:temp)] <- result[[8]]
+        cover_epi[total+(1:temp)] <- result[[9]]
+        cover_exact[total+(1:temp)] <- result[[10]]
+        cover_true_exact[total+(1:temp)] <- result[[11]]
+        ci_low_ratio[total+(1:temp)] <- result[[12]]
+        ci_high_ratio[total+(1:temp)] <- result[[13]]
+        ci_low_epi[total+(1:temp)] <- result[[14]]
+        ci_high_epi[total+(1:temp)] <- result[[15]]
+        ci_low_exact[total+(1:temp)] <- result[[16]]
+        ci_high_exact[total+(1:temp)] <- result[[17]]
+        total <- total+temp
+        
+        idx <- which(cover_exact==1&
+                       cover_true_exact==0)
+      }
+      #two loops
+      #first loop sample size
+      #inner loop for alpha_G
+      result_final[[temp.idx]] <- list(Gamma_est,
+                                       Gamma_var,
+                                       gamma_est,
+                                       gamma_var,
+                                       ratio_est,
+                                       ratio_var,
+                                       cover_ratio,
+                                       cover_true,
+                                       cover_epi,
+                                       cover_exact,
+                                       cover_true_exact,
+                                       ci_low_ratio,
+                                       ci_high_ratio,
+                                       ci_low_epi,
+                                       ci_high_epi,
+                                       ci_low_exact,
+                                       ci_high_exact)
+      temp.idx <- temp.idx+1
     }
-    #two loops
-    #first loop sample size
-    #inner loop for alpha_G
-    result_final[[temp.idx]] <- list(Gamma_est,
-                                     Gamma_var,
-                                     gamma_est,
-                                     gamma_var,
-                                     ratio_est,
-                                     ratio_var,
-                                     cover_ratio,
-                                     cover_true,
-                                     cover_epi,
-                                     cover_exact,
-                                     cover_true_exact,
-                                     ci_low_ratio,
-                                     ci_high_ratio,
-                                     ci_low_epi,
-                                     ci_high_epi,
-                                     ci_low_exact,
-                                     ci_high_exact)
-    temp.idx <- temp.idx+1
   }
+  
 }
 save(result_final,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata"))
 

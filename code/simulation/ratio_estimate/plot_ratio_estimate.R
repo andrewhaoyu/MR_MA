@@ -1,6 +1,7 @@
 #plot the ratio estimate distribution
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.00,0.01,0.03,0.05)
+beta_vec <- c(0,0.3,0.5,1)
 setwd("/Users/zhangh24/GoogleDrive/MR_MA")
 times = 100000
 
@@ -10,49 +11,64 @@ times = 100000
 library(ggplot2)
 n.row <- length(alpha_vec)
 n.col <- length(n_vec)
-cover_ratio <- matrix(0,n.row,n.col)
-cover_true <- matrix(0,n.row,n.col)
-cover_epi <- matrix(0,n.row,n.col)
-cover_exact <- matrix(0,n.row,n.col)
-cover_true_exact <- matrix(0,n.row,n.col)
-ci_low_ratio <- matrix(0,n.row,n.col)
-ci_high_ratio <- matrix(0,n.row,n.col)
-ci_ratio <- matrix(0,n.row,n.col)
-ci_low_epi <- matrix(0,n.row,n.col)
-ci_high_epi <- matrix(0,n.row,n.col)
-ci_epi <- matrix(0,n.row,n.col)
-ci_exact <- matrix(0,n.row,n.col)
-ci_low_exact <- matrix(0,n.row,n.col)
-ci_high_exact <- matrix(0,n.row,n.col)
+cover_ratio_list <- matrix(0,n.row,n.col)
+cover_true_list <- matrix(0,n.row,n.col)
+cover_epi_list <- matrix(0,n.row,n.col)
+cover_exact_list <- matrix(0,n.row,n.col)
+cover_true_exact_list <- matrix(0,n.row,n.col)
+ci_low_ratio_list <- matrix(0,n.row,n.col)
+ci_high_ratio_list <- matrix(0,n.row,n.col)
+ci_ratio_list <- matrix(0,n.row,n.col)
+ci_low_epi_list <- matrix(0,n.row,n.col)
+ci_high_epi_list <- matrix(0,n.row,n.col)
+ci_epi_list <- matrix(0,n.row,n.col)
+ci_exact_list <- matrix(0,n.row,n.col)
+ci_low_exact_list <- matrix(0,n.row,n.col)
+ci_high_exact_list <- matrix(0,n.row,n.col)
 
 p <- list()
 p_ratio <- list()
 temp <- 1
 load("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata")
-for(i1 in 1:3){
-  for(i2 in 1:4){
-    result <- result_final[[temp]]
-    Gamma = result[[1]]
-    var_Gamma = result[[2]]
-    gamma = result[[3]]
-    var_gamma = result[[4]]
-    ratio_est = result[[5]]
-    var_ratio <- result[[6]]
-    n <- length(Gamma)
-    cover_ratio[i2,i1] <- mean(result[[7]])
-    cover_true[i2,i1] <- mean(result[[8]])
-    cover_epi[i2,i1] <- mean(result[[9]])
-    cover_exact[i2,i1] <- mean(result[[10]])
-    cover_true_exact[i2,i1] <- mean(result[[11]])
-    ci_low_ratio[i2,i1] <- mean(result[[12]])
-    ci_high_ratio[i2,i1] <- mean(result[[13]])
-    ci_ratio[i2,i1] <- paste0(ci_low_ratio[i2,i1],", ",ci_high_ratio[i2,i1])
-    ci_low_epi[i2,i1] <- mean(result[[14]])
-    ci_high_epi[i2,i1] <- mean(result[[15]])
-    ci_epi[i2,i1] <- paste0(ci_low_epi[i2,i1],", ",ci_high_epi[i2,i1])
-    ci_low_exact[i2,i1] <- mean(result[[16]])
-    ci_high_exact[i2,i1] <- mean(result[[17]])
-    ci_exact[i2,i1] <- paste0(ci_low_exact[i2,i1],", ",ci_high_exact[i2,i1])
+for(i4 in 1:4){
+  cover_ratio <- matrix(0,n.row,n.col)
+  cover_true <- matrix(0,n.row,n.col)
+  cover_epi <- matrix(0,n.row,n.col)
+  cover_exact <- matrix(0,n.row,n.col)
+  cover_true_exact <- matrix(0,n.row,n.col)
+  ci_low_ratio <- matrix(0,n.row,n.col)
+  ci_high_ratio <- matrix(0,n.row,n.col)
+  ci_ratio <- matrix(0,n.row,n.col)
+  ci_low_epi <- matrix(0,n.row,n.col)
+  ci_high_epi <- matrix(0,n.row,n.col)
+  ci_epi <- matrix(0,n.row,n.col)
+  ci_exact <- matrix(0,n.row,n.col)
+  ci_low_exact <- matrix(0,n.row,n.col)
+  ci_high_exact <- matrix(0,n.row,n.col)
+  for(i1 in 1:3){
+    for(i2 in 1:4){
+      result <- result_final[[temp]]
+      Gamma = result[[1]]
+      var_Gamma = result[[2]]
+      gamma = result[[3]]
+      var_gamma = result[[4]]
+      ratio_est = result[[5]]
+      var_ratio <- result[[6]]
+      n <- length(Gamma)
+      cover_ratio[i2,i1] <- mean(result[[7]])
+      cover_true[i2,i1] <- mean(result[[8]])
+      cover_epi[i2,i1] <- mean(result[[9]])
+      cover_exact[i2,i1] <- mean(result[[10]])
+      cover_true_exact[i2,i1] <- mean(result[[11]])
+      ci_low_ratio[i2,i1] <- mean(result[[12]])
+      ci_high_ratio[i2,i1] <- mean(result[[13]])
+      ci_ratio[i2,i1] <- paste0(ci_low_ratio[i2,i1],", ",ci_high_ratio[i2,i1])
+      ci_low_epi[i2,i1] <- mean(result[[14]])
+      ci_high_epi[i2,i1] <- mean(result[[15]])
+      ci_epi[i2,i1] <- paste0(ci_low_epi[i2,i1],", ",ci_high_epi[i2,i1])
+      ci_low_exact[i2,i1] <- mean(result[[16]])
+      ci_high_exact[i2,i1] <- mean(result[[17]])
+      ci_exact[i2,i1] <- paste0(ci_low_exact[i2,i1],", ",ci_high_exact[i2,i1])
       z_est = ratio_est/sqrt(var_ratio)
       idx <- which(result[[10]]==0&
                      result[[11]]==1)
@@ -65,37 +81,52 @@ for(i1 in 1:3){
       min(gamma[idx])
       max(gamma)
       min(gamma)
-#     standard_norm = rnorm(times)
-#     z_Gamma <- rnorm(times)
-#     z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)
-#     
-#     true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
-# data <- data.frame(z_est,standard_norm,true_distribution)
-# colnames(data) <- c("Derived distribution","IVW","Real distribution")
-# library(reshape2)
-# data.m <- melt(data)
-# data.m.temp <- data.m
-# p[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
-#   geom_density()+
-#   theme_Publication()+
-#   theme(legend.position = "none")
-# quantemp <- quantile(ratio_est,c(0.025,0.975))
-# idx <- which(ratio_est>=quantemp[1]&
-#                ratio_est<=quantemp[2])
-# ratio_new <- ratio_est[idx]
-# standard_norm <- rnorm(length(idx))
-# 
-# 
-# data <- data.frame(ratio_new,standard_norm)
-# colnames(data) <- c("Ratio","Standard Normal ")
-# data.m <- melt(data)
-# 
-# p_ratio[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
-#   geom_density()+
-#   theme_Publication()+
-#   theme(legend.position = "none")
-temp <- temp+1
+      #     standard_norm = rnorm(times)
+      #     z_Gamma <- rnorm(times)
+      #     z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)
+      #     
+      #     true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
+      # data <- data.frame(z_est,standard_norm,true_distribution)
+      # colnames(data) <- c("Derived distribution","IVW","Real distribution")
+      # library(reshape2)
+      # data.m <- melt(data)
+      # data.m.temp <- data.m
+      # p[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
+      #   geom_density()+
+      #   theme_Publication()+
+      #   theme(legend.position = "none")
+      # quantemp <- quantile(ratio_est,c(0.025,0.975))
+      # idx <- which(ratio_est>=quantemp[1]&
+      #                ratio_est<=quantemp[2])
+      # ratio_new <- ratio_est[idx]
+      # standard_norm <- rnorm(length(idx))
+      # 
+      # 
+      # data <- data.frame(ratio_new,standard_norm)
+      # colnames(data) <- c("Ratio","Standard Normal ")
+      # data.m <- melt(data)
+      # 
+      # p_ratio[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
+      #   geom_density()+
+      #   theme_Publication()+
+      #   theme(legend.position = "none")
+      temp <- temp+1
+    }
   }
+  cover_ratio_list[[i4]] <- cover_ratio
+  cover_true_list[[i4]] <-   cover_true
+  cover_epi_list[[i4]] <- cover_epi
+  cover_exact_list[[i4]] <- cover_exact
+  cover_true_exact_list[[i4]] <- cover_true
+  ci_low_ratio_list[[i4]] <- ci_low_ratio
+  ci_high_ratio_list[[i4]] <- ci_high_ratio
+  ci_ratio_list[[i4]] <- ci_ratio
+  ci_low_epi_list[[i4]] <- ci_low_epi
+  ci_high_epi_list[[i4]] <- ci_high_epi
+  ci_epi_list[[i4]] <- ci_epi
+  ci_exact_list[[i4]] <- ci_exact
+  ci_low_exact_list[[i4]] <- ci_low_exact
+  ci_high_exact_list[[i4]] <- ci_high_exact
 }
 write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio.csv")
 write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true.csv")

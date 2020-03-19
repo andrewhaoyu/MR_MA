@@ -31,10 +31,11 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
 
   var_ratio = var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
+
   n.simu <- 1000000
   z_Gamma <- rnorm(n.simu,mean = Gamma,sd=sqrt(var_Gamma))
-  
-  # if((gamma)<=1.96*sqrt(var_gamma)&(gamma)>=-1.96*sqrt(var_gamma)){
+
+  #  if((gamma)<=1.96*sqrt(var_gamma)&(gamma)>=-1.96*sqrt(var_gamma)){
   #   plug_mean = 0
   # }else{
   #   plug_mean = gamma*sqrt(n)
@@ -44,6 +45,9 @@ Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   q_result <- quantile(true_distribution,c(0.025,0.975))
   ci_low <- q_result[1]*sqrt(var_ratio)
   ci_high <- q_result[2]*sqrt(var_ratio)
+  # var_ratio = var_Gamma/gamma^2
+  # ci_low <- ratio_est-sqrt(var_ratio)*1.96
+  # ci_high <- ratio_est+sqrt(var_ratio)*1.96
   cover = ifelse(beta_M>=ci_low&
                    beta_M<=ci_high,1,0)
   return(c(ratio_est,var_ratio,cover,ci_low,ci_high))  
@@ -148,7 +152,7 @@ G2 = apply(G_ori2,2,scale)
 set.seed(i3)
 for(i in 1:times){
   print(i)
-  beta_M = 0.1
+  beta_M = 0.5
   alpha_G = alpha_vec[i2]
   sigma_y = 1
   sigma_m = 1

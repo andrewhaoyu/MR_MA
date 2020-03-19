@@ -60,3 +60,4 @@ for(i1 in 1:3){
 save(result_final,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_merged_test.Rdata"))
 
 
+

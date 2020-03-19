@@ -71,8 +71,7 @@ ratio_est = Gamma_est/gamma_est
 #just using the leading term
 ratio_var_standard = Gamma_var/gamma_est^2
 
-z_est <- ratio_est/sqrt(var_ratio_standard)
-p_est <- 2*pnorm(-abs(z_est))
+
 ci_low_ratio <- ratio_est-sqrt(ratio_var_standard)*1.96
 ci_high_ratio <- ratio_est+sqrt(ratio_var_standard)*1.96
 cover_ratio <- ifelse(beta_M>=ci_low_ratio&

@@ -10,6 +10,7 @@ args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
 i2 = as.numeric(args[[2]])
 i3 = as.numeric(args[[3]])
+i4 = as.numeric(args[[4]])
 setwd("/data/zhangh24/MR_MA/")
 Regression = function(Y,M,G,G2){
   n = length(Y)
@@ -127,7 +128,7 @@ RatioExact = function(Gamma,var_Gamma,gamma,var_gamma,n){
 
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.00,0.01,0.03,0.05)
-
+beta_vec = c(0,0.3,0.5,1)
 times = 1000
 n <- n_vec[i1]
 MAF =0.25
@@ -152,7 +153,7 @@ G2 = apply(G_ori2,2,scale)
 set.seed(i3)
 for(i in 1:times){
   print(i)
-  beta_M = 0.5
+  beta_M = beta_vec[i4]
   alpha_G = alpha_vec[i2]
   sigma_y = 1
   sigma_m = 1
@@ -250,7 +251,7 @@ result <- list(Gamma_est,
                ci_low_exact,
                ci_high_exact)
 
-save(result,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,".Rdata"))
+save(result,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,"_",i4,".Rdata"))
 
 
 

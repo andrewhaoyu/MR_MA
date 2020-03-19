@@ -3,12 +3,12 @@ setwd("/data/zhangh24/MR_MA/")
 
 n_vec = c(15000,75000,150000)
 alpha_vec = c(0.0,0.01,0.03,0.05)
-beta_vec = c(0,0.2,0.5)
+beta_vec = c(0,0.3,0.5,1)
 times = 1000*100
 replicates = 100
 result_final = list()
 temp.idx = 1
-for(i4 in 1:3){
+for(i4 in 1:4){
 for(i1 in 1:3){
   for(i2 in 1:4){
     
@@ -71,6 +71,7 @@ for(i1 in 1:3){
   }
 }
 save(result_final,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_merged_delta.Rdata"))
+
 
 
 

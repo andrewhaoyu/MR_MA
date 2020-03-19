@@ -1,7 +1,7 @@
 #plot the ratio estimate distribution
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.00,0.01,0.03,0.05)
-beta_vec = c(0,0.2,0.5)
+beta_vec = c(0,0.3,0.5,1)
 setwd("/Users/zhangh24/GoogleDrive/MR_MA")
 times = 100000
 #i1 correponding to n
@@ -9,7 +9,7 @@ times = 100000
 library(ggplot2)
 n.row <- length(alpha_vec)
 n.col <- length(n_vec)
-
+var_prop_list = list()
 bias_ratio_list = list()
 median_ratio_list = list()
 cover_ratio_list = list()
@@ -18,29 +18,37 @@ ci_low_ratio_list = list()
 ci_high_ratio_list = list()
 ci_low_alpha_list = list()
 ci_high_alpha_list = list()
+ci_ratio_list = list()
+ci_alpha_list = list()
 temp <- 1
 load("./result/simulation/ratio_estimate/ratio_estimate_merged_delta.Rdata")
-for(i4 in 1:3){
+for(i4 in 1:4){
   bias_ratio = matrix(0,n.row,n.col)
   median_ratio = matrix(0,n.row,n.col)
+  var_prop = matrix(0,n.row,n.col)
 cover_ratio <- matrix(0,n.row,n.col)
 cover_alpha <- matrix(0,n.row,n.col)
 ci_low_ratio <- matrix(0,n.row,n.col)
 ci_high_ratio <- matrix(0,n.row,n.col)
+ci_ratio <- matrix("c",n.row,n.col)
 ci_low_alpha <- matrix(0,n.row,n.col)
 ci_high_alpha <- matrix(0,n.row,n.col)
+ci_alpha <- matrix("c",n.row,n.col)
 for(i1 in 1:3){
   for(i2 in 1:4){
     result <- result_final[[temp]]
      
     bias_ratio[i2,i1] = mean(result[[5]])-beta_vec[i4]
     median_ratio[i2,i1] = median(result[[5]])-beta_vec[i4]
+    var_prop[i2,i1] = (mean(result[[7]])-mean(result[[6]]))/mean(result[[7]])
       cover_ratio[i2,i1] <- mean(result[[8]])
       cover_alpha[i2,i1] <- mean(result[[9]])
       ci_low_ratio[i2,i1] <- mean(result[[10]])
       ci_high_ratio[i2,i1] <- mean(result[[11]])
+      ci_ratio[i2,i1] <- paste0(round(ci_low_ratio[i2,i1],2),",",round(ci_high_ratio[i2,i1],2))
       ci_low_alpha[i2,i1] <- mean(result[[12]])
       ci_high_alpha[i2,i1] <- mean(result[[13]])
+      ci_alpha[i2,i1] <- paste0(round(ci_low_alpha[i2,i1],2),",",round(ci_high_alpha[i2,i1],2))
       
       
       temp <- temp+1
@@ -50,15 +58,56 @@ for(i1 in 1:3){
 }
 bias_ratio_list[[i4]] = bias_ratio
 median_ratio_list[[i4]] = median_ratio
+var_prop_list[[i4]] = var_prop
 cover_ratio_list[[i4]] = cover_ratio
 cover_alpha_list[[i4]] = cover_alpha
 ci_low_ratio_list[[i4]] = ci_low_ratio
 ci_high_ratio_list[[i4]] = ci_high_ratio
 ci_low_alpha_list[[i4]] = ci_low_alpha
 ci_high_alpha_list[[i4]] = ci_high_alpha
+ci_ratio_list[[i4]]  = ci_ratio
+ci_alpha_list[[i4]] = ci_alpha
 }
 
+bias_ratio_table = round(rbind(bias_ratio_list[[1]],
+                          bias_ratio_list[[2]],
+                          bias_ratio_list[[3]],
+                          bias_ratio_list[[4]]),2)
 
+write.csv(bias_ratio_table,file = "./result/simulation/ratio_estimate/bias_ratio_table.csv")
+
+
+median_ratio_table = round(rbind(median_ratio_list[[1]],
+                                 median_ratio_list[[2]],
+                                 median_ratio_list[[3]],
+                                 median_ratio_list[[4]]),2)
+write.csv(median_ratio_table,file = "./result/simulation/ratio_estimate/median_ratio_table.csv")
+
+cover_ratio_table <- round(rbind(cover_ratio_list[[1]],
+                                 cover_ratio_list[[2]],
+                                 cover_ratio_list[[3]],
+                                 cover_ratio_list[[4]]),2)
+write.csv(cover_ratio_table,file = "./result/simulation/ratio_estimate/cover_ratio_table.csv")
+cover_alpha_table <- round(rbind(cover_alpha_list[[1]],
+                                 cover_alpha_list[[2]],
+                                 cover_alpha_list[[3]],
+                                 cover_alpha_list[[4]]),2)
+write.csv(cover_alpha_table,file = "./result/simulation/ratio_estimate/cover_alpha_table.csv")
+var_prop_table <- round(rbind(var_prop_list[[1]],
+                              var_prop_list[[2]],
+                              var_prop_list[[3]],
+                              var_prop_list[[4]]),2)
+write.csv(var_prop_table,file = "./result/simulation/ratio_estimate/var_prop_table.csv")
+ci_ratio_table <- rbind(ci_ratio_list[[1]],
+                              ci_ratio_list[[2]],
+                              ci_ratio_list[[3]],
+                              ci_ratio_list[[4]])
+write.csv(ci_ratio_table,file = "./result/simulation/ratio_estimate/ci_ratio_table.csv")
+ci_alpha_table <- rbind(ci_alpha_list[[1]],
+                        ci_alpha_list[[2]],
+                        ci_alpha_list[[3]],
+                        ci_alpha_list[[4]])
+write.csv(ci_alpha_table,file = "./result/simulation/ratio_estimate/ci_alpha_table.csv")
 
 library(gridExtra)
 png("./result/simulation/ratio_estimate/ratio_sd_plot.png",width = 16,height = 8,

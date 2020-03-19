@@ -27,7 +27,7 @@ Regression = function(Y,M,G,G2){
 #standard delta method
 
 
-beta_vec <- c(0,0.2,0.5)
+beta_vec <- c(0,0.3,0.5,1)
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.00,0.01,0.03,0.05)
 

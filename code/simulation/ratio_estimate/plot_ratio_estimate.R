@@ -11,20 +11,20 @@ times = 100000
 library(ggplot2)
 n.row <- length(alpha_vec)
 n.col <- length(n_vec)
-cover_ratio_list <- matrix(0,n.row,n.col)
-cover_true_list <- matrix(0,n.row,n.col)
-cover_epi_list <- matrix(0,n.row,n.col)
-cover_exact_list <- matrix(0,n.row,n.col)
-cover_true_exact_list <- matrix(0,n.row,n.col)
-ci_low_ratio_list <- matrix(0,n.row,n.col)
-ci_high_ratio_list <- matrix(0,n.row,n.col)
-ci_ratio_list <- matrix(0,n.row,n.col)
-ci_low_epi_list <- matrix(0,n.row,n.col)
-ci_high_epi_list <- matrix(0,n.row,n.col)
-ci_epi_list <- matrix(0,n.row,n.col)
-ci_exact_list <- matrix(0,n.row,n.col)
-ci_low_exact_list <- matrix(0,n.row,n.col)
-ci_high_exact_list <- matrix(0,n.row,n.col)
+cover_ratio_list <- list()
+cover_true_list <- list()
+cover_epi_list <- list()
+cover_exact_list <- list()
+cover_true_exact_list <- list()
+ci_low_ratio_list <- list()
+ci_high_ratio_list <- list()
+ci_ratio_list <- list()
+ci_low_epi_list <- list()
+ci_high_epi_list <- list()
+ci_epi_list <- list()
+ci_exact_list <- list()
+ci_low_exact_list <- list()
+ci_high_exact_list <- list()
 
 p <- list()
 p_ratio <- list()
@@ -45,8 +45,17 @@ for(i4 in 1:4){
   ci_exact <- matrix(0,n.row,n.col)
   ci_low_exact <- matrix(0,n.row,n.col)
   ci_high_exact <- matrix(0,n.row,n.col)
+  alpha_U = 0.1
+  beta_U <- 0.1
+  sigma_y = 1
+  sigma_m = 1
   for(i1 in 1:3){
     for(i2 in 1:4){
+      # 
+      # temp = 12*(i4-1)+4*(i1-1)+i2
+      n <- n_vec[i1]
+      alpha_G = alpha_vec[i2]
+      beta_M = beta_vec[i4]
       result <- result_final[[temp]]
       Gamma = result[[1]]
       var_Gamma = result[[2]]
@@ -65,22 +74,71 @@ for(i4 in 1:4){
       ci_ratio[i2,i1] <- paste0(ci_low_ratio[i2,i1],", ",ci_high_ratio[i2,i1])
       ci_low_epi[i2,i1] <- mean(result[[14]])
       ci_high_epi[i2,i1] <- mean(result[[15]])
-      ci_epi[i2,i1] <- paste0(ci_low_epi[i2,i1],", ",ci_high_epi[i2,i1])
+      ci_epi[i2,i1] <- paste0(round(ci_low_epi[i2,i1],2),", ",round(ci_high_epi[i2,i1],2))
       ci_low_exact[i2,i1] <- mean(result[[16]])
       ci_high_exact[i2,i1] <- mean(result[[17]])
-      ci_exact[i2,i1] <- paste0(ci_low_exact[i2,i1],", ",ci_high_exact[i2,i1])
-      z_est = ratio_est/sqrt(var_ratio)
-      idx <- which(result[[10]]==0&
-                     result[[11]]==1)
-      idx <- which(result[[10]]!=result[[11]])
+      ci_exact[i2,i1] <- paste0(round(ci_low_exact[i2,i1],2),", ",round(ci_high_exact[i2,i1],2))
+    
+      true_distribution = ratio_est
+      dot <- seq(0.01,0.99,by=0.002)
+      q_true <- quantile(true_distribution,dot)
+      pdot <-ifelse(dot<=0.5,2*dot,2*(1-dot))
       
-      result[[10]][idx][1:100]
-      result[[11]][idx][1:100]
-      gamma[idx][1:100]
-      max(gamma[idx])
-      min(gamma[idx])
-      max(gamma)
-      min(gamma)
+      
+      n.simu = 1e6
+      z_Gamma <- rnorm(n.simu,mean =alpha_G*beta_M,sd =sqrt((sigma_y+beta_M^2*sigma_m+(beta_M*alpha_U)^2)/n))
+      z_gamma <- rnorm(n.simu,mean = alpha_G,sd = sqrt((alpha_U^2+sigma_m)/n))
+      true_distribution2 <- z_Gamma/z_gamma
+        dot2 = dot
+        for(i in 1:length(dot)){
+          dot2[i] <- sum(true_distribution2<=q_true[i])/length(true_distribution2)
+        
+        }
+        pdot2 <- ifelse(dot2<=0.5,2*dot2,2*(1-dot2))
+        data <- data.frame(pdot[order(pdot)],
+                           pdot2[order(pdot2)])
+        colnames(data) <- c("pdot",
+                            "pdot2")
+        ggplot(data,aes(pdot,pdot2))+
+          geom_point()+
+          geom_abline(slope=1)+
+          xlab(paste0("Empirical distribution"))+
+          ylab(paste0("Derived distribution"))+
+          ggtitle(paste0("n=",n,", beta = ",beta_M,", alpha =",alpha_G))+
+          theme_Publication()+
+          scale_y_continuous(limits=c(0,1))
+        
+        n.simu = 1e3
+        true_distribution3 = rep(0,n.simu*length(Gamma))
+        total <- 0
+        for(k in 1:length(Gamma)){
+          z_Gamma <- rnorm(n.simu,mean =Gamma[k],sd =sqrt(var_Gamma[k]))
+          z_gamma <- rnorm(n.simu,mean = gamma[k],sd = sqrt(var_gamma[k]))
+          temp_simulation <- z_Gamma/z_gamma  
+          true_distribution3[total+(1:n.simu)] <- temp_simulation
+          total = total+n.simu
+        }
+        
+        dot3 = dot
+        for(i in 1:length(dot)){
+          print(i)
+          dot3[i] =  sum(true_distribution3<=q_true[i])/length(true_distribution3)
+        }
+        pdot3 <- ifelse(dot3<=0.5,2*dot3,2*(1-dot3))
+        data <- data.frame(pdot[order(pdot)],
+                           pdot3[order(pdot3)])
+        colnames(data) <- c("pdot",
+                            "pdot2")
+        ggplot(data,aes(pdot,pdot2))+
+          geom_point()+
+          geom_abline(slope=1)+
+          xlab(paste0("Empirical distribution"))+
+          ylab(paste0("Derived distribution"))+
+          ggtitle(paste0("n=",n,", beta = ",beta_M,", alpha =",alpha_G))+
+          theme_Publication()+
+          scale_y_continuous(limits=c(0,1))
+        
+        
       #     standard_norm = rnorm(times)
       #     z_Gamma <- rnorm(times)
       #     z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)
@@ -128,11 +186,29 @@ for(i4 in 1:4){
   ci_low_exact_list[[i4]] <- ci_low_exact
   ci_high_exact_list[[i4]] <- ci_high_exact
 }
+
+cover_epi_table <- round(rbind(cover_epi_list[[1]],
+                               cover_epi_list[[2]],
+                               cover_epi_list[[3]],
+                               cover_epi_list[[4]]),2)
+write.csv(cover_epi_table,file = "./result/simulation/ratio_estimate/cover_epi_table.csv")
+
+cover_exact_table <- round(rbind(cover_exact_list[[1]],
+                                 cover_exact_list[[2]],
+                                 cover_exact_list[[3]],
+                                 cover_exact_list[[4]]),2)
+write.csv(cover_exact_table,file = "./result/simulation/ratio_estimate/cover_exact_table.csv")
+
+ci_exact_table <- rbind(ci_exact_list[[1]],
+                              ci_exact_list[[2]],
+                              ci_exact_list[[3]],
+                              ci_exact_list[[4]])
+write.csv(ci_exact_table,file = "./result/simulation/ratio_estimate/ci_exact_table.csv")
+
 write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio.csv")
 write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true.csv")
 write.csv(cover_epi,file = "./result/simulation/ratio_estimate/cover_epi.csv")
 write.csv(cover_true_exact,file = "./result/simulation/ratio_estimate/cover_true_exact.csv")
-write.csv(cover_exact,file = "./result/simulation/ratio_estimate/cover_exact.csv")
 write.csv(ci_ratio,file = "./result/simulation/ratio_estimate/ci_ratio.csv")
 write.csv(ci_epi,file = "./result/simulation/ratio_estimate/ci_epi.csv")
 write.csv(ci_exact,file = "./result/simulation/ratio_estimate/ci_exact.csv")
@@ -171,7 +247,6 @@ var_Gamma = result[[2]]
 gamma = result[[3]]
 var_gamma = result[[4]]
 var_ratio <- result[[6]]
-n <- length(Gamma)
 cover_ratio[i2,i1] <- mean(result[[8]])
 cover_true[i2,i1] <- mean(result[[9]])
 cover_epi[i2,i1] <- mean(result[[10]])

@@ -28,6 +28,61 @@ Regression = function(Y,M,G,G2){
   
 }
 
+Equ <- function(a,b,c,x){
+  return(a*x^2+b*x+c)
+}
+
+ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
+ 
+  Gamma = est[1]
+  var_Gamma  = est[2]
+  gamma = est[3]
+  var_gamma = est[4]
+   Q = 3.841459
+  a = (Q*var_gamma-gamma^2)
+  b = 2*Gamma*gamma
+  c = (Q*var_Gamma-Gamma^2)
+  
+  tri = b^2 - 4*a*c
+  if(tri<0){
+    if(Equ(a,b,c,0)>0){
+      ci_low = -10
+      ci_high = 10
+      ind = 0
+    }else{
+      ci_low = NA
+      ci_high = NA
+    }
+  }else{
+    x1 = (-b-sqrt(tri))/(2*a)
+    x2 = (-b+sqrt(tri))/(2*a)
+   if(a<=0){
+     ci_low = x2
+     ci_high = x1
+     ind = 1
+   }else{
+     ci_low = -10
+     ci_high = x2
+     ind = 2
+   }
+  }
+  cover = ifelse(beta_M>=ci_low&
+                   beta_M<=ci_high,1,0)
+  return(c(cover,ci_low,ci_high,ind))
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 Ratio = function(Gamma,var_Gamma,gamma,var_gamma,n){
   ratio_est = Gamma/gamma
 
@@ -141,10 +196,14 @@ ratio_var <- rep(0,times)
 ratio_cover <- rep(0,times)
 cover_epi <- rep(0,times)
 cover_exact <- rep(0,times)
+cover_AR <- rep(0,times)
 ci_low_epi <- rep(0,times)
 ci_high_epi <- rep(0,times)
 ci_low_exact <- rep(0,times)
 ci_high_exact <- rep(0,times)
+ci_low_AR <- rep(0,times)
+ci_high_AR <- rep(0,times)
+ind <- rep(0,times)
 ratio_var_standard <- rep(0,times)
 G_ori = matrix(rbinom(n*5,1,MAF),n,1)
 G = apply(G_ori,2,scale)
@@ -176,11 +235,12 @@ for(i in 1:times){
   cover_epi[i] <- ratio_temp[3]
   ci_low_epi[i] <- ratio_temp[4]
   ci_high_epi[i] <- ratio_temp[5]
+  ratio_exact_temp <- ARMethod(est[1],est[2],est[3],est[4])
+  cover_AR[i] <- ratio_exact_temp[1]
+  ci_low_AR[i] <- ratio_exact_temp[2]
+  ci_high_AR[i] <- ratio_exact_temp[3]
+  ind[i] <- ratio_exact_temp[4]
   ratio_exact_temp <- RatioExact(est[1],est[2],est[3],est[4],n)
-  cover_exact[i] <- ratio_exact_temp[1]
-  ci_low_exact[i] <- ratio_exact_temp[2]
-  ci_high_exact[i] <- ratio_exact_temp[3]
-  
 }
 
 
@@ -249,7 +309,10 @@ result <- list(Gamma_est,
                ci_low_epi,
                ci_high_epi,
                ci_low_exact,
-               ci_high_exact)
+               ci_high_exact,
+               cover_AR,
+               ci_low_AR,
+               ci_high_AR)
 
 save(result,file = paste0("./result/simulation/ratio_estimate/ratio_estimate_",i1,"_",i2,"_",i3,"_",i4,".Rdata"))
 

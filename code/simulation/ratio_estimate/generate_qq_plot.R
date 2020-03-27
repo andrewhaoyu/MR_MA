@@ -76,24 +76,32 @@ p <- list()
       true_distribution = ratio_est
       dot <- seq(0.01,0.99,by=0.002)
       q_true <- quantile(true_distribution,dot)
-      pdot <-ifelse(dot<=0.5,2*dot,2*(1-dot))
+      #pdot <-ifelse(dot<=0.5,2*dot,2*(1-dot))
       
       
       n.simu = 1e6
       z_Gamma <- rnorm(n.simu,mean =alpha_G*beta_M,sd =sqrt((sigma_y+beta_M^2*sigma_m+(beta_M*alpha_U)^2)/n))
       z_gamma <- rnorm(n.simu,mean = alpha_G,sd = sqrt((alpha_U^2+sigma_m)/n))
       true_distribution2 <- z_Gamma/z_gamma
-      dot2 = dot
-      for(i in 1:length(dot)){
-        dot2[i] <- sum(true_distribution2<=q_true[i])/length(true_distribution2)
-        
-      }
-      pdot2 <- ifelse(dot2<=0.5,2*dot2,2*(1-dot2))
-      data <- data.frame(pdot[order(pdot)],
-                         pdot2[order(pdot2)])
-      colnames(data) <- c("pdot",
-                          "pdot2")
-     p[[1]] <- ggplot(data,aes(pdot,pdot2))+
+      q_true2 = quantile(true_distribution2,dot)
+      # dot2 = dot
+      # for(i in 1:length(dot)){
+      #   dot2[i] <- sum(true_distribution2<=q_true[i])/length(true_distribution2)
+      #   
+      # }
+      #pdot2 <- ifelse(dot2<=0.5,2*dot2,2*(1-dot2))
+      data <- data.frame(q_true,
+                         q_true2)
+      colnames(data) <- c("q_true",
+                          "q_true2")
+     # p[[1]] <- ggplot(data,aes(q_true,q_true2))+
+     #    geom_point()+
+     #    geom_abline(slope=1)+
+     #    xlab(paste0("Empirical distribution quantile"))+
+     #    ylab(paste0("Derived distribution quantile"))+
+     #    ggtitle(paste0("n=",n,", beta = ",beta_M,", alpha =",alpha_G))+
+     #    theme_Publication()
+      p[[1]] <- ggplot(data,aes(pdot,pdot2))+
         geom_point()+
         geom_abline(slope=1)+
         xlab(paste0("Empirical distribution"))+
@@ -102,7 +110,48 @@ p <- list()
         theme_Publication()+
         scale_y_continuous(limits=c(0,1))
       
-      n.simu = 1e4
+      
+     n.simu = 1e6
+     true_distribution3 = rep(0,n.simu)
+     total <- 0
+     for(k in 1:1){
+       z_Gamma <- rnorm(n.simu,mean =Gamma[k],sd =sqrt(var_Gamma[k]))
+       z_gamma <- rnorm(n.simu,mean = gamma[k],sd = sqrt(var_gamma[k]))
+       temp_simulation <- z_Gamma/z_gamma  
+       true_distribution3[total+(1:n.simu)] <- temp_simulation
+       total = total+n.simu
+     }
+     q_true3 = quantile(true_distribution3,dot)
+     data <- data.frame(q_true,
+                        q_true3)
+     colnames(data) <- c("q_true",
+                         "q_true2")
+     p[[2]] <- 
+      # png(paste0("./result/simulation/ratio_estimate/qqplot/test.png"),width = 16,height = 8,
+         #  unit = "in",res = 300)
+     ggplot(data,aes(q_true,q_true2))+
+       geom_point()+
+       geom_abline(slope=1)+
+       xlab(paste0("Empirical distribution"))+
+       ylab(paste0("Plug in distribution"))+
+       ggtitle(paste0("n=",n,", beta = ",beta_M,", alpha =",alpha_G))+
+       theme_Publication()
+      # dev.off()
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+     
+      n.simu = 1e3
       true_distribution3 = rep(0,n.simu*length(Gamma))
       total <- 0
       for(k in 1:length(Gamma)){
@@ -114,15 +163,12 @@ p <- list()
       }
       
       dot3 = dot
-      for(i in 1:length(dot)){
-        print(i)
-        dot3[i] =  sum(true_distribution3<=q_true[i])/length(true_distribution3)
-      }
-      pdot3 <- ifelse(dot3<=0.5,2*dot3,2*(1-dot3))
-      data <- data.frame(pdot[order(pdot)],
-                         pdot3[order(pdot3)])
-      colnames(data) <- c("pdot",
-                          "pdot2")
+      q_true3 = quantile(true_distribution3,dot)
+      data <- data.frame(q_true,
+                         q_true3)
+      colnames(data) <- c("q_true",
+                          "q_true2")
+      
       p[[2]] <- ggplot(data,aes(pdot,pdot2))+
         geom_point()+
         geom_abline(slope=1)+

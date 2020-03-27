@@ -33,11 +33,7 @@ Equ <- function(a,b,c,x){
 }
 
 ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
- 
-  Gamma = est[1]
-  var_Gamma  = est[2]
-  gamma = est[3]
-  var_gamma = est[4]
+
    Q = 3.841459
   a = (Q*var_gamma-gamma^2)
   b = 2*Gamma*gamma
@@ -49,6 +45,8 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
       ci_low = -10
       ci_high = 10
       ind = 0
+      cover = ifelse(beta_M>=ci_low&
+                       beta_M<=ci_high,1,0)
     }else{
       ci_low = NA
       ci_high = NA
@@ -56,18 +54,27 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   }else{
     x1 = (-b-sqrt(tri))/(2*a)
     x2 = (-b+sqrt(tri))/(2*a)
+    if(x1<=x2){
+      x_low = x1
+      x_high = x2
+    }else{
+      x_low = x2
+      x_high = x1
+    }
    if(a<=0){
-     ci_low = x2
-     ci_high = x1
+     ci_low = x_low
+     ci_high = x_high
      ind = 1
+     cover = ifelse(beta_M>=ci_low&
+                      beta_M<=ci_high,1,0)
    }else{
      ci_low = -10
-     ci_high = x2
+     ci_high = x_low
      ind = 2
+     cover = ifelse(Equ(a,b,c,beta_M)>=0,1,0)
    }
   }
-  cover = ifelse(beta_M>=ci_low&
-                   beta_M<=ci_high,1,0)
+ 
   return(c(cover,ci_low,ci_high,ind))
 }
 

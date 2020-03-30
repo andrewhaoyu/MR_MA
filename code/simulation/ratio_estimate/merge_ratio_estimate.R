@@ -46,6 +46,9 @@ for(i4 in 1:4){
       ci_high_epi <- rep(0,times)
       ci_low_exact <- rep(0,times)
       ci_high_exact <- rep(0,times)
+      cover_AR <- rep(0,times)
+      ci_low_AR <- rep(0,times)
+      ci_high_AR <- rep(0,times)
       # idx <- which(ratio_est>=q_result[1]&
       #                ratio_est<=-6.24)
       # head(ci_low_exact[idx])
@@ -70,6 +73,9 @@ for(i4 in 1:4){
         ci_high_epi[total+(1:temp)] <- result[[15]]
         ci_low_exact[total+(1:temp)] <- result[[16]]
         ci_high_exact[total+(1:temp)] <- result[[17]]
+        cover_AR[total+(1:temp)] <- result[[18]]
+        ci_low_AR[total+(1:temp)] <- result[[19]]
+        ci_high_AR[total+(1:temp)] <- result[[20]]
         total <- total+temp
         
         idx <- which(cover_exact==1&
@@ -94,7 +100,10 @@ for(i4 in 1:4){
                                        ci_low_epi,
                                        ci_high_epi,
                                        ci_low_exact,
-                                       ci_high_exact)
+                                       ci_high_exact,
+                                       cover_AR,
+                                       ci_low_AR,
+                                       ci_high_AR            )
       temp.idx <- temp.idx+1
     }
   }

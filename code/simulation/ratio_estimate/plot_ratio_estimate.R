@@ -25,7 +25,10 @@ ci_epi_list <- list()
 ci_exact_list <- list()
 ci_low_exact_list <- list()
 ci_high_exact_list <- list()
-
+cover_AR_list <- list()
+ci_low_AR_list <- list()
+ci_high_AR_list <- list()  
+ci_AR_list <- list()
 p <- list()
 p_ratio <- list()
 temp <- 1
@@ -45,6 +48,10 @@ for(i4 in 1:4){
   ci_exact <- matrix(0,n.row,n.col)
   ci_low_exact <- matrix(0,n.row,n.col)
   ci_high_exact <- matrix(0,n.row,n.col)
+  cover_AR <- matrix(0,n.row,n.col)
+  ci_low_AR <- matrix(0,n.row,n.col)
+  ci_high_AR <- matrix(0,n.row,n.col)
+  ci_AR <- matrix(0,n.row,n.col)
   alpha_U = 0.1
   beta_U <- 0.1
   sigma_y = 1
@@ -77,97 +84,12 @@ for(i4 in 1:4){
       ci_epi[i2,i1] <- paste0(round(ci_low_epi[i2,i1],2),", ",round(ci_high_epi[i2,i1],2))
       ci_low_exact[i2,i1] <- mean(result[[16]])
       ci_high_exact[i2,i1] <- mean(result[[17]])
+      cover_AR[i2,i1] <- mean(result[[18]])
+      ci_low_AR[i2,i1] <- mean(result[[19]])
+      ci_high_AR[i2,i1] <- mean(result[[20]])
+      ci_AR <- paste0(round(ci_low_AR[i2,i1],2),", ",round(ci_high_AR[i2,i1],2))
       ci_exact[i2,i1] <- paste0(round(ci_low_exact[i2,i1],2),", ",round(ci_high_exact[i2,i1],2))
-    
-      true_distribution = ratio_est
-      dot <- seq(0.01,0.99,by=0.002)
-      q_true <- quantile(true_distribution,dot)
-      pdot <-ifelse(dot<=0.5,2*dot,2*(1-dot))
       
-      
-      n.simu = 1e6
-      z_Gamma <- rnorm(n.simu,mean =alpha_G*beta_M,sd =sqrt((sigma_y+beta_M^2*sigma_m+(beta_M*alpha_U)^2)/n))
-      z_gamma <- rnorm(n.simu,mean = alpha_G,sd = sqrt((alpha_U^2+sigma_m)/n))
-      true_distribution2 <- z_Gamma/z_gamma
-        dot2 = dot
-        for(i in 1:length(dot)){
-          dot2[i] <- sum(true_distribution2<=q_true[i])/length(true_distribution2)
-        
-        }
-        pdot2 <- ifelse(dot2<=0.5,2*dot2,2*(1-dot2))
-        data <- data.frame(pdot[order(pdot)],
-                           pdot2[order(pdot2)])
-        colnames(data) <- c("pdot",
-                            "pdot2")
-        ggplot(data,aes(pdot,pdot2))+
-          geom_point()+
-          geom_abline(slope=1)+
-          xlab(paste0("Empirical distribution"))+
-          ylab(paste0("Derived distribution"))+
-          ggtitle(paste0("n=",n,", beta = ",beta_M,", alpha =",alpha_G))+
-          theme_Publication()+
-          scale_y_continuous(limits=c(0,1))
-        
-        n.simu = 1e3
-        true_distribution3 = rep(0,n.simu*length(Gamma))
-        total <- 0
-        for(k in 1:length(Gamma)){
-          z_Gamma <- rnorm(n.simu,mean =Gamma[k],sd =sqrt(var_Gamma[k]))
-          z_gamma <- rnorm(n.simu,mean = gamma[k],sd = sqrt(var_gamma[k]))
-          temp_simulation <- z_Gamma/z_gamma  
-          true_distribution3[total+(1:n.simu)] <- temp_simulation
-          total = total+n.simu
-        }
-        
-        dot3 = dot
-        for(i in 1:length(dot)){
-          print(i)
-          dot3[i] =  sum(true_distribution3<=q_true[i])/length(true_distribution3)
-        }
-        pdot3 <- ifelse(dot3<=0.5,2*dot3,2*(1-dot3))
-        data <- data.frame(pdot[order(pdot)],
-                           pdot3[order(pdot3)])
-        colnames(data) <- c("pdot",
-                            "pdot2")
-        ggplot(data,aes(pdot,pdot2))+
-          geom_point()+
-          geom_abline(slope=1)+
-          xlab(paste0("Empirical distribution"))+
-          ylab(paste0("Derived distribution"))+
-          ggtitle(paste0("n=",n,", beta = ",beta_M,", alpha =",alpha_G))+
-          theme_Publication()+
-          scale_y_continuous(limits=c(0,1))
-        
-        
-      #     standard_norm = rnorm(times)
-      #     z_Gamma <- rnorm(times)
-      #     z_gamma <- rnorm(times,mean = alpha_vec[i2]*sqrt(n_vec[i1]),sd = 1)
-      #     
-      #     true_distribution <- z_Gamma/sqrt(1+z_Gamma^2/z_gamma^2)
-      # data <- data.frame(z_est,standard_norm,true_distribution)
-      # colnames(data) <- c("Derived distribution","IVW","Real distribution")
-      # library(reshape2)
-      # data.m <- melt(data)
-      # data.m.temp <- data.m
-      # p[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
-      #   geom_density()+
-      #   theme_Publication()+
-      #   theme(legend.position = "none")
-      # quantemp <- quantile(ratio_est,c(0.025,0.975))
-      # idx <- which(ratio_est>=quantemp[1]&
-      #                ratio_est<=quantemp[2])
-      # ratio_new <- ratio_est[idx]
-      # standard_norm <- rnorm(length(idx))
-      # 
-      # 
-      # data <- data.frame(ratio_new,standard_norm)
-      # colnames(data) <- c("Ratio","Standard Normal ")
-      # data.m <- melt(data)
-      # 
-      # p_ratio[[temp]] <- ggplot(data.m,aes(value,colour=variable))+
-      #   geom_density()+
-      #   theme_Publication()+
-      #   theme(legend.position = "none")
       temp <- temp+1
     }
   }
@@ -185,6 +107,10 @@ for(i4 in 1:4){
   ci_exact_list[[i4]] <- ci_exact
   ci_low_exact_list[[i4]] <- ci_low_exact
   ci_high_exact_list[[i4]] <- ci_high_exact
+  cover_AR_list[[i4]] <- cover_AR
+  ci_low_AR_list[[i4]] <- ci_low_AR
+  ci_high_AR_list[[i4]] <- ci_high_AR  
+  ci_AR_list[[i4]] <- ci_AR
 }
 
 cover_epi_table <- round(rbind(cover_epi_list[[1]],

@@ -93,28 +93,99 @@ IVW_c = function(Gamma,var_Gamma,gamma,var_gamma){
 
 
 QuacForm <- function(Gamma,var_Gamma,gamma,var_gamma,beta_plug){
-  return(sum((Gamma-beta_plug*gamma)^2/(var_Gamma+beta_plug^2*var_gamma)))
+  K <- length(Gamma)
+  #return the plug in test results
+  return(sum((Gamma-beta_plug*gamma)^2/(var_Gamma+beta_plug^2*var_gamma))-qchisq(0.95,K))
 }
 
 
-
-
-
+Gamma = as.numeric(est[[1]])
+var_Gamma = as.numeric(est[[2]])
+gamma =  as.numeric(est[[3]])
+var_gamma =  as.numeric(est[[4]])
 
 
 ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
-  beta_seq <- seq(-10,10,by=0.01)
+  K <- length(Gamma)
+  keep.ind <- c(1:K)
+  
+  beta_seq <- seq(-5,5,by=0.001)
+  #initial run
   quan_result <- rep(0,length(beta_seq))
   for(k in 1:length(beta_seq)){
     quan_result[k] <- QuacForm(Gamma,var_Gamma,gamma,var_gamma,beta_seq[k])
   }
-  coef_est <- beta_seq[which.min(quan_result)]
-  test_result <- QuacForm(Gamma,var_Gamma,gamma,var_gamma,beta_M)
+  #get the best estimate
+  coef_best <- beta_seq[which.min(quan_result)]
+  #test whether there are any special value
+  beta_plug = coef_best
   
-  cover = ifelse(test_result<=qchisq(0.95,df=length(Gamma)),1,0)
+  Gamma_update = Gamma
+  var_Gamma_update = var_Gamma
+  gamma_update = gamma
+  var_gamma_update = var_gamma
+  p_test_value = pchisq((Gamma_update-beta_plug*gamma_update)^2/(var_Gamma_update+beta_plug^2*var_gamma_update),1,lower.tail = F)
+  p_adjust_test_value = p.adjust(p_test_value,method="none")  
   
-  return(c(coef_est,cover))
+  keep_update <- keep.ind
+  while(min(p_adjust_test_value)<=0.05){
+    print(min(p_adjust_test_value))
+    idx <- which.min(p_adjust_test_value)
+    keep.ind <- keep.ind[-idx]
+    Gamma_update = Gamma_update[-idx]
+    var_Gamma_update = var_Gamma_update[-idx]
+    gamma_update = gamma_update[-idx]
+    var_gamma_update = var_gamma_update[-idx]
+    quan_result <- rep(0,length(beta_seq))
+    for(k in 1:length(beta_seq)){
+      quan_result[k] <- QuacForm(Gamma_update,var_Gamma_update,gamma_update,var_gamma_update,beta_seq[k])
+    }
+    coef_best <- beta_seq[which.min(quan_result)]
+    p_test_value = pchisq((Gamma_update-beta_plug*gamma_update)^2/(var_Gamma_update+beta_plug^2*var_gamma_update),1,lower.tail = F)
+    p_adjust_test_value = p.adjust(p_test_value,method="none") 
+  }
+  coef_est = coef_best
+  #get the confidence interval
+  
+  idx <- which(quan_result<=0)
+  length(idx)
+  beta_ci_range <- beta_seq[idx]
+  coef_low <- min(beta_ci_range)
+  coef_high <- max(beta_ci_range)
+  cover_AR = ifelse((beta_M>=coef_low&
+                    beta_M<=coef_high),1,0)
+  remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
+  
+  Gamma_keep = Gamma[keep.ind]
+  var_Gamma_keep = var_Gamma[keep.ind]
+  gamma_keep = gamma[keep.ind]
+  var_gamma_keep = var_gamma[keep.ind]
+  
+  var_coef_est = solve(t(gamma_keep)%*%solve(diag(var_Gamma_keep+coef_est^2*var_gamma_keep))%*%(gamma_keep))
+  
+  coef_high_update <- coef_est+1.96*sqrt(var_coef_est)
+  coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
+  cover_update <- ifelse((beta_M>=coef_low_update&
+                            beta_M<=coef_high_update),1,0)
+  
+  return(list(coef_est,coef_low,coef_high,cover_AR,
+              keep.ind,remove.id,coef_low_update,coef_high_update,cover_update))
 }
+
+
+# ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
+#   beta_seq <- seq(-10,10,by=0.01)
+#   quan_result <- rep(0,length(beta_seq))
+#   for(k in 1:length(beta_seq)){
+#     quan_result[k] <- QuacForm(Gamma,var_Gamma,gamma,var_gamma,beta_seq[k])
+#   }
+#   coef_est <- beta_seq[which.min(quan_result)]
+#   test_result <- QuacForm(Gamma,var_Gamma,gamma,var_gamma,beta_M)
+#   
+#   cover = ifelse(test_result<=qchisq(0.95,df=length(Gamma)),1,0)
+#   
+#   return(c(coef_est,cover))
+# }
 
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.00,0.01,0.03,0.05)
@@ -141,6 +212,11 @@ ci_high_ratio_c <- rep(0,times)
 
 ratio_est_AR <- rep(0,times)
 cover_AR <- rep(0,times)
+ratio_AR_low <- rep(0,times)
+ratio_AR_high <- rep(0,times)
+cover_AR_update <- rep(0,times)
+ratio_AR_update_low <- rep(0,times)
+ratio_AR_update_high <- rep(0,times)
 ind <- rep(0,times)
 G_ori = matrix(rbinom(n*5,2,MAF),n,5)
 G = apply(G_ori,2,scale)
@@ -192,7 +268,13 @@ for(i in 1:times){
              as.numeric(est[[3]]),
              as.numeric(est[[4]]))
   ratio_est_AR[i] <- ratio_exact_temp[1]
-  cover_AR[i] <- ratio_exact_temp[2]
+  ratio_AR_low[i] <- ratio_exact_temp[2]
+  ratio_AR_high[i] <- ratio_exact_temp[3]
+  cover_AR[i] <- ratio_exact_temp[4]
+  ratio_AR_update_low[i] <- ratio_exact_temp[7]
+  ratio_AR_update_high[i] <- ratio_exact_temp[8]
+  cover_AR_update[i] <- ratio_exact_temp[9]
+  
 }
 
 
@@ -214,7 +296,13 @@ result = list(Gamma_est,
                ci_low_ratio_c,
                ci_high_ratio_c,
                ratio_est_AR,
-               cover_AR
+              ratio_est_AR,
+              ratio_AR_low,
+              ratio_AR_high,
+              cover_AR,
+              ratio_AR_update_low,
+              ratio_AR_update_high,
+              cover_AR_update
 )
 
 

@@ -11,51 +11,44 @@ times = 100000
 library(ggplot2)
 n.row <- length(alpha_vec)
 n.col <- length(n_vec)
-cover_ratio_list <- list()
-cover_true_list <- list()
-cover_epi_list <- list()
-cover_exact_list <- list()
-cover_true_exact_list <- list()
+Gamma_est,
+Gamma_var,
+gamma_est,
+gamma_var,
+ratio_est,
+ratio_var,
+ratio_cover,
+ci_low_ratio,
+ci_high_ratio,
+ratio_est_c,
+ratio_var_c,
+ratio_cover_c,
+ratio_cover_c,
+ci_low_ratio_c,
+ci_high_ratio_c,
+ratio_est_AR,
+cover_AR
+ratio_cover_list <- list()
 ci_low_ratio_list <- list()
 ci_high_ratio_list <- list()
-ci_ratio_list <- list()
-ci_low_epi_list <- list()
-ci_high_epi_list <- list()
-ci_epi_list <- list()
-ci_exact_list <- list()
-ci_low_exact_list <- list()
-ci_high_exact_list <- list()
+ratio_est_c_list <- list()
+ratio_var_c_list <- list()
+ratio_cover_c_list <- list()
+ci_low_ratio_c_list <- list()
+ci_high_ratio_c_list <- list()
+ratio_est_AR_list <- list()
 cover_AR_list <- list()
-ci_low_AR_list <- list()
-ci_high_AR_list <- list()  
-ci_AR_list <- list()
-p <- list()
-p_ratio <- list()
 temp <- 1
-load("./result/simulation/ratio_estimate/ratio_estimate_merged.Rdata")
+load("./result/simulation/IVW/IVW_merged.Rdata")
 for(i4 in 1:4){
-  cover_ratio <- matrix(0,n.row,n.col)
-  cover_true <- matrix(0,n.row,n.col)
-  cover_epi <- matrix(0,n.row,n.col)
-  cover_exact <- matrix(0,n.row,n.col)
-  cover_true_exact <- matrix(0,n.row,n.col)
+  ratio_cover <- matrix(0,n.row,n.col)
   ci_low_ratio <- matrix(0,n.row,n.col)
   ci_high_ratio <- matrix(0,n.row,n.col)
-  ci_ratio <- matrix(0,n.row,n.col)
-  ci_low_epi <- matrix(0,n.row,n.col)
-  ci_high_epi <- matrix(0,n.row,n.col)
-  ci_epi <- matrix(0,n.row,n.col)
-  ci_exact <- matrix(0,n.row,n.col)
-  ci_low_exact <- matrix(0,n.row,n.col)
-  ci_high_exact <- matrix(0,n.row,n.col)
+  ratio_cover_c <- matrix(0,n.row,n.col)
+  ci_low_ratio_c <- matrix(0,n.row,n.col)
+  ci_high_ratio_c <- matrix(0,n.row,n.col)
+  ci_high_ratio <- matrix(0,n.row,n.col)
   cover_AR <- matrix(0,n.row,n.col)
-  ci_low_AR <- matrix(0,n.row,n.col)
-  ci_high_AR <- matrix(0,n.row,n.col)
-  ci_AR <- matrix(0,n.row,n.col)
-  alpha_U = 0.1
-  beta_U <- 0.1
-  sigma_y = 1
-  sigma_m = 1
   for(i1 in 1:3){
     for(i2 in 1:4){
       # 
@@ -64,60 +57,40 @@ for(i4 in 1:4){
       alpha_G = alpha_vec[i2]
       beta_M = beta_vec[i4]
       result <- result_final[[temp]]
-      Gamma = result[[1]]
-      var_Gamma = result[[2]]
-      gamma = result[[3]]
-      var_gamma = result[[4]]
-      ratio_est = result[[5]]
-      var_ratio <- result[[6]]
-      n <- length(Gamma)
-      cover_ratio[i2,i1] <- mean(result[[7]])
-      cover_true[i2,i1] <- mean(result[[8]])
-      cover_epi[i2,i1] <- mean(result[[9]])
-      cover_exact[i2,i1] <- mean(result[[10]])
-      cover_true_exact[i2,i1] <- mean(result[[11]])
-      ci_low_ratio[i2,i1] <- mean(result[[12]])
-      ci_high_ratio[i2,i1] <- mean(result[[13]])
-      ci_ratio[i2,i1] <- paste0(ci_low_ratio[i2,i1],", ",ci_high_ratio[i2,i1])
-      ci_low_epi[i2,i1] <- mean(result[[14]])
-      ci_high_epi[i2,i1] <- mean(result[[15]])
-      ci_epi[i2,i1] <- paste0(round(ci_low_epi[i2,i1],2),", ",round(ci_high_epi[i2,i1],2))
-      ci_low_exact[i2,i1] <- mean(result[[16]])
-      ci_high_exact[i2,i1] <- mean(result[[17]])
-      cover_AR[i2,i1] <- mean(result[[18]])
-      ci_low_AR[i2,i1] <- mean(result[[19]])
-      ci_high_AR[i2,i1] <- mean(result[[20]])
-      ci_AR <- paste0(round(ci_low_AR[i2,i1],2),", ",round(ci_high_AR[i2,i1],2))
-      ci_exact[i2,i1] <- paste0(round(ci_low_exact[i2,i1],2),", ",round(ci_high_exact[i2,i1],2))
-      
+      ratio_cover[i2,i1] <- mean(result[[7]])
+      ci_low_ratio[i2,i1] <- mean(result[[8]])
+      ci_high_ratio[i2,i1] <- mean(result[[9]])
+      ratio_cover_c[i2,i1] <- mean(result[[12]])
+      ci_low_ratio_c[i2,i1] <- mean(result[[14]])
+      ci_high_ratio_c[i2,i1] <- mean(result[[15]])
+      cover_AR[i2,i1] <- mean(result[[17]])
       temp <- temp+1
     }
   }
-  cover_ratio_list[[i4]] <- cover_ratio
-  cover_true_list[[i4]] <-   cover_true
-  cover_epi_list[[i4]] <- cover_epi
-  cover_exact_list[[i4]] <- cover_exact
-  cover_true_exact_list[[i4]] <- cover_true
+  ratio_cover_list[[i4]] <- ratio_cover
   ci_low_ratio_list[[i4]] <- ci_low_ratio
   ci_high_ratio_list[[i4]] <- ci_high_ratio
-  ci_ratio_list[[i4]] <- ci_ratio
-  ci_low_epi_list[[i4]] <- ci_low_epi
-  ci_high_epi_list[[i4]] <- ci_high_epi
-  ci_epi_list[[i4]] <- ci_epi
-  ci_exact_list[[i4]] <- ci_exact
-  ci_low_exact_list[[i4]] <- ci_low_exact
-  ci_high_exact_list[[i4]] <- ci_high_exact
-  cover_AR_list[[i4]] <- cover_AR
-  ci_low_AR_list[[i4]] <- ci_low_AR
-  ci_high_AR_list[[i4]] <- ci_high_AR  
-  ci_AR_list[[i4]] <- ci_AR
+  ratio_cover_c_list[[i4]] <-   ratio_cover_c
+  ci_low_ratio_c_list[[i4]] <- ci_low_ratio_c
+  ci_high_ratio_c_list[[i4]] <-  ci_high_ratio_c
+  cover_AR_list[[i4]] <-   cover_AR
 }
 
-cover_epi_table <- round(rbind(cover_epi_list[[1]],
-                               cover_epi_list[[2]],
-                               cover_epi_list[[3]],
-                               cover_epi_list[[4]]),2)
-write.csv(cover_epi_table,file = "./result/simulation/ratio_estimate/cover_epi_table.csv")
+ratio_cover_table <- round(rbind(ratio_cover_list[[1]],
+                                 ratio_cover_list[[2]],
+                                 ratio_cover_list[[3]],
+                                 ratio_cover_list[[4]]),2)
+write.csv(ratio_cover_table,file = "./result/simulation/IVW/cover_cover_table.csv")
+ratio_cover_c_table <- round(rbind(ratio_cover_c_list[[1]],
+                                 ratio_cover_c_list[[2]],
+                                 ratio_cover_c_list[[3]],
+                                 ratio_cover_c_list[[4]]),2)
+write.csv(ratio_cover_c_table,file = "./result/simulation/IVW/ratio_cover_c_table.csv")
+cover_AR_table <- round(rbind(cover_AR_list[[1]],
+                              cover_AR_list[[2]],
+                              cover_AR_list[[3]],
+                              cover_AR_list[[4]]),2)
+write.csv(cover_AR_table,file = "./result/simulation/IVW/cover_AR_table.csv")
 
 cover_exact_table <- round(rbind(cover_exact_list[[1]],
                                  cover_exact_list[[2]],
@@ -126,17 +99,10 @@ cover_exact_table <- round(rbind(cover_exact_list[[1]],
 write.csv(cover_exact_table,file = "./result/simulation/ratio_estimate/cover_exact_table.csv")
 
 ci_exact_table <- rbind(ci_exact_list[[1]],
-                              ci_exact_list[[2]],
-                              ci_exact_list[[3]],
-                              ci_exact_list[[4]])
+                        ci_exact_list[[2]],
+                        ci_exact_list[[3]],
+                        ci_exact_list[[4]])
 write.csv(ci_exact_table,file = "./result/simulation/ratio_estimate/ci_exact_table.csv")
-
-cover_AR_table <- rbind(cover_AR_list[[1]],
-                        cover_AR_list[[2]],
-                        cover_AR_list[[3]],
-                        cover_AR_list[[4]])
-write.csv(cover_AR_table,file = "./result/simulation/ratio_estimate/cover_AR_table.csv")
-
 
 write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio.csv")
 write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true.csv")
@@ -154,7 +120,7 @@ grid.arrange(p[[1]],p[[5]],p[[9]],
              p[[2]],p[[6]],p[[10]],
              p[[3]],p[[7]],p[[11]],
              p[[4]],p[[8]],p[[12]],
-              ncol=3)
+             ncol=3)
 dev.off()
 
 png("./result/simulation/ratio_estimate/ratio_sd_plot_legend.png",width = 8,height = 8,

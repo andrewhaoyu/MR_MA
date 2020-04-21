@@ -123,22 +123,22 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   p_adjust_test_value = p.adjust(p_test_value,method="none")  
   
   keep_update <- keep.ind
-  while(min(p_adjust_test_value)<=0.05){
-    print(min(p_adjust_test_value))
-    idx <- which.min(p_adjust_test_value)
-    keep.ind <- keep.ind[-idx]
-    Gamma_update = Gamma_update[-idx]
-    var_Gamma_update = var_Gamma_update[-idx]
-    gamma_update = gamma_update[-idx]
-    var_gamma_update = var_gamma_update[-idx]
-    quan_result <- rep(0,length(beta_seq))
-    for(k in 1:length(beta_seq)){
-      quan_result[k] <- QuacForm(Gamma_update,var_Gamma_update,gamma_update,var_gamma_update,beta_seq[k])
-    }
-    coef_best <- beta_seq[which.min(quan_result)]
-    p_test_value = pchisq((Gamma_update-beta_plug*gamma_update)^2/(var_Gamma_update+beta_plug^2*var_gamma_update),1,lower.tail = F)
-    p_adjust_test_value = p.adjust(p_test_value,method="none") 
-  }
+#  while(min(p_adjust_test_value)<=0.05){
+ #   print(min(p_adjust_test_value))
+  #  idx <- which.min(p_adjust_test_value)
+   # keep.ind <- keep.ind[-idx]
+    #Gamma_update = Gamma_update[-idx]
+    #var_Gamma_update = var_Gamma_update[-idx]
+    #gamma_update = gamma_update[-idx]
+    #var_gamma_update = var_gamma_update[-idx]
+    #quan_result <- rep(0,length(beta_seq))
+    #for(k in 1:length(beta_seq)){
+     # quan_result[k] <- QuacForm(Gamma_update,var_Gamma_update,gamma_update,var_gamma_update,beta_seq[k])
+    #}
+    #coef_best <- beta_seq[which.min(quan_result)]
+    #p_test_value = pchisq((Gamma_update-beta_plug*gamma_update)^2/(var_Gamma_update+beta_plug^2*var_gamma_update),1,lower.tail = F)
+   # p_adjust_test_value = p.adjust(p_test_value,method="none") 
+  #}
   coef_est = coef_best
   #get the confidence interval
   
@@ -149,31 +149,28 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
     coef_high <- max(beta_ci_range)
     cover_AR = ifelse((beta_M>=coef_low&
                          beta_M<=coef_high),1,0)
-    remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
+   
     
-    Gamma_keep = Gamma[keep.ind]
-    var_Gamma_keep = var_Gamma[keep.ind]
-    gamma_keep = gamma[keep.ind]
-    var_gamma_keep = var_gamma[keep.ind]
-    
-    var_coef_est = solve(t(gamma_keep)%*%solve(diag(var_Gamma_keep+coef_est^2*var_gamma_keep))%*%(gamma_keep))
-    
-    coef_high_update <- coef_est+1.96*sqrt(var_coef_est)
-    coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
-    cover_update <- ifelse((beta_M>=coef_low_update&
-                              beta_M<=coef_high_update),1,0)
+  
     
   }else{
-    coef_est = NA
     coef_low = NA
     coef_high = NA
-    cover_AR = NA
-    coef_low_update = NA
-    coef_high_update = NA
-    cover_update = NA
+    cover_AR = 0
     remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
   }
+  remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
   
+  Gamma_keep = Gamma[keep.ind]
+  var_Gamma_keep = var_Gamma[keep.ind]
+  gamma_keep = gamma[keep.ind]
+  var_gamma_keep = var_gamma[keep.ind]
+  var_coef_est = solve(t(gamma_keep)%*%solve(diag(var_Gamma_keep+coef_est^2*var_gamma_keep))%*%(gamma_keep))
+  
+  coef_high_update <- coef_est+1.96*sqrt(var_coef_est)
+  coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
+  cover_update <- ifelse((beta_M>=coef_low_update&
+                            beta_M<=coef_high_update),1,0)
   return(list(coef_est,coef_low,coef_high,cover_AR,
               keep.ind,remove.id,coef_low_update,coef_high_update,cover_update))
 }

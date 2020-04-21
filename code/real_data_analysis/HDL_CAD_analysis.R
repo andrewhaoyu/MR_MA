@@ -11,15 +11,12 @@ library(dplyr)
 library(tidyr)
 
 #read KG SNP information
-KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/KG.all.chr.bim",header=F))
+KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/EUR/chr_all.bim",header=F))
 colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
 KG.SNP = KG.SNP %>% 
   mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos)
 
-# HDL.temp <- as.data.frame(fread("./data/jointGwasMc_HDL.txt",header=T))
-# colnames(HDL.temp)[9] <- "P"
-# idx <- which((as.numeric(HDL.temp$P)<=5E-08))
-# length(idx)
+
 
 HDL = as.data.frame(fread("./data/HDL_Meta_ENGAGE_1000G.txt",header=T))
 n = nrow(HDL)
@@ -43,10 +40,10 @@ write.table(assoc,file = "/data/zhangh24/MR_MA/result/real_data_analysis/HDL/HDL
 
 pthr = 0.01
 r2thr = 0.1
-kbpthr = 1000
-LD.clump.code <- paste0("/data/zhangh24/plink --bfile /gpfs/gsfs11/users/zhangh24/KG.plink/KG.all.chr --clump /data/zhangh24/MR_MA/result/real_data_analysis/HDL/HDL_assoc --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out /data/zhangh24/MR_MA/result/real_data_analysis/HDL/HDL_clump")
+kbpthr = 3000
+LD.clump.code <- paste0("/data/zhangh24/software/plink2 --bfile /data/zhangh24/KG.plink/EUR/chr_all --clump /data/zhangh24/MR_MA/result/real_data_analysis/HDL/HDL_assoc --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out /data/zhangh24/MR_MA/result/real_data_analysis/HDL/HDL_clump")
 #run the code in terminal
-
+write.table(LD.clump.code,file = "/data/zhangh24/MR_MA/code/real_data_analysis/LD.clump_HDL.sh",quote = F,row.names = F,col.names = F)
 
 #load the clumped SNPs
 clump_SNP = as.data.frame(fread("/gpfs/gsfs11/users/zhangh24/MR_MA/result/real_data_analysis/HDL/HDL_clump.clumped",header=T))
@@ -60,15 +57,18 @@ clump_SNP_infor = clump_SNP_infor %>%
   rename(beta_ex = beta,
          se_ex = se,
          P_ex = P) %>% 
-  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex)
+  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex,chr.pos)
 
 #load CAD summary level statistics
 CAD <- as.data.frame(fread("./data/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt",header=T))
 colnames(CAD)[10] = "pvalue"
 CAD = CAD %>% 
-  rename(SNP=snptestid)
+  rename(SNP=snptestid) %>% 
+  mutate(chr.pos= paste0(chr,":",bp_hg19))
 out_clump_SNP = inner_join(clump_SNP_infor,
-                           CAD,by="SNP") %>% select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue)
+                           CAD,by="chr.pos") %>% 
+  rename(SNP=SNP.x) %>% 
+  select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue)
 
 #align the SNP to the reference SNP
 idx <- which(out_clump_SNP$reference_allele!=out_clump_SNP$effect_allele)
@@ -77,11 +77,21 @@ allele_temp = out_clump_SNP$effect_allele[idx]
 out_clump_SNP$effect_allele[idx] = out_clump_SNP$noneffect_allele[idx]
 out_clump_SNP$noneffect_allele[idx] =allele_temp 
 
-idx.order <- order(out_clump_SNP$CHR,
-                   out_clump_SNP$BP)
+idx.order <- order(as.numeric(out_clump_SNP$CHR),
+                   as.numeric(out_clump_SNP$BP))
 out_clump_SNP = out_clump_SNP[idx.order,]
 
-pcut <- c(5E-08,5E-07,5E-6,5E-5)
+
+pdx <- which(out_clump_SNP$P_ex<=5E-08)
+out_clump_SNP_temp = out_clump_SNP[pdx,]
+
+
+Gamma = out_clump_SNP_temp$logOR
+var_Gamma = out_clump_SNP_temp$se_gc^2
+gamma = out_clump_SNP_temp$beta_ex
+var_gamma = out_clump_SNP_temp$se_ex^2
+
+pcut <- c(5E-08,5E-07,5E-6,5E-5,5E-04)
 l <- length(pcut)
 IVW_s_result <- rep("c",l)
 IVW_c_result <- rep("c",l)
@@ -114,8 +124,34 @@ for(k in 1:l){
   AR_result_2[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[6]],num),",",
                            round(AR_result[[7]],num),")")
 }
+
+
 HDL.result.summary <- data.frame(pcut,n.snp,IVW_s_result,
                                  IVW_c_result,AR_result_1,AR_result_2,keep.snp,stringsAsFactors = F)
+write.csv(HDL.result.summary,file = "/data/zhangh24/MR_MA/result/real_data_analysis/HDL/HDL.result.summary.csv")
+
+
+
+
+
+
+
+
+
+IVW_s(Gamma,var_Gamma,
+      gamma,var_gamma)
+IVW_c(Gamma,var_Gamma,
+      gamma,var_gamma)
+AR_result <- ARMethod(Gamma,var_Gamma,
+                      gamma,var_gamma)
+
+
+
+
+
+
+
+
 
 
 
@@ -130,16 +166,6 @@ ggplot(data,aes(gamma,Gamma))+geom_point(aes(gamma,Gamma,color=type))
 
 prop <- (var_gamma*Gamma^2/gamma^4)/(var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4)
 boxplot(prop)
-
-IVW_s(Gamma,var_Gamma,
-      gamma,var_gamma)
-IVW_c(Gamma,var_Gamma,
-      gamma,var_gamma)
-AR_result <- ARMethod(Gamma,var_Gamma,
-                      gamma,var_gamma)
-
-V = 
-solve(gamma[keep.ind]%*%solve(diag(gamma[keep.ind]))%*%gamma[keep.ind])%*%gamma[keep.ind]%*%solve(diag(var_Gamma[keep.ind]))%*%Gamma[keep.ind]
 keep.ind <- AR_result[[4]]
 IVW_s(Gamma[keep.ind],var_Gamma[keep.ind],
       gamma[keep.ind],var_gamma[keep.ind])
@@ -214,7 +240,7 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
       quan_result[k] <- QuacForm(Gamma_update,var_Gamma_update,gamma_update,var_gamma_update,beta_seq[k])
     }
     coef_best <- beta_seq[which.min(quan_result)]
-    p_test_value = pchisq((Gamma_update-beta_plug*gamma_update)^2/(var_Gamma_update+beta_plug^2*var_gamma_update),1,lower.tail = F)
+    p_test_value = pchisq((Gamma_update-coef_best*gamma_update)^2/(var_Gamma_update+coef_best^2*var_gamma_update),1,lower.tail = F)
     p_adjust_test_value = p.adjust(p_test_value,method="none") 
   }
   coef_est = coef_best
@@ -226,8 +252,19 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   coef_low <- min(beta_ci_range)
   coef_high <- max(beta_ci_range)
   remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
+  
+  Gamma_keep = Gamma[keep.ind]
+  var_Gamma_keep = var_Gamma[keep.ind]
+  gamma_keep = gamma[keep.ind]
+  var_gamma_keep = var_gamma[keep.ind]
+  
+  var_coef_est = solve(t(gamma_keep)%*%solve(diag(var_Gamma_keep+coef_est^2*var_gamma_keep))%*%(gamma_keep))
+  
+  coef_high_update <- coef_est+1.96*sqrt(var_coef_est)
+  coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
+  
   return(list(coef_est,coef_low,coef_high,
-              keep.ind,remove.id
+              keep.ind,remove.id,coef_low_update,coef_high_update
   ))
 }
 
@@ -284,3 +321,51 @@ Gamma = as.numeric(est[[1]])
 var_Gamma = as.numeric(est[[2]])
 gamma = as.numeric(est[[3]])
 var_gamma = as.numeric(est[[4]])
+
+
+
+
+
+
+
+
+
+
+
+sig_SNPs <- data.frame(out_clump_SNP$SNP,
+                       as.numeric(out_clump_SNP$CHR),
+                       as.numeric(out_clump_SNP$BP),
+                       as.numeric(out_clump_SNP$P),
+                       stringsAsFactors = F)
+colnames(sig_SNPs) <- c("SNP","CHR","position",
+                        "p.value")
+PositionPruning <- function(sig_SNPs){
+  sig_SNPs_temp =sig_SNPs
+  filter_result = NULL
+  temp.ind = 1
+  while(nrow(sig_SNPs_temp)!=0){
+    
+    idx = which.min(sig_SNPs_temp$p.value)
+    filter_result = rbind(filter_result,sig_SNPs_temp[idx,])
+    
+    position.range <- 500*10^3
+    filter_result_position = sig_SNPs_temp$position[idx]
+    filter_CHR = sig_SNPs_temp$CHR[idx]
+    idx.cut <- which((sig_SNPs_temp$position>=filter_result_position-position.range)&(sig_SNPs_temp$position<=filter_result_position+position.range)&(sig_SNPs_temp$CHR==filter_CHR ))
+    
+    
+    sig_SNPs_temp = sig_SNPs_temp[-idx.cut,]
+    temp.ind = temp.ind+1
+  }
+  return(filter_result)
+}
+
+out_clump_SNP_clean <- PositionPruning(sig_SNPs)[,1,drop=F]
+out_clump_SNP_clean <- left_join(out_clump_SNP_clean,
+                                 out_clump_SNP,
+                                 by="SNP")
+
+#order the SNPs by chr and position
+idx.order <- order(out_clump_SNP_clean$CHR,
+                   out_clump_SNP_clean$BP)
+out_clump_SNP_clean = out_clump_SNP_clean[idx.order,]

@@ -1,71 +1,71 @@
-#LDL analysis 
+#bmi analysis 
 #first run LD clumping to get genome-wide significant SNPs
 #second run the IVW and beta estimate model
 #update date: 012720
-#down load data (http://mccarthy.well.ox.ac.uk/publications/2015/ENGAGE_1KG/LDL_Meta_ENGAGE_1000G.txt.gz)
-#load LDL summary level statistics
-#A1 is the effect allele and A2 is the noneffect allele in LDL analysis
+#down load data ( https://github.com/qingyuanzhao/mr.raps)
+
 setwd("/data/zhangh24/MR_MA")
 library(data.table)
 library(dplyr)
 library(tidyr)
-
 #read KG SNP information
-KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/EUR/chr_all.bim",header=F))
+KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/KG.all.chr.bim",header=F))
 colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
 KG.SNP = KG.SNP %>% 
   mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos)
 
 
+bmi = as.data.frame(fread("./data/Meta-analysis_Locke_et_al+UKBiobank_2018_UPDATED.txt",header=T))
+n = nrow(bmi)
 
-LDL = as.data.frame(fread("./data/LDL_Meta_ENGAGE_1000G.txt",header=T))
-n = nrow(LDL)
-colnames(LDL)[7] = "P"
-LDL = LDL %>% 
-  mutate(chr = gsub("chr","",chr)) %>%mutate(chr.pos = paste0(chr,":",pos))%>% 
-  mutate(A1=toupper(other_allele),
-         TEST = "ADD",
+bmi = bmi %>% 
+  mutate(chr.pos = paste0(CHR,":",POS))%>% 
+  mutate(TEST = "ADD",
          NMISS= 0,
-         BETA=beta,
-         STAT = rnorm(n)) %>% rename(CHR=chr,
-        BP =pos)
-#get the SNPs that are shared by LDL and KG
-LDL.KG = inner_join(LDL,KG.SNP,
-                    by="chr.pos")
+         STAT = BETA/SE)
+#get the SNPs that are shared by bmi and KG
+bmi.KG = inner_join(bmi,KG.SNP,
+                    by="chr.pos") %>% 
+    rename(SNP=SNP.y,
+         BP = POS,
+         A1 = Tested_Allele)
 
 
-assoc = LDL.KG %>% 
+assoc = bmi.KG %>% 
   select(CHR,SNP,BP,A1,TEST,NMISS,BETA,STAT,P)
-write.table(assoc,file = "/data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_assoc",quote=F,row.names = F,col.names=T)
+write.table(assoc,file = "/data/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi_assoc",quote=F,row.names = F,col.names=T)
 
 pthr = 0.01
 r2thr = 0.1
-kbpthr = 1000
-LD.clump.code <- paste0("/data/zhangh24/software/plink2 --bfile /data/zhangh24/KG.plink/EUR/chr_all --clump /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_assoc --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_clump")
+kbpthr = 3000
+LD.clump.code <- paste0("/data/zhangh24/software/plink2 --bfile /data/zhangh24/KG.plink/EUR/chr_all --clump /data/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi_assoc --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out /data/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi_clump")
 #run the code in terminal
-write.table(LD.clump.code,file = "/data/zhangh24/MR_MA/code/real_data_analysis/LD.clump_LDL.sh",quote = F,row.names = F,col.names = F)
+write.table(LD.clump.code,file = "/data/zhangh24/MR_MA/code/real_data_analysis/LD.clump_bmi.sh",quote = F,row.names = F,col.names = F)
 
 #load the clumped SNPs
-clump_SNP = as.data.frame(fread("/gpfs/gsfs11/users/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_clump.clumped",header=T))
+clump_SNP = as.data.frame(fread("/gpfs/gsfs11/users/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi_clump.clumped",header=T))
 clump_SNP = clump_SNP[,3,drop=F]
 colnames(clump_SNP) = "SNP"
 clump_SNP_infor = left_join(clump_SNP,
-                            LDL.KG,by="SNP")
+                            bmi.KG,by="SNP")
 
 
 clump_SNP_infor = clump_SNP_infor %>% 
   rename(beta_ex = beta,
          se_ex = se,
          P_ex = P) %>% 
-  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex)
+  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex,chr.pos)
 
 #load CAD summary level statistics
 CAD <- as.data.frame(fread("./data/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt",header=T))
 colnames(CAD)[10] = "pvalue"
 CAD = CAD %>% 
-  rename(SNP=snptestid)
+  rename(SNP=snptestid) %>% 
+  mutate(chr.pos= paste0(chr,":",bp_hg19))
 out_clump_SNP = inner_join(clump_SNP_infor,
-                          CAD,by="SNP") %>% select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue)
+                           CAD,by="chr.pos") %>% 
+  rename(SNP=SNP.x) %>% 
+  select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue)
 
 #align the SNP to the reference SNP
 idx <- which(out_clump_SNP$reference_allele!=out_clump_SNP$effect_allele)
@@ -74,8 +74,8 @@ allele_temp = out_clump_SNP$effect_allele[idx]
 out_clump_SNP$effect_allele[idx] = out_clump_SNP$noneffect_allele[idx]
 out_clump_SNP$noneffect_allele[idx] =allele_temp 
 
-idx.order <- order(out_clump_SNP$CHR,
-                   out_clump_SNP$BP)
+idx.order <- order(as.numeric(out_clump_SNP$CHR),
+                   as.numeric(out_clump_SNP$BP))
 out_clump_SNP = out_clump_SNP[idx.order,]
 
 
@@ -88,7 +88,7 @@ var_Gamma = out_clump_SNP_temp$se_gc^2
 gamma = out_clump_SNP_temp$beta_ex
 var_gamma = out_clump_SNP_temp$se_ex^2
 
-pcut <- c(5E-08,5E-07,5E-6,5E-5,5E-4,5E-03)
+pcut <- c(5E-08,5E-07,5E-6,5E-5,5E-04)
 l <- length(pcut)
 IVW_s_result <- rep("c",l)
 IVW_c_result <- rep("c",l)
@@ -105,50 +105,27 @@ for(k in 1:l){
   var_gamma = out_clump_SNP_temp$se_ex^2
   n.snp[k] <- length(Gamma)
   IVW_s_temp <- IVW_s(Gamma,var_Gamma,
-        gamma,var_gamma)
+                      gamma,var_gamma)
   num = 3
   IVW_s_result[k] <- paste0(round(IVW_s_temp[[1]],num)," (",round(IVW_s_temp[[3]],num),",",
-round(IVW_s_temp[[4]],num),")")
+                            round(IVW_s_temp[[4]],num),")")
   IVW_c_temp <- IVW_c(Gamma,var_Gamma,
-        gamma,var_gamma)
+                      gamma,var_gamma)
   IVW_c_result[k] <- paste0(round(IVW_c_temp[[1]],num)," (",round(IVW_c_temp[[3]],num),",",
                             round(IVW_c_temp[[4]],num),")")
   AR_result <- ARMethod(Gamma,var_Gamma,
                         gamma,var_gamma)
   keep.snp[k] <- length(AR_result[[4]])
   AR_result_1[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[2]],num),",",
-                        round(AR_result[[3]],num),")")
+                           round(AR_result[[3]],num),")")
   AR_result_2[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[6]],num),",",
                            round(AR_result[[7]],num),")")
 }
 
 
-LDL.result.summary <- data.frame(pcut,n.snp,IVW_s_result,
-                        IVW_c_result,AR_result_1,AR_result_2,keep.snp,stringsAsFactors = F)
-
-
-
-
-
-
-
-
-
-IVW_s(Gamma,var_Gamma,
-      gamma,var_gamma)
-IVW_c(Gamma,var_Gamma,
-      gamma,var_gamma)
-AR_result <- ARMethod(Gamma,var_Gamma,
-         gamma,var_gamma)
-
-
-
-
-
-
-
-
-
+bmi.result.summary <- data.frame(pcut,n.snp,IVW_s_result,
+                                 IVW_c_result,AR_result_1,AR_result_2,keep.snp,stringsAsFactors = F)
+write.csv(bmi.result.summary,file = "/data/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi.result.summary.csv")
 
 
 
@@ -162,13 +139,23 @@ ggplot(data,aes(gamma,Gamma))+geom_point(aes(gamma,Gamma,color=type))
 
 prop <- (var_gamma*Gamma^2/gamma^4)/(var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4)
 boxplot(prop)
+
+IVW_s(Gamma,var_Gamma,
+      gamma,var_gamma)
+IVW_c(Gamma,var_Gamma,
+      gamma,var_gamma)
+AR_result <- ARMethod(Gamma,var_Gamma,
+                      gamma,var_gamma)
+
+V = 
+  solve(gamma[keep.ind]%*%solve(diag(gamma[keep.ind]))%*%gamma[keep.ind])%*%gamma[keep.ind]%*%solve(diag(var_Gamma[keep.ind]))%*%Gamma[keep.ind]
 keep.ind <- AR_result[[4]]
 IVW_s(Gamma[keep.ind],var_Gamma[keep.ind],
       gamma[keep.ind],var_gamma[keep.ind])
 ARMethod(Gamma[keep.ind],
-                      var_Gamma[keep.ind],
-                      gamma[keep.ind],
-                      var_gamma[keep.ind])
+         var_Gamma[keep.ind],
+         gamma[keep.ind],
+         var_gamma[keep.ind])
 Gamma = Gamma[keep.ind]
 var_Gamma = var_Gamma[keep.ind]
 gamma = gamma[keep.ind]
@@ -189,7 +176,7 @@ for(k in 1:79){
   gamma = gamma_all[c(1:k)]
   var_gamma = var_gamma_all[c(1:k)]
   print(ARMethod(Gamma,var_Gamma,
-           gamma,var_gamma))
+                 gamma,var_gamma))
   
 }
 
@@ -241,27 +228,15 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   }
   coef_est = coef_best
   #get the confidence interval
- 
+  
   idx <- which(quan_result<=0)
   length(idx)
   beta_ci_range <- beta_seq[idx]
   coef_low <- min(beta_ci_range)
   coef_high <- max(beta_ci_range)
   remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
-  
-  Gamma_keep = Gamma[keep.ind]
-  var_Gamma_keep = var_Gamma[keep.ind]
-  gamma_keep = gamma[keep.ind]
-  var_gamma_keep = var_gamma[keep.ind]
-  
-  var_coef_est = solve(t(gamma_keep)%*%solve(diag(var_Gamma_keep+coef_est^2*var_gamma_keep))%*%(gamma_keep))
-  
-  coef_high_update <- coef_est+1.96*sqrt(var_coef_est)
-  coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
-  
-  return(list(coef_est,coef_low,coef_high,
-              keep.ind,remove.id,coef_low_update,coef_high_update
-              ))
+  return(list(coef_est,coef_low,coef_high,keep.ind,remove.id
+  ))
 }
 
 Meta = function(coef_vec,var_vec){
@@ -317,6 +292,20 @@ Gamma = as.numeric(est[[1]])
 var_Gamma = as.numeric(est[[2]])
 gamma = as.numeric(est[[3]])
 var_gamma = as.numeric(est[[4]])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -11,23 +11,6 @@ times = 100000
 library(ggplot2)
 n.row <- length(alpha_vec)
 n.col <- length(n_vec)
-Gamma_est,
-Gamma_var,
-gamma_est,
-gamma_var,
-ratio_est,
-ratio_var,
-ratio_cover,
-ci_low_ratio,
-ci_high_ratio,
-ratio_est_c,
-ratio_var_c,
-ratio_cover_c,
-ratio_cover_c,
-ci_low_ratio_c,
-ci_high_ratio_c,
-ratio_est_AR,
-cover_AR
 ratio_cover_list <- list()
 ci_low_ratio_list <- list()
 ci_high_ratio_list <- list()
@@ -37,7 +20,44 @@ ratio_cover_c_list <- list()
 ci_low_ratio_c_list <- list()
 ci_high_ratio_c_list <- list()
 ratio_est_AR_list <- list()
+ratio_est_AR_low_list <- list()
+ratio_est_AR_high_list <- list()
 cover_AR_list <- list()
+ratio_AR_update_low_list <- list()
+ratio_AR_update_high_list <- list()
+cover_AR_update_list <- list()
+
+
+
+
+
+
+
+
+list(
+  Gamma_est,
+  Gamma_var,
+  gamma_est,
+  gamma_var,
+  ratio_est,
+  ratio_var,
+  ratio_cover,
+  ci_low_ratio,
+  ci_high_ratio,
+  ratio_est_c,
+  ratio_var_c,
+  ratio_cover_c,
+  ratio_cover_c,
+  ci_low_ratio_c,
+  ci_high_ratio_c,
+  ratio_est_AR,
+  ratio_AR_low,
+  ratio_AR_high,
+  cover_AR,
+  ratio_AR_update_low,
+  ratio_AR_update_high,
+  cover_AR_update
+)
 temp <- 1
 load("./result/simulation/IVW/IVW_merged.Rdata")
 for(i4 in 1:4){
@@ -48,7 +68,13 @@ for(i4 in 1:4){
   ci_low_ratio_c <- matrix(0,n.row,n.col)
   ci_high_ratio_c <- matrix(0,n.row,n.col)
   ci_high_ratio <- matrix(0,n.row,n.col)
+  ratio_est_AR <- matrix(0,n.row,n.col)
+  ratio_est_AR_low <- matrix(0,n.row,n.col)
+  ratio_est_AR_high <- matrix(0,n.row,n.col)
   cover_AR <- matrix(0,n.row,n.col)
+  ratio_AR_update_low <- matrix(0,n.row,n.col)
+  ratio_AR_update_high <- matrix(0,n.row,n.col)
+  cover_AR_update <- matrix(0,n.row,n.col)
   for(i1 in 1:3){
     for(i2 in 1:4){
       # 
@@ -63,7 +89,13 @@ for(i4 in 1:4){
       ratio_cover_c[i2,i1] <- mean(result[[12]])
       ci_low_ratio_c[i2,i1] <- mean(result[[14]])
       ci_high_ratio_c[i2,i1] <- mean(result[[15]])
-      cover_AR[i2,i1] <- mean(result[[17]])
+      ratio_est_AR[i2,i1] <- mean(result[[16]])
+      ratio_est_AR_low[i2,i1] <- mean(result[[17]])
+      ratio_est_AR_high[i2,i1] <- mean(result[[18]])
+      cover_AR[i2,i1] <- mean(result[[19]],na=rm)
+      ratio_AR_update_low[i2,i1] <- mean(result[[20]])
+      ratio_AR_update_high[i2,i1] <- mean(result[[21]])
+      cover_AR_update[i2,i1] <- mean(result[[22]])
       temp <- temp+1
     }
   }
@@ -73,7 +105,13 @@ for(i4 in 1:4){
   ratio_cover_c_list[[i4]] <-   ratio_cover_c
   ci_low_ratio_c_list[[i4]] <- ci_low_ratio_c
   ci_high_ratio_c_list[[i4]] <-  ci_high_ratio_c
+  ratio_est_AR_list[[i4]] <- ratio_est_AR
+  ratio_est_AR_low_list[[i4]] <- ratio_est_AR_low
+  ratio_est_AR_high_list[[i4]] <- ratio_est_AR_high
   cover_AR_list[[i4]] <-   cover_AR
+  ratio_AR_update_low_list[[i4]] <- ratio_AR_update_low
+  ratio_AR_update_high_list[[i4]] <- ratio_AR_update_high
+  cover_AR_update_list[[i4]] <- cover_AR_update
 }
 
 ratio_cover_table <- round(rbind(ratio_cover_list[[1]],

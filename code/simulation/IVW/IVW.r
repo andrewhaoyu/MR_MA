@@ -99,7 +99,6 @@ QuacForm <- function(Gamma,var_Gamma,gamma,var_gamma,beta_plug){
 }
 
 
-
 ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   K <- length(Gamma)
   keep.ind <- c(1:K)
@@ -147,6 +146,7 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
     beta_ci_range <- beta_seq[idx]
     coef_low <- min(beta_ci_range)
     coef_high <- max(beta_ci_range)
+    
     cover_AR = ifelse((beta_M>=coef_low&
                          beta_M<=coef_high),1,0)
    
@@ -171,8 +171,10 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
   cover_update <- ifelse((beta_M>=coef_low_update&
                             beta_M<=coef_high_update),1,0)
+  quan_result_true <- QuacForm(Gamma,var_Gamma,gamma,var_gamma,beta_M)
+  cover_AR_update2 = ifelse(quan_result_true<=0,1,0)
   return(list(coef_est,coef_low,coef_high,cover_AR,
-              keep.ind,remove.id,coef_low_update,coef_high_update,cover_update))
+              keep.ind,remove.id,coef_low_update,coef_high_update,cover_update,cover_AR_update2))
 }
 
 
@@ -220,6 +222,7 @@ ratio_AR_high <- rep(0,times)
 cover_AR_update <- rep(0,times)
 ratio_AR_update_low <- rep(0,times)
 ratio_AR_update_high <- rep(0,times)
+cover_AR_update2 <- rep(0,times)
 ind <- rep(0,times)
 G_ori = matrix(rbinom(n*5,2,MAF),n,5)
 G = apply(G_ori,2,scale)
@@ -259,25 +262,25 @@ for(i in 1:times){
                       as.numeric(est[[2]]),
                       as.numeric(est[[3]]),
                       as.numeric(est[[4]]))
-  ratio_est_c[i] <- ratio_temp[1]
-  ratio_var_c[i] <- ratio_temp[2]
-  ratio_cover_c[i] <- ratio_temp[3]
-  ci_low_ratio_c[i] <- ratio_temp[4]
-  ci_high_ratio_c[i] <- ratio_temp[5]
+  ratio_est_c[i] <- as.numeric(ratio_temp[1])
+  ratio_var_c[i] <- as.numeric(ratio_temp[2])
+  ratio_cover_c[i] <- as.numeric(ratio_temp[3])
+  ci_low_ratio_c[i] <- as.numeric(ratio_temp[4])
+  ci_high_ratio_c[i] <- as.numeric(ratio_temp[5])
   
   ratio_exact_temp <- 
     ARMethod(as.numeric(est[[1]]),
              as.numeric(est[[2]]),
              as.numeric(est[[3]]),
              as.numeric(est[[4]]))
-  ratio_est_AR[i] <- ratio_exact_temp[1]
-  ratio_AR_low[i] <- ratio_exact_temp[2]
-  ratio_AR_high[i] <- ratio_exact_temp[3]
-  cover_AR[i] <- ratio_exact_temp[4]
-  ratio_AR_update_low[i] <- ratio_exact_temp[7]
-  ratio_AR_update_high[i] <- ratio_exact_temp[8]
-  cover_AR_update[i] <- ratio_exact_temp[9]
-  
+  ratio_est_AR[i] <- as.numeric(ratio_exact_temp[1])
+  ratio_AR_low[i] <- as.numeric(ratio_exact_temp[2])
+  ratio_AR_high[i] <- as.numeric(ratio_exact_temp[3])
+  cover_AR[i] <- as.numeric(ratio_exact_temp[4])
+  ratio_AR_update_low[i] <- as.numeric(ratio_exact_temp[7])
+  ratio_AR_update_high[i] <- as.numeric(ratio_exact_temp[8])
+  cover_AR_update[i] <- as.numeric(ratio_exact_temp[9])
+  cover_AR_update2[i] <- as.numeric(ratio_exact_temp[10])
 }
 
 
@@ -299,7 +302,6 @@ result = list(Gamma_est,
                ci_low_ratio_c,
                ci_high_ratio_c,
                ratio_est_AR,
-              ratio_est_AR,
               ratio_AR_low,
               ratio_AR_high,
               cover_AR,

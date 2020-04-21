@@ -99,11 +99,6 @@ QuacForm <- function(Gamma,var_Gamma,gamma,var_gamma,beta_plug){
 }
 
 
-Gamma = as.numeric(est[[1]])
-var_Gamma = as.numeric(est[[2]])
-gamma =  as.numeric(est[[3]])
-var_gamma =  as.numeric(est[[4]])
-
 
 ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   K <- length(Gamma)

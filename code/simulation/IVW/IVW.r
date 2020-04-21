@@ -171,6 +171,7 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
     coef_low_update = NA
     coef_high_update = NA
     cover_update = NA
+    remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
   }
   
   return(list(coef_est,coef_low,coef_high,cover_AR,

@@ -11,7 +11,7 @@ library(dplyr)
 library(tidyr)
 
 #read KG SNP information
-KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/KG.all.chr.bim",header=F))
+KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/EUR/chr_all.bim",header=F))
 colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
 KG.SNP = KG.SNP %>% 
   mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos)
@@ -41,7 +41,7 @@ write.table(assoc,file = "/data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL
 pthr = 0.01
 r2thr = 0.1
 kbpthr = 1000
-LD.clump.code <- paste0("/data/zhangh24/plink --bfile /gpfs/gsfs11/users/zhangh24/KG.plink/KG.all.chr --clump /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_assoc --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_clump")
+LD.clump.code <- paste0("/data/zhangh24/plink --bfile /zhangh24/KG.plink/EUR/chr_all --clump /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_assoc --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_clump")
 #run the code in terminal
 
 

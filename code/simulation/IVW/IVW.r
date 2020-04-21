@@ -143,25 +143,35 @@ ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){
   #get the confidence interval
   
   idx <- which(quan_result<=0)
-  length(idx)
-  beta_ci_range <- beta_seq[idx]
-  coef_low <- min(beta_ci_range)
-  coef_high <- max(beta_ci_range)
-  cover_AR = ifelse((beta_M>=coef_low&
-                    beta_M<=coef_high),1,0)
-  remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
-  
-  Gamma_keep = Gamma[keep.ind]
-  var_Gamma_keep = var_Gamma[keep.ind]
-  gamma_keep = gamma[keep.ind]
-  var_gamma_keep = var_gamma[keep.ind]
-  
-  var_coef_est = solve(t(gamma_keep)%*%solve(diag(var_Gamma_keep+coef_est^2*var_gamma_keep))%*%(gamma_keep))
-  
-  coef_high_update <- coef_est+1.96*sqrt(var_coef_est)
-  coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
-  cover_update <- ifelse((beta_M>=coef_low_update&
-                            beta_M<=coef_high_update),1,0)
+  if(length(idx)>0){
+    beta_ci_range <- beta_seq[idx]
+    coef_low <- min(beta_ci_range)
+    coef_high <- max(beta_ci_range)
+    cover_AR = ifelse((beta_M>=coef_low&
+                         beta_M<=coef_high),1,0)
+    remove.id <- c(1:K)[c(1:K)%in%keep.ind==F]
+    
+    Gamma_keep = Gamma[keep.ind]
+    var_Gamma_keep = var_Gamma[keep.ind]
+    gamma_keep = gamma[keep.ind]
+    var_gamma_keep = var_gamma[keep.ind]
+    
+    var_coef_est = solve(t(gamma_keep)%*%solve(diag(var_Gamma_keep+coef_est^2*var_gamma_keep))%*%(gamma_keep))
+    
+    coef_high_update <- coef_est+1.96*sqrt(var_coef_est)
+    coef_low_update <- coef_est-1.96*sqrt(var_coef_est)
+    cover_update <- ifelse((beta_M>=coef_low_update&
+                              beta_M<=coef_high_update),1,0)
+    
+  }else{
+    coef_est = NA
+    coef_low = NA
+    coef_high = NA
+    cover_AR = NA
+    coef_low_update = NA
+    coef_high_update = NA
+    cover_update = NA
+  }
   
   return(list(coef_est,coef_low,coef_high,cover_AR,
               keep.ind,remove.id,coef_low_update,coef_high_update,cover_update))

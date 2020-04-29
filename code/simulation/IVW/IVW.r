@@ -29,7 +29,10 @@ i4 = array.mat[idx,4]
 # i2 = as.numeric(args[[2]])
 # i3 = as.numeric(args[[3]])
 # i4 = as.numeric(args[[4]])
-
+print(i1)
+print(i2)
+print(i3)
+print(i4)
 setwd("/n/holystore01/LABS/xlin/Lab/hzhang/MR_MA")
 #setwd("/data/zhangh24/MR_MA/")
 Meta = function(coef_vec,var_vec){

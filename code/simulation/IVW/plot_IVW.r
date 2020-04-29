@@ -95,7 +95,9 @@ for(i4 in 1:4){
       cover_AR[i2,i1] <- mean(result[[19]],na=rm)
       ratio_AR_update_low[i2,i1] <- mean(result[[20]])
       ratio_AR_update_high[i2,i1] <- mean(result[[21]])
-      cover_AR_update[i2,i1] <- mean(result[[22]])
+      library(data.table)
+      result.temp <- rep(0,1000)
+      cover_AR_update[i2,i1] <- mean(rbindlist(result[[22]]))
       temp <- temp+1
     }
   }

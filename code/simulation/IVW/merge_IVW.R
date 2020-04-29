@@ -4,30 +4,29 @@ setwd("/data/zhangh24/MR_MA/")
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.0,0.01,0.03,0.05)
 beta_vec <-  c(0,0.3,0.5,1)
-# Gamma_est,
-# Gamma_var,
-# gamma_est,
-# gamma_var,
-# ratio_est,
-# ratio_var,
-# ratio_cover,
-# ci_low_ratio,
-# ci_high_ratio,
-# ratio_est_c,
-# ratio_var_c,
-# ratio_cover_c,
-# ratio_cover_c,
-# ci_low_ratio_c,
-# ci_high_ratio_c,
-# ratio_est_AR,
-# ratio_est_AR,
-# ratio_AR_low,
-# ratio_AR_high,
-# cover_AR,
-# ratio_AR_update_low,
-# ratio_AR_update_high,
-# cover_AR_update
-# )
+list(Gamma_est,
+     Gamma_var,
+     gamma_est,
+     gamma_var,
+     ratio_est,
+     ratio_var,
+     ratio_cover,
+     ci_low_ratio,
+     ci_high_ratio,
+     ratio_est_c,
+     ratio_var_c,
+     ratio_cover_c,
+     ratio_cover_c,
+     ci_low_ratio_c,
+     ci_high_ratio_c,
+     ratio_est_AR,
+     ratio_AR_low,
+     ratio_AR_high,
+     cover_AR,
+     ratio_AR_update_low,
+     ratio_AR_update_high,
+     cover_AR_update
+)
 
 times = 1000*100
 replicates <- 100
@@ -81,13 +80,12 @@ for(i4 in 1:4){
         ci_high_ratio_c[total+(1:temp)] <- result[[15]]
         ratio_est_AR[total+(1:temp)] <- result[[16]]
         #due to typo ratio_est_AR was written twice
-        ratio_est_AR[total+(1:temp)] <- result[[17]]
-        ratio_AR_low[total+(1:temp)] <- result[[18]]
-        ratio_AR_high[total+(1:temp)] <- result[[19]]
-        cover_AR[total+(1:temp)] <- result[[20]]
-        ratio_AR_update_low[total+(1:temp)] <- result[[21]]
-        ratio_AR_update_high[total+(1:temp)] <- result[[22]]
-        cover_AR_update[total+(1:temp)] <- result[[23]]
+        ratio_AR_low[total+(1:temp)] <- result[[17]]
+        ratio_AR_high[total+(1:temp)] <- result[[18]]
+        cover_AR[total+(1:temp)] <- result[[19]]
+        ratio_AR_update_low[total+(1:temp)] <- result[[20]]
+        ratio_AR_update_high[total+(1:temp)] <- result[[21]]
+        cover_AR_update[total+(1:temp)] <- result[[22]]
         total <- total+temp
         
       }
@@ -122,7 +120,11 @@ for(i4 in 1:4){
     }
   }
   
-  }
+}
+
+temp <- 1
+result <-    result_final[[temp]]
+mean(result[[19]])
 
 save(result_final,file = paste0("./result/simulation/IVW/IVW_merged.Rdata"))
 

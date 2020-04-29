@@ -8,11 +8,6 @@ setwd("/data/zhangh24/MR_MA")
 library(data.table)
 library(dplyr)
 library(tidyr)
-#read KG SNP information
-KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/KG.all.chr.bim",header=F))
-colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
-KG.SNP = KG.SNP %>% 
-  mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos)
 library(devtools)
 library(withr)
 with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
@@ -23,18 +18,45 @@ var_Gamma = bmi.bmi$se.outcome^2
 gamma = bmi.bmi$beta.exposure
 var_gamma = bmi.bmi$se.exposure^2
 
+pcut <- c(5E-08,5E-07,5E-6,5E-5,5E-04,5E-03,5E-02,5E-01,1)
+l <- length(pcut)
+IVW_s_result <- rep("c",l)
+IVW_c_result <- rep("c",l)
+AR_result_1 <- rep("c",l)
+AR_result_2 <- rep("c",l)
+n.snp <- rep(0,l)
+keep.snp <- rep(0,l)
+for(k in 1:l){
+  pdx <- which(bmi.bmi$pval.exposure<=pcut[k])
+  out_clump_SNP_temp = bmi.bmi[pdx,]
+  Gamma = out_clump_SNP_temp$beta.outcome
+  var_Gamma = out_clump_SNP_temp$se.outcome^2
+  gamma = out_clump_SNP_temp$beta.exposure
+  var_gamma = out_clump_SNP_temp$se.exposure^2
+  n.snp[k] <- length(Gamma)
+  IVW_s_temp <- IVW_s(Gamma,var_Gamma,
+                      gamma,var_gamma)
+  num = 3
+  IVW_s_result[k] <- paste0(round(IVW_s_temp[[1]],num)," (",round(IVW_s_temp[[3]],num),",",
+                            round(IVW_s_temp[[4]],num),")")
+  IVW_c_temp <- IVW_c(Gamma,var_Gamma,
+                      gamma,var_gamma)
+  IVW_c_result[k] <- paste0(round(IVW_c_temp[[1]],num)," (",round(IVW_c_temp[[3]],num),",",
+                            round(IVW_c_temp[[4]],num),")")
+  AR_result <- ARMethod(Gamma,var_Gamma,
+                        gamma,var_gamma)
+  keep.snp[k] <- length(AR_result[[4]])
+  AR_result_1[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[2]],num),",",
+                           round(AR_result[[3]],num),")")
+  AR_result_2[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[6]],num),",",
+                           round(AR_result[[7]],num),")")
+}
+bmi.result.summary <- data.frame(pcut,n.snp,IVW_s_result,
+                                 IVW_c_result,AR_result_1,AR_result_2,keep.snp,stringsAsFactors = F)
+write.csv(bmi.result.summary,file = "/data/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi.bmi.summary.csv")
 
 
-type <- rep("c",length(Gamma))
-type[AR_result[[4]]] <- "include"
-type[AR_result[[5]]] <- "remove"
-library(ggplot2)
-data <- data.frame(gamma,Gamma,type)
-ggplot(data,aes(gamma,Gamma))+geom_point(aes(gamma,Gamma,color=type))
 
-
-prop <- (var_gamma*Gamma^2/gamma^4)/(var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4)
-boxplot(prop)
 
 IVW_s(Gamma,var_Gamma,
       gamma,var_gamma)

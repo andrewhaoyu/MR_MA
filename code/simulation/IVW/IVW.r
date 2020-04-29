@@ -1,13 +1,37 @@
 #test the type one error and coverage prob of two-stage, IVW and IVW summary level statistics
 #IVW estimate the variance using the meta-analysis variance
 args = commandArgs(trailingOnly = T)
-i1 = as.numeric(args[[1]])
-i2 = as.numeric(args[[2]])
-i3 = as.numeric(args[[3]])
-i4 = as.numeric(args[[4]])
+array = as.numeric(args[[1]])
 
+array.mat <- matrix(0,3*4*4*100,4)
+array.value <- rep(0,3*4*4*100)
+temp <- 1
+for(i1 in 1:3){
+  for(i2 in 1:4){
+    for(i3 in 1:4){
+      for(i4 in 1:100){
+        array.value[temp] <- 4*4*100*(i1-1)+4*100*(i2-1)+100*(i3-1)+i4
+        array.mat[temp,1] = i1
+        array.mat[temp,2] = i2
+        array.mat[temp,3] = i3
+        array.mat[temp,4] = i4
+        temp = temp+1
+      }
+    }
+  }
+}
+idx <- which(array.value==array)
+i1 = array.mat[idx,1]
+i2 = array.mat[idx,2]
+i3 = array.mat[idx,3]
+i4 = array.mat[idx,4]
+# i1 = as.numeric(args[[1]])
+# i2 = as.numeric(args[[2]])
+# i3 = as.numeric(args[[3]])
+# i4 = as.numeric(args[[4]])
 
-setwd("/data/zhangh24/MR_MA/")
+setwd("/n/holystore01/LABS/xlin/Lab/hzhang/MR_MA")
+#setwd("/data/zhangh24/MR_MA/")
 Meta = function(coef_vec,var_vec){
   meta_var = (sum(1/var_vec))^-1
   meta_coef = meta_var*sum(coef_vec/var_vec)

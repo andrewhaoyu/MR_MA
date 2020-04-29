@@ -51,9 +51,11 @@ clump_SNP_infor = left_join(clump_SNP,
 
 
 clump_SNP_infor = clump_SNP_infor %>% 
-  rename(beta_ex = beta,
-         se_ex = se,
-         P_ex = P) %>% 
+  rename(beta_ex = BETA,
+         se_ex = SE,
+         P_ex = P,
+         reference_allele = A1,
+         other_allele = Other_Allele) %>% 
   select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex,chr.pos)
 
 #load CAD summary level statistics
@@ -88,7 +90,7 @@ var_Gamma = out_clump_SNP_temp$se_gc^2
 gamma = out_clump_SNP_temp$beta_ex
 var_gamma = out_clump_SNP_temp$se_ex^2
 
-pcut <- c(5E-08,5E-07,5E-6,5E-5,5E-04)
+pcut <- c(5E-08,5E-07,5E-6)
 l <- length(pcut)
 IVW_s_result <- rep("c",l)
 IVW_c_result <- rep("c",l)

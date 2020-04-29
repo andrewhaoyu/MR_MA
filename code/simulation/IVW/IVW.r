@@ -10,7 +10,7 @@ for(i1 in 1:3){
   for(i2 in 1:4){
     for(i3 in 1:100){
       for(i4 in 1:4){
-        array.value[temp] <- 4*4*100*(i1-1)+4*100*(i2-1)+100*(i3-1)+i4
+        array.value[temp] <- 4*4*100*(i1-1)+4*100*(i2-1)+4*(i3-1)+i4
         array.mat[temp,1] = i1
         array.mat[temp,2] = i2
         array.mat[temp,3] = i3

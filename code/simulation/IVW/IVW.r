@@ -334,7 +334,8 @@ result = list(Gamma_est,
               cover_AR,
               ratio_AR_update_low,
               ratio_AR_update_high,
-              cover_AR_update
+              cover_AR_update,
+              cover_AR_update2
 )
 
 

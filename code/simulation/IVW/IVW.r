@@ -131,10 +131,6 @@ QuacNew <- function(Gamma,var_Gamma,gamma,var_gamma,beta_plug,W_vec){
   return(sum((Gamma-beta_plug*gamma)^2/(W_vec))-qchisq(0.95,K))
 }
 
-Gamma <- Gamma_est[idx[1],]
-var_Gamma <- Gamma_var[idx[1],]
-gamma <- Gamma_var[idx[1],]
-var_gamma<- gamma_var[idx[1],]
 
 
 ARMethod <- function(Gamma,var_Gamma,gamma,var_gamma){

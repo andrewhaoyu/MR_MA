@@ -26,7 +26,7 @@ cover_AR_list <- list()
 ratio_AR_update_low_list <- list()
 ratio_AR_update_high_list <- list()
 cover_AR_update_list <- list()
-
+cover_AR_update2_list <- list()
 
 
 
@@ -56,7 +56,8 @@ list(
   cover_AR,
   ratio_AR_update_low,
   ratio_AR_update_high,
-  cover_AR_update
+  cover_AR_update,
+  cover_AR_update2
 )
 temp <- 1
 load("./result/simulation/IVW/IVW_merged.Rdata")
@@ -75,6 +76,7 @@ for(i4 in 1:4){
   ratio_AR_update_low <- matrix(0,n.row,n.col)
   ratio_AR_update_high <- matrix(0,n.row,n.col)
   cover_AR_update <- matrix(0,n.row,n.col)
+  cover_AR_update2 <- matrix(0,n.row,n.col)
   for(i1 in 1:3){
     for(i2 in 1:4){
       # 
@@ -92,12 +94,13 @@ for(i4 in 1:4){
       ratio_est_AR[i2,i1] <- mean(result[[16]])
       ratio_est_AR_low[i2,i1] <- mean(result[[17]])
       ratio_est_AR_high[i2,i1] <- mean(result[[18]])
-      cover_AR[i2,i1] <- mean(result[[19]],na=rm)
-      ratio_AR_update_low[i2,i1] <- mean(result[[20]])
-      ratio_AR_update_high[i2,i1] <- mean(result[[21]])
+      cover_AR[i2,i1] <- mean(result[[19]],na.rm=T)
+      ratio_AR_update_low[i2,i1] <- mean(result[[20]],na.rm=T)
+      ratio_AR_update_high[i2,i1] <- mean(result[[21]],na.rm=T)
       library(data.table)
       result.temp <- rep(0,1000)
-      cover_AR_update[i2,i1] <- mean(rbindlist(result[[22]]))
+      cover_AR_update[i2,i1] <- mean(result[[22]])
+      cover_AR_update2[i2,i1] <- mean(result[[23]])
       temp <- temp+1
     }
   }
@@ -114,6 +117,7 @@ for(i4 in 1:4){
   ratio_AR_update_low_list[[i4]] <- ratio_AR_update_low
   ratio_AR_update_high_list[[i4]] <- ratio_AR_update_high
   cover_AR_update_list[[i4]] <- cover_AR_update
+  cover_AR_update2_list[[i4]] <- cover_AR_update2
 }
 
 ratio_cover_table <- round(rbind(ratio_cover_list[[1]],
@@ -126,10 +130,16 @@ ratio_cover_c_table <- round(rbind(ratio_cover_c_list[[1]],
                                  ratio_cover_c_list[[3]],
                                  ratio_cover_c_list[[4]]),2)
 write.csv(ratio_cover_c_table,file = "./result/simulation/IVW/ratio_cover_c_table.csv")
-cover_AR_table <- round(rbind(cover_AR_list[[1]],
-                              cover_AR_list[[2]],
-                              cover_AR_list[[3]],
-                              cover_AR_list[[4]]),2)
+cover_AR_table <- round(rbind(cover_AR_update_list[[1]],
+                              cover_AR_update_list[[2]],
+                              cover_AR_update_list[[3]],
+                              cover_AR_update_list[[4]]),2)
+write.csv(cover_AR_table,file = "./result/simulation/IVW/cover_AR_table.csv")
+
+cover_AR_table2 <- round(rbind(cover_AR_update2_list[[1]],
+                               cover_AR_update2_list[[2]],
+                               cover_AR_update2_list[[3]],
+                               cover_AR_update2_list[[4]]),2)
 write.csv(cover_AR_table,file = "./result/simulation/IVW/cover_AR_table.csv")
 
 cover_exact_table <- round(rbind(cover_exact_list[[1]],

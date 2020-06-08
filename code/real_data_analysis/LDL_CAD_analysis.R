@@ -91,12 +91,10 @@ var_Gamma = out_clump_SNP_temp$se_gc^2
 gamma = out_clump_SNP_temp$beta_ex
 var_gamma = out_clump_SNP_temp$se_ex^2
 
-pcut <- c(5E-08,5E-07,5E-6,5E-5,5E-04)
+pcut <- c(5E-08,5E-07,5E-06,5e-05)
 l <- length(pcut)
-IVW_s_result <- rep("c",l)
 IVW_c_result <- rep("c",l)
-AR_result_1 <- rep("c",l)
-AR_result_2 <- rep("c",l)
+MRLR_result <- rep("c",l)
 n.snp <- rep(0,l)
 keep.snp <- rep(0,l)
 for(k in 1:l){
@@ -107,22 +105,15 @@ for(k in 1:l){
   gamma = out_clump_SNP_temp$beta_ex
   var_gamma = out_clump_SNP_temp$se_ex^2
   n.snp[k] <- length(Gamma)
-  IVW_s_temp <- IVW_s(Gamma,var_Gamma,
-        gamma,var_gamma)
   num = 3
-  IVW_s_result[k] <- paste0(round(IVW_s_temp[[1]],num)," (",round(IVW_s_temp[[3]],num),",",
-round(IVW_s_temp[[4]],num),")")
   IVW_c_temp <- IVW_c(Gamma,var_Gamma,
         gamma,var_gamma)
   IVW_c_result[k] <- paste0(round(IVW_c_temp[[1]],num)," (",round(IVW_c_temp[[3]],num),",",
                             round(IVW_c_temp[[4]],num),")")
-  AR_result <- ARMethod(Gamma,var_Gamma,
+  MRLR_result_temp <- MRLR(Gamma,var_Gamma,
                         gamma,var_gamma)
-  keep.snp[k] <- length(AR_result[[4]])
-  AR_result_1[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[2]],num),",",
-                        round(AR_result[[3]],num),")")
-  AR_result_2[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[6]],num),",",
-                           round(AR_result[[7]],num),")")
+  MRLR_result[k] <-paste0(round(MRLR_result_temp[[1]],num)," (",round(MRLR_result_temp[[2]],num),",",
+                          round(MRLR_result_temp[[3]],num),")")
 }
 
 
@@ -134,19 +125,50 @@ write.csv(LDL.result.summary,file = "/data/zhangh24/MR_MA/result/real_data_analy
 
 
 
+#IVW estimate using summary level statistics
+IVW_c = function(Gamma,var_Gamma,gamma,var_gamma){
+  p <- length(Gamma)
+  raio_vec = rep(0,p)
+  ratio_var_vec = rep(0,p)
+  
+  raio_vec = Gamma/gamma
+  ratio_var_vec =  var_Gamma/gamma^2+var_gamma*Gamma^2/gamma^4
+  
+  
+  Meta_result = Meta(raio_vec,ratio_var_vec)
+  ratio_ivw =   Meta_result[1]
+  ratio_ivw_var = Meta_result[2]
+  coef_low = ratio_ivw-1.96*sqrt(ratio_ivw_var)
+  coef_high = ratio_ivw+1.96*sqrt(ratio_ivw_var)
+  
+  
+  return(c(ratio_ivw,ratio_ivw_var,
+           coef_low,coef_high))
+}
 
-
-
-
-IVW_s(Gamma,var_Gamma,
-      gamma,var_gamma)
-IVW_c(Gamma,var_Gamma,
-      gamma,var_gamma)
-AR_result <- ARMethod(Gamma,var_Gamma,
-         gamma,var_gamma)
-
-
-
+MRLR <- function(Gamma,var_Gamma,gamma,var_gamma){
+  K <- length(Gamma)
+  keep.ind <- c(1:K)
+  
+  #first step
+  model1 = lm(Gamma~gamma-1)
+  coef_est = coefficients(model1)
+  W_vec = 1/(var_Gamma+coef_est^2*var_gamma)
+  
+  coef_best = sum(Gamma*gamma*W_vec)/sum(gamma^2*W_vec)
+  sigma_est  = sum((Gamma-coef_est*gamma)^2)/(K-1)
+  
+  W_vec = 1/(var_Gamma+coef_est^2*var_gamma)
+  xwx_iv = 1/sum(gamma^2*W_vec)
+  
+  var_coef_est = sigma_est*xwx_iv*t(gamma)%*%diag(W_vec)%*%diag(W_vec)%*%gamma*xwx_iv
+  
+  coef_low <- coef_est+qt(0.025,(K-1))*sqrt(var_coef_est)
+  coef_high <- coef_est+qt(0.975,(K-1))*sqrt(var_coef_est)
+  
+  
+  return(list(coef_est,coef_low,coef_high))
+}
 
 
 

@@ -11,6 +11,7 @@ times = 100000
 library(ggplot2)
 n.row <- length(alpha_vec)
 n.col <- length(n_vec)
+ratio_est_list <- list()
 ratio_cover_list <- list()
 ci_low_ratio_list <- list()
 ci_high_ratio_list <- list()
@@ -23,48 +24,19 @@ ratio_est_AR_list <- list()
 ratio_est_AR_low_list <- list()
 ratio_est_AR_high_list <- list()
 cover_AR_list <- list()
-ratio_AR_update_low_list <- list()
-ratio_AR_update_high_list <- list()
-cover_AR_update_list <- list()
-cover_AR_update2_list <- list()
+ratio_est_MR_list <- list()
+ratio_est_MR_low_list <- list()
+ratio_est_MR_high_list <- list()
+cover_MR_list <- list()
 
-
-
-
-
-
-
-list(
-  Gamma_est,
-  Gamma_var,
-  gamma_est,
-  gamma_var,
-  ratio_est,
-  ratio_var,
-  ratio_cover,
-  ci_low_ratio,
-  ci_high_ratio,
-  ratio_est_c,
-  ratio_var_c,
-  ratio_cover_c,
-  ratio_cover_c,
-  ci_low_ratio_c,
-  ci_high_ratio_c,
-  ratio_est_AR,
-  ratio_AR_low,
-  ratio_AR_high,
-  cover_AR,
-  ratio_AR_update_low,
-  ratio_AR_update_high,
-  cover_AR_update,
-  cover_AR_update2
-)
 temp <- 1
 load("./result/simulation/IVW/IVW_merged.Rdata")
 for(i4 in 1:4){
+  ratio_est <- matrix(0,n.row,n.col)
   ratio_cover <- matrix(0,n.row,n.col)
   ci_low_ratio <- matrix(0,n.row,n.col)
   ci_high_ratio <- matrix(0,n.row,n.col)
+  ratio_est_c <- matrix(0,n.row,n.col)
   ratio_cover_c <- matrix(0,n.row,n.col)
   ci_low_ratio_c <- matrix(0,n.row,n.col)
   ci_high_ratio_c <- matrix(0,n.row,n.col)
@@ -73,37 +45,38 @@ for(i4 in 1:4){
   ratio_est_AR_low <- matrix(0,n.row,n.col)
   ratio_est_AR_high <- matrix(0,n.row,n.col)
   cover_AR <- matrix(0,n.row,n.col)
-  ratio_AR_update_low <- matrix(0,n.row,n.col)
-  ratio_AR_update_high <- matrix(0,n.row,n.col)
-  cover_AR_update <- matrix(0,n.row,n.col)
-  cover_AR_update2 <- matrix(0,n.row,n.col)
+  ratio_est_MR <- matrix(0,n.row,n.col)
+  ratio_est_MR_low <- matrix(0,n.row,n.col)
+  ratio_est_MR_high <- matrix(0,n.row,n.col)
+  cover_MR <- matrix(0,n.row,n.col)
   for(i1 in 1:3){
     for(i2 in 1:4){
       # 
-      # temp = 12*(i4-1)+4*(i1-1)+i2
+      temp = 12*(i4-1)+4*(i1-1)+i2
       n <- n_vec[i1]
       alpha_G = alpha_vec[i2]
       beta_M = beta_vec[i4]
       result <- result_final[[temp]]
-      ratio_cover[i2,i1] <- mean(result[[7]])
+      ratio_est[i2,i1] <- mean(result[[5]])
       ci_low_ratio[i2,i1] <- mean(result[[8]])
       ci_high_ratio[i2,i1] <- mean(result[[9]])
-      ratio_cover_c[i2,i1] <- mean(result[[12]])
+      ratio_cover[i2,i1] <- mean(result[[7]])
+      ratio_est_c[i2,i1] <- mean(result[[10]])
       ci_low_ratio_c[i2,i1] <- mean(result[[14]])
       ci_high_ratio_c[i2,i1] <- mean(result[[15]])
+      ratio_cover_c[i2,i1] <- mean(result[[12]])
       ratio_est_AR[i2,i1] <- mean(result[[16]])
-      ratio_est_AR_low[i2,i1] <- mean(result[[17]])
-      ratio_est_AR_high[i2,i1] <- mean(result[[18]])
-      cover_AR[i2,i1] <- mean(result[[19]],na.rm=T)
-      ratio_AR_update_low[i2,i1] <- mean(result[[20]],na.rm=T)
-      ratio_AR_update_high[i2,i1] <- mean(result[[21]],na.rm=T)
-      library(data.table)
-      result.temp <- rep(0,1000)
-      cover_AR_update[i2,i1] <- mean(result[[22]])
-      cover_AR_update2[i2,i1] <- mean(result[[23]])
+      ratio_est_AR_low[i2,i1] <- mean(result[[17]],na.rm=T)
+      ratio_est_AR_high[i2,i1] <- mean(result[[18]],na.rm=T)
+      cover_AR[i2,i1] <- mean(result[[19]])
+      ratio_est_MR[i2,i1] <- mean(result[[20]])
+      ratio_est_MR_low[i2,i1] <- mean(result[[21]])
+      ratio_est_MR_high[i2,i1] <- mean(result[[22]])
+      cover_MR[i2,i1] <- mean(result[[23]])
       temp <- temp+1
     }
   }
+  ratio_est_list[[i4]] <- ratio_est
   ratio_cover_list[[i4]] <- ratio_cover
   ci_low_ratio_list[[i4]] <- ci_low_ratio
   ci_high_ratio_list[[i4]] <- ci_high_ratio
@@ -114,10 +87,10 @@ for(i4 in 1:4){
   ratio_est_AR_low_list[[i4]] <- ratio_est_AR_low
   ratio_est_AR_high_list[[i4]] <- ratio_est_AR_high
   cover_AR_list[[i4]] <-   cover_AR
-  ratio_AR_update_low_list[[i4]] <- ratio_AR_update_low
-  ratio_AR_update_high_list[[i4]] <- ratio_AR_update_high
-  cover_AR_update_list[[i4]] <- cover_AR_update
-  cover_AR_update2_list[[i4]] <- cover_AR_update2
+  ratio_est_MR_list[[i4]] <- ratio_est_MR
+  ratio_est_MR_low_list[[i4]] <- ratio_est_MR_low
+  ratio_est_MR_high_list[[i4]] <- ratio_est_MR_high
+  cover_MR_list[[i4]] <-   cover_MR
 }
 
 ratio_cover_table <- round(rbind(ratio_cover_list[[1]],
@@ -130,38 +103,17 @@ ratio_cover_c_table <- round(rbind(ratio_cover_c_list[[1]],
                                  ratio_cover_c_list[[3]],
                                  ratio_cover_c_list[[4]]),2)
 write.csv(ratio_cover_c_table,file = "./result/simulation/IVW/ratio_cover_c_table.csv")
-cover_AR_table <- round(rbind(cover_AR_update_list[[1]],
-                              cover_AR_update_list[[2]],
-                              cover_AR_update_list[[3]],
-                              cover_AR_update_list[[4]]),2)
+cover_AR_table <- round(rbind(cover_AR_list[[1]],
+                              cover_AR_list[[2]],
+                              cover_AR_list[[3]],
+                              cover_AR_list[[4]]),2)
 write.csv(cover_AR_table,file = "./result/simulation/IVW/cover_AR_table.csv")
 
-cover_AR_table2 <- round(rbind(cover_AR_update2_list[[1]],
-                               cover_AR_update2_list[[2]],
-                               cover_AR_update2_list[[3]],
-                               cover_AR_update2_list[[4]]),2)
-write.csv(cover_AR_table,file = "./result/simulation/IVW/cover_AR_table.csv")
-
-cover_exact_table <- round(rbind(cover_exact_list[[1]],
-                                 cover_exact_list[[2]],
-                                 cover_exact_list[[3]],
-                                 cover_exact_list[[4]]),2)
-write.csv(cover_exact_table,file = "./result/simulation/ratio_estimate/cover_exact_table.csv")
-
-ci_exact_table <- rbind(ci_exact_list[[1]],
-                        ci_exact_list[[2]],
-                        ci_exact_list[[3]],
-                        ci_exact_list[[4]])
-write.csv(ci_exact_table,file = "./result/simulation/ratio_estimate/ci_exact_table.csv")
-
-write.csv(cover_ratio,file = "./result/simulation/ratio_estimate/cover_ratio.csv")
-write.csv(cover_true,file = "./result/simulation/ratio_estimate/cover_true.csv")
-write.csv(cover_epi,file = "./result/simulation/ratio_estimate/cover_epi.csv")
-write.csv(cover_true_exact,file = "./result/simulation/ratio_estimate/cover_true_exact.csv")
-write.csv(ci_ratio,file = "./result/simulation/ratio_estimate/ci_ratio.csv")
-write.csv(ci_epi,file = "./result/simulation/ratio_estimate/ci_epi.csv")
-write.csv(ci_exact,file = "./result/simulation/ratio_estimate/ci_exact.csv")
-
+cover_MR_table <- round(rbind(cover_MR_list[[1]],
+                              cover_MR_list[[2]],
+                              cover_MR_list[[3]],
+                              cover_MR_list[[4]]),2)
+write.csv(cover_MR_table,file = "./result/simulation/IVW/cover_MR_table.csv")
 
 library(gridExtra)
 png("./result/simulation/ratio_estimate/ratio_sd_plot.png",width = 16,height = 8,

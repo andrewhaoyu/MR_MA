@@ -24,10 +24,10 @@ result = list(Gamma_est,
               ratio_AR_low,
               ratio_AR_high,
               cover_AR,
-              ratio_AR_update_low,
-              ratio_AR_update_high,
-              cover_AR_update,
-              cover_AR_update2
+              ratio_est_MR,
+              ratio_MR_low,
+              ratio_MR_high,
+              cover_MR
 )
 
 
@@ -55,14 +55,14 @@ for(i4 in 1:4){
       ci_low_ratio_c <- rep(0,times)
       ci_high_ratio_c <- rep(0,times)
       ratio_est_AR <- rep(0,times)
-      ratio_est_AR <- rep(0,times)
       ratio_AR_low <- rep(0,times)
       ratio_AR_high <- rep(0,times)
       cover_AR <- rep(0,times)
-      ratio_AR_update_low <- rep(0,times)
-      ratio_AR_update_high <- rep(0,times)
-      cover_AR_update <- rep(0,times)
-      cover_AR_update2 <- rep(0,times)
+      ratio_est_MR <- rep(0,times)
+      ratio_MR_low <- rep(0,times)
+      ratio_MR_high <- rep(0,times)
+      cover_MR<- rep(0,times)
+    
       total <- 0
       for(i3 in 1:100){
         load(paste0("./result/simulation/IVW/ratio_estimate_",i1,"_",i2,"_",i3,"_",i4,".Rdata"))
@@ -82,14 +82,13 @@ for(i4 in 1:4){
         ci_low_ratio_c[total+(1:temp)] <- result[[14]]
         ci_high_ratio_c[total+(1:temp)] <- result[[15]]
         ratio_est_AR[total+(1:temp)] <- result[[16]]
-        #due to typo ratio_est_AR was written twice
         ratio_AR_low[total+(1:temp)] <- result[[17]]
         ratio_AR_high[total+(1:temp)] <- result[[18]]
         cover_AR[total+(1:temp)] <- result[[19]]
-        ratio_AR_update_low[total+(1:temp)] <- result[[20]]
-        ratio_AR_update_high[total+(1:temp)] <- result[[21]]
-        cover_AR_update[total+(1:temp)] <- result[[22]]
-        cover_AR_update2[total+(1:temp)] <- result[[23]]
+        ratio_est_MR[total+(1:temp)] <- result[[20]]
+        ratio_MR_low[total+(1:temp)] <- result[[21]]
+        ratio_MR_high[total+(1:temp)] <- result[[22]]
+        cover_MR[total+(1:temp)] <- result[[23]]
         total <- total+temp
         
       }
@@ -116,10 +115,10 @@ for(i4 in 1:4){
                                         ratio_AR_low,
                                         ratio_AR_high,
                                         cover_AR,
-                                        ratio_AR_update_low,
-                                        ratio_AR_update_high,
-                                        cover_AR_update,
-                                        cover_AR_update2
+                                        ratio_est_MR,
+                                        ratio_MR_low,
+                                        ratio_MR_high,
+                                        cover_MR
       )
       temp.idx <- temp.idx+1
     }
@@ -127,9 +126,6 @@ for(i4 in 1:4){
   
 }
 
-temp <- 1
-result <-    result_final[[temp]]
-mean(result[[19]])
 
 save(result_final,file = paste0("./result/simulation/IVW/IVW_merged.Rdata"))
 

@@ -27,7 +27,7 @@ for(l in 1:length(pthres)){
     alpha_est_idx = alpha_est[idx]
     #find the corresponding SNPs within this genotype file  
     idx.scale = idx-(i1-1)*5000    
-    prs_mat[,l] = genotype_m_test[,idx.scale]%*%alpha_est_idx
+    prs_mat[,l] = genotype_m_test[,idx.scale,drop=F]%*%alpha_est_idx
   }
 
   

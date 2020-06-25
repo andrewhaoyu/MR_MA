@@ -39,22 +39,25 @@ Meta = function(coef_vec,var_vec){
 }
 
 
-result_temp = rep(0,1000)
+IVW_best_est = rep(0,n.rep)
+IVW_best_low_est = rep(0,n.rep)
+IVW_best_high_est = rep(0,n.rep)
 for(l in 1:1000){
-  idx = 1:5000
-  Gamma = gamma_mat[idx,l]
+  #idx = 1:5000
+  Gamma = gamma_est_mat[idx,l]
   var_Gamma = gamma_sd_mat[idx,l]^2
   alpha = alpha_est_mat[idx,l]
   var_alpha = alpha_sd_mat[idx,l]^2
 
   result_IVW=  IVW_c(Gamma,var_Gamma,
                       alpha,var_alpha)
-  IVW_est[l] = result_IVW[1]
-   IVW_low_est[l] = result_IVW[4]
-   IVW_high_est[l] = result_IVW[5]
-   IVW_cover[l] = result_IVW[3]
+  IVW_best_est[l] = result_IVW[1]
+  IVW_best_low_est[l] = result_IVW[4]
+  IVW_best_high_est[l] = result_IVW[5]
+   #IVW_cover[l] = result_IVW[3]
   # 
 }
+
 
 
 
@@ -96,7 +99,7 @@ MRLR <- function(Gamma,var_Gamma,gamma,var_gamma){
 
 
 n.rep = 1000
-beta_M = 0.15
+beta_M = mean(best_prs_est)
 IVW_est = rep(0,n.rep)
 IVW_low_est = rep(0,n.rep)
 IVW_high_est = rep(0,n.rep)
@@ -123,8 +126,7 @@ PRS_high_est = rep(0,n.rep)
 PRS_p = rep(0,n.rep)
 for(l in 1:n.rep){
   idx <- which(alpha_p_mat[,l]<=5E-8)
-  idx <- 
-  Gamma = gamma_mat[idx,l]
+  Gamma = gamma_est_mat[idx,l]
   var_Gamma = gamma_sd_mat[idx,l]^2
   alpha = alpha_est_mat[idx,l]
   var_alpha = alpha_sd_mat[idx,l]^2
@@ -147,7 +149,7 @@ for(l in 1:n.rep){
   
   
   idx <- which(alpha_p_mat[,l]<=1E-03)
-  Gamma = gamma_mat[idx,l]
+  Gamma = gamma_est_mat[idx,l]
   var_Gamma = gamma_sd_mat[idx,l]^2
   alpha = alpha_est_mat[idx,l]
   var_alpha = alpha_sd_mat[idx,l]^2
@@ -168,3 +170,47 @@ for(l in 1:n.rep){
   #PRS_est[l] = crossprod(Gamma,alpha)/crossprod(alpha,alpha)
   
 }
+
+est = c(mean(IVW_est),mean(MRLR_est),
+        mean(IVW_PRS_est),mean(MRLR_PRS_est),
+        mean(best_prs_est),
+        mean(IVW_best_est),
+        mean(prs_est))
+est_low = c(mean(IVW_low_est),mean(MRLR_low_est),
+            mean(IVW_PRS_low_est),mean(MRLR_PRS_low_est),
+            mean(best_prs_low),
+            mean(IVW_best_low_est),
+            mean(prs_low_est))
+est_high = c(mean(IVW_high_est),mean(MRLR_high_est),
+            mean(IVW_PRS_high_est),mean(MRLR_PRS_high_est),
+            mean(best_prs_high),
+            mean(IVW_best_high_est),
+            mean(prs_high_est))
+method = c(
+           )
+data <- data.frame(method,est,est_low,est_high)
+data$method <- as.factor(data$method)
+levels(data$method) <- c("Two-stage regression (best PRS)",
+                         "IVW true causal SNPS",
+                         "IVW (P<5E-08)","MR-weighted (P<5E-08)",
+                         "IVW (P<1E-03)"," MR-weighted (P<1E-03)",
+                         "Two-stage regression (P<1E-03)")
+save(data,file = "/data/zhangh24/MR_MA/result/simulation/prs/data_for_plot.rdata")
+library(ggplot2)
+ ggplot(data) +
+  #theme_Publication()+
+  geom_bar(aes(x=method, y=est), stat="identity", fill="royalblue", alpha=0.7) +
+  geom_errorbar(aes(x=name, ymin=est_low, ymax=est_high, width=0.2), 
+                colour="firebrick2", alpha=0.9, size=0.8) +
+  coord_flip() +
+  # ylim(-5, 15) +
+  labs(x = 'Variables', y = expression("95% CI"), 
+       title = 'MR method comparasion') +
+  theme(plot.title=element_text(hjust=0.5, size=30),
+        plot.subtitle=element_text(size=20),
+        axis.title.x=element_text(margin=margin(t=10, r=0, b=0, l=0), hjust=0.5, size=15),
+        axis.title.y=element_text(margin=margin(t=0, r=10, b=0, l=0), vjust=0.5, size=15),
+        axis.text.x=element_text(size=15),
+        axis.text.y=element_text(size=15),
+        legend.title=element_text(size=15),
+        legend.text=element_text(size=15))

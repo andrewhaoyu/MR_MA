@@ -169,7 +169,7 @@ for(m in 1:length(n.snp.vec)){
   Gamma_est = rep(0,n.snp)
   Gamma_sd = rep(0,n.snp)
   Gamma_p = rep(0,n.snp)
-  n.train = 100000
+  n.train = 500000
   M_mat_train = M_mat[(1:n.train),]
   genotype_m_train = genotype_s[(1:n.train),]
   

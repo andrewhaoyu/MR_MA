@@ -12,11 +12,18 @@ library(tidyr)
 
 #read KG SNP information
 KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/EUR/chr_all.bim",header=F))
+
 colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
+#load KG SNPs MAF information
+load("/data/zhangh24/multi_ethnic/result/LD_simulation/snp.infor.rdata")
+snp.infor.select = snp.infor %>% select(id,EUR) %>% 
+  rename(SNP=id)
+
+KG.SNP = left_join(KG.SNP,snp.infor.select,by="SNP")
+
 KG.SNP = KG.SNP %>% 
-  mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos)
-
-
+  mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos,EUR) %>% 
+  rename(EAF=EUR)
 
 LDL = as.data.frame(fread("./data/LDL_Meta_ENGAGE_1000G.txt",header=T))
 n = nrow(LDL)

@@ -87,7 +87,7 @@ beta_est_MRLR = matrix(0,n.rep,length(n.snp.vec))
 beta_est_MRLR_inner = matrix(0,n.rep,length(n.snp.vec))
 set.seed(i1)
 for(m in 1:length(n.snp.vec)){
-  load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M.rdata")
+  load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M_500k.rdata")
   n.sub <- nrow(genotype_s)
   n.snp = n.snp.vec[m]
   genotype_s = genotype_s[,1:n.snp]
@@ -121,7 +121,7 @@ for(m in 1:length(n.snp.vec)){
   
   
   #generate Y phenotypes
-  load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_Y.rdata")
+  load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_Y_500k.rdata")
   genotype_s2 = genotype_s2[,1:n.snp]
   n.sub <- nrow(genotype_s2)
   U2 = rnorm(n.sub,sd = sqrt(var_U))
@@ -229,12 +229,37 @@ result= list(beta_est_result,
              beta_est_result_inner,
              beta_est_IVW_inner,
              beta_est_MRLR_inner)
-save(result,file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_",i1))
+save(result,file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_500k_",i1))
 # confint(model)
 # 
+# library(ggplot2)
+# data = data.frame(alpha= alpha_est[idx],Gamma = Gamma_est[idx])
+# ggplot(data,aes(alpha,Gamma))+ 
+#   geom_point()+
+#   geom_smooth(method="lm")+
+#   geom_abline(slope=0.15,
+#               intercept=0,
+#               col = "red")+
+#   theme_Publication()+
+#   xlab("alpha estiamte")+
+#   ylab("Gamma estimate")+
+#   ggtitle("Two sample MR")
+# 
 # idx <- which(alpha_p_inner<=5E-08)
-# plot(alpha_est_inner[idx],Gamma_est[idx])
-# abline(a=0,b=0.15)
+# data = data.frame(alpha= alpha_est_inner[idx],Gamma = Gamma_est[idx])
+# 
+# ggplot(data,aes(alpha,Gamma))+ 
+#   geom_point()+
+#   geom_smooth(method="lm")+
+#   geom_abline(slope=0.15,
+#               intercept=0,
+#               col = "red")+
+#   theme_Publication()+
+#   xlab("alpha estiamte")+
+#   ylab("Gamma estimate")+
+#   ggtitle("One sample MR")
+# 
+# 
 # idx <- which(alpha_p<=5E-08)
 # plot(alpha_est[idx],Gamma_est[idx])
 # abline(a=0,b=0.15)

@@ -1,6 +1,6 @@
 #merge and plot mr test results
 filedir = "/data/zhangh24/MR_MA/result/simulation/prs/"
-files = dir(filedir,"beta_test_result_500k",full.names = T)
+files = dir(filedir,"beta_test_result",full.names = T)
 total = 0
 for(i1 in 1:1000){
   file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs//beta_test_result_",i1)
@@ -24,7 +24,7 @@ total = 0
 filedir = "/data/zhangh24/MR_MA/result/simulation/prs/"
 
 for(i1 in 1:1000){
-  file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs//beta_test_result_500k_",i1)
+  file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs//beta_test_result_",i1)
   if(file %in% files){
     load(file)  
     temp = nrow(result[[1]])
@@ -53,9 +53,9 @@ write.csv(final.result, file = "/data/zhangh24/MR_MA/result/simulation/prs/prs_m
 Getestimate <- function(est_mat){
   return(paste0(sprintf("%.3f",round(colMeans(est_mat),3))," [",
                 sprintf("%.3f",round(apply(est_mat,2,function(x){quantile(x,0.025)}),3)),
-         ", ",
-         sprintf("%.3f",round(apply(est_mat,2,function(x){quantile(x,0.975)}),3)),
-         "]"))
+                ", ",
+                sprintf("%.3f",round(apply(est_mat,2,function(x){quantile(x,0.975)}),3)),
+                "]"))
   
   
 }
@@ -75,3 +75,4 @@ round(apply(beta_est_IVW_inner,2,function(x){quantile(x,0.025)}),3)
 round(apply(beta_est_IVW_inner,2,function(x){quantile(x,0.975)}),3)
 round(apply(beta_est_MRLR_inner,2,function(x){quantile(x,0.025)}),3)
 round(apply(beta_est_MRLR_inner,2,function(x){quantile(x,0.975)}),3)
+s

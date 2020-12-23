@@ -88,7 +88,7 @@ beta_est_MRLR_inner = matrix(0,n.rep,length(n.snp.vec))
 set.seed(i1)
 for(m in 1:length(n.snp.vec)){
   #load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M.rdata")
-  load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M_500k.rdata")
+  load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M.rdata")
   n.sub <- nrow(genotype_s)
   n.snp = n.snp.vec[m]
   genotype_s = genotype_s[,1:n.snp]
@@ -117,8 +117,7 @@ for(m in 1:length(n.snp.vec)){
     #M_mat[,j] = G_value
     #+rnorm(n.sub,sd = sqrt(sigma_e))
   }
- # save(M_mat,file = "/data/zhangh24/MR_MA/result/simulation/prs/M_mat.rdata")
-  
+  # save(M_mat,file = "/data/zhangh24/MR_MA/result/simulation/prs/M_mat.rdata")
   
   
   #generate Y phenotypes
@@ -201,14 +200,16 @@ for(m in 1:length(n.snp.vec)){
       #beta_est[k] = Gamma_est/alpha_est
     }
     
-    genotype_m_test = genotype_s[(n.train+1):nrow(genotype_s),1:n.snp]
+    genotype_m_test = genotype_s2
     
     #prs method
     prs_m_mat <- genotype_m_test%*%alpha_est
     prs_m_mat_inner = genotype_m_test%*%alpha_est_inner
     prs_y_mat <- genotype_m_test%*%Gamma_est
     model = lm(prs_y_mat~prs_m_mat)
-    beta_est_result[l,m]= coefficients(summary(model))[2,1]
+    F = crossprod(G_value2)/n.snp/sigma_e
+    
+    beta_est_result[l,m]= coefficients(summary(model))[2,1]*(F+1)/F
     model  = lm(prs_y_mat~prs_m_mat_inner)
     beta_est_result_inner[l,m] = coefficients(summary(model))[2,1]
     
@@ -224,7 +225,7 @@ for(m in 1:length(n.snp.vec)){
     beta_est_MRLR_inner[l,m] = MRLR(Gamma_est[idx],Gamma_sd[idx]^2,alpha_est_inner[idx],alpha_sd_inner[idx]^2)[1]
     
   }
-   
+  
 }
 result= list(beta_est_result,
              beta_est_IVW,

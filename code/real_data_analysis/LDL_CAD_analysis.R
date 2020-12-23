@@ -9,21 +9,11 @@ setwd("/data/zhangh24/MR_MA")
 library(data.table)
 library(dplyr)
 library(tidyr)
+load("/data/zhangh24/KG.plink/EUR/KG.SNP_process.Rdata")
 
-#read KG SNP information
-KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/EUR/chr_all.bim",header=F))
 
-colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
-#load KG SNPs MAF information
-load("/data/zhangh24/multi_ethnic/result/LD_simulation/snp.infor.rdata")
-snp.infor.select = snp.infor %>% select(id,EUR) %>% 
-  rename(SNP=id)
 
-KG.SNP = left_join(KG.SNP,snp.infor.select,by="SNP")
 
-KG.SNP = KG.SNP %>% 
-  mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos,EUR) %>% 
-  rename(EAF=EUR)
 
 LDL = as.data.frame(fread("./data/LDL_Meta_ENGAGE_1000G.txt",header=T))
 n = nrow(LDL)
@@ -64,7 +54,7 @@ clump_SNP_infor = clump_SNP_infor %>%
   rename(beta_ex = beta,
          se_ex = se,
          P_ex = P) %>% 
-  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex,chr.pos)
+  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex,chr.pos,EAF)
 
 #load CAD summary level statistics
 CAD <- as.data.frame(fread("./data/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt",header=T))
@@ -75,7 +65,7 @@ CAD = CAD %>%
 out_clump_SNP = inner_join(clump_SNP_infor,
                           CAD,by="chr.pos") %>% 
   rename(SNP=SNP.x) %>% 
-select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue)
+select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue,EAF)
 
 #align the SNP to the reference SNP
 idx <- which(out_clump_SNP$reference_allele!=out_clump_SNP$effect_allele)
@@ -88,6 +78,12 @@ idx.order <- order(as.numeric(out_clump_SNP$CHR),
                    as.numeric(out_clump_SNP$BP))
 out_clump_SNP = out_clump_SNP[idx.order,]
 
+out_clump_SNP = out_clump_SNP %>% 
+  mutate(beta_ex_sd = beta_ex*sqrt(2*effect_allele_freq*(1-effect_allele_freq)),
+         se_ex_sd = se_ex*sqrt(2*effect_allele_freq*(1-effect_allele_freq)),
+         logOR_sd = logOR*sqrt(2*effect_allele_freq*(1-effect_allele_freq)),
+         se_gc_sd = se_gc*sqrt(2*effect_allele_freq*(1-effect_allele_freq)))
+
 
 pdx <- which(out_clump_SNP$P_ex<=5E-08)
 out_clump_SNP_temp = out_clump_SNP[pdx,]
@@ -97,6 +93,9 @@ Gamma = out_clump_SNP_temp$logOR
 var_Gamma = out_clump_SNP_temp$se_gc^2
 gamma = out_clump_SNP_temp$beta_ex
 var_gamma = out_clump_SNP_temp$se_ex^2
+
+
+gamma_sd = out_clump_SNP_temp$beta_ex_sd
 
 pcut <- c(5E-08,5E-07,5E-06,5e-05)
 l <- length(pcut)

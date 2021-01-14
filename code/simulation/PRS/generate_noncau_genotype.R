@@ -1,4 +1,5 @@
 arg <- commandArgs(trailingOnly=T)
+#i1 = 2,..30 generate 29 different genotype datasets for non causal snps
 i1 <- as.numeric(arg[[1]])
 
 #generate independent causal SNPs

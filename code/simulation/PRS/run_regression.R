@@ -1,4 +1,6 @@
 args = commandArgs(trailingOnly = T)
+#i1 = 1 for causal SNPs dataset, i1 = 2,..,30 for non causal SNPs datasets
+#i2 is spliting the data into 30 subsets for computation
 i1 = as.numeric(args[[1]])
 i2 = as.numeric(args[[2]])
 library(RcppArmadillo)

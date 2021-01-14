@@ -24,7 +24,7 @@ total = 0
 filedir = "/data/zhangh24/MR_MA/result/simulation/prs/"
 
 for(i1 in 1:1000){
-  file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs//beta_test_result_500k_",i1)
+  file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_500k_",i1)
   if(file %in% files){
     load(file)  
     temp = nrow(result[[1]])

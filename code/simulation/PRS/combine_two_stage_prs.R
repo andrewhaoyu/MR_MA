@@ -1,6 +1,4 @@
-genotype_m_test = genotype_s[(n.train+1):nrow(genotype_s),]
-n.rep = 1000
-n.test = 10000
+n.test = 100000
 prs_m_mat = matrix(0,n.test,n.rep)
 prs_y_mat = matrix(0,n.test,n.rep)
 

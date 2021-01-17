@@ -7,7 +7,9 @@ alpha_p_mat = result[[3]]
 gamma_est_mat = result[[4]]
 gamma_sd_mat = result[[5]]
 gamma_p_mat = result[[6]]
-
+load("/data/zhangh24/MR_MA/result/simulation/prs/M_mat.rdata")
+n.train = 100000
+M_mat = M_mat[1:n.train,]
 # result_new <- list(alpha_est_mat[idx,1:10],gamma_est_mat[idx,1:10])
 # save(result_new,file = "/data/zhangh24/MR_MA/result/simulation/prs/summary_gwas_06.rdata")
 
@@ -98,13 +100,11 @@ Meta = function(coef_vec,var_vec){
 
 
 
-
+load(paste0("/data/zhangh24/MR_MA/result/simulation/prs/prs_result_combined_twostage.rdata"))
+prs_m_mat <- prs_result[[1]]
+prs_y_mat <- prs_result[[2]]
 n.rep = 1000
 #beta_M = mean(best_prs_est)
-IVW_est = rep(0,n.rep)
-IVW_low_est = rep(0,n.rep)
-IVW_high_est = rep(0,n.rep)
-IVW_cover = rep(0,n.rep)
 # MRLR_est = rep(0,n.rep)
 # MRLR_low_est = rep(0,n.rep)
 # MRLR_high_est = rep(0,n.rep)
@@ -121,11 +121,22 @@ IVW_cover = rep(0,n.rep)
 # IVW_PRS_high_est = rep(0,n.rep)
 # IVW_PRS_cover = rep(0,n.rep)
 # IVW_PRS_p = rep(0,n.rep)
-PRS_est = rep(0,n.rep)
-PRS_low_est = rep(0,n.rep)
-PRS_high_est = rep(0,n.rep)
-PRS_p = rep(0,n.rep)
+IVW_est = rep(0,n.rep)
+IVW_low_est = rep(0,n.rep)
+IVW_high_est = rep(0,n.rep)
+IVW_p = rep(0,n.rep)
+IVW_cover = rep(0,n.rep)
+beta_M = 0.15
+
+MRPRS_est = rep(0,n.rep)
+MRPRS_low_est = rep(0,n.rep)
+MRPRS_high_est = rep(0,n.rep)
+MRPRS_cover = rep(0,n.rep)
+MRPRS_p = rep(0,n.rep)
+
 for(l in 1:n.rep){
+  print(l)
+  #IVW method restricted to genome-wide SNPs
   idx <- which(alpha_p_mat[,l]<=5E-8)
   Gamma = gamma_est_mat[idx,l]
   var_Gamma = gamma_sd_mat[idx,l]^2
@@ -138,35 +149,49 @@ for(l in 1:n.rep){
   IVW_high_est[l] = result_IVW[5]
   IVW_cover[l] = result_IVW[3]
   IVW_p[l] = result_IVW[6]
+  #MR-PRS method restricted to best C+T SNPs
+  model_m = lm(M_mat[,l]~prs_m_mat[,l])
+  sigma_m = summary(model_m)$sigma
+  idx = which(alpha_p_mat[,l]<=1E-03)
+  Q = length(idx)
+  F =   crossprod(prs_m_mat[,l])/sigma_m/Q
+  model <- lm(prs_y_mat[,l]~prs_m_mat[,l])
+    MRPRS_est[l] <- coefficients(summary(model))[2,1]*(F+1)/F
+    
+    temp_ci <- confint(model)
+    MRPRS_low_est[l] <- temp_ci[2,1]*(F+1)/F
+    MRPRS_high_est[l] <- temp_ci[2,2]*(F+1)/F
+    MRPRS_cover[l] = ifelse((beta_M>=temp_ci[2,1])&
+                              (beta_M<=temp_ci[2,2]),1,0)
+    MRPRS_p[l] <- coefficients(summary(model))[2,4]
+    
+}
+  # result_MRLR = MRLR(Gamma,var_Gamma,
+  #                    alpha,var_alpha)
+  # MRLR_est[l] = as.numeric(result_MRLR[1])
+  # MRLR_low_est[l] = as.numeric(result_MRLR[2])
+  # MRLR_high_est[l] = as.numeric(result_MRLR[3])
+  # MRLR_cover[l] = as.numeric(result_MRLR[4])
   
   
-  
-  result_MRLR = MRLR(Gamma,var_Gamma,
-                     alpha,var_alpha)
-  MRLR_est[l] = as.numeric(result_MRLR[1])
-  MRLR_low_est[l] = as.numeric(result_MRLR[2])
-  MRLR_high_est[l] = as.numeric(result_MRLR[3])
-  MRLR_cover[l] = as.numeric(result_MRLR[4])
-  
-  
-  idx <- which(alpha_p_mat[,l]<=1E-03)
-  Gamma = gamma_est_mat[idx,l]
-  var_Gamma = gamma_sd_mat[idx,l]^2
-  alpha = alpha_est_mat[idx,l]
-  var_alpha = alpha_sd_mat[idx,l]^2
-  result_IVW = IVW_c(Gamma,var_Gamma,
-                     alpha,var_alpha)
-  IVW_PRS_est[l] = result_IVW[1]
-  IVW_PRS_low_est[l] = result_IVW[4]
-  IVW_PRS_high_est[l] = result_IVW[5]
-  IVW_PRS_cover[l] = result_IVW[3]
-  IVW_PRS_p[l] = result_IVW[6]
-  result_PRS_MRLR = MRLR(Gamma,var_Gamma,
-                         alpha,var_alpha)
-  MRLR_PRS_est = as.numeric(result_PRS_MRLR[1])
-  MRLR_PRS_low_est = as.numeric(result_PRS_MRLR[2])
-  MRLR_PRS_high_est = as.numeric(result_PRS_MRLR[3])
-  MRLR_PRS_cover = as.numeric(result_PRS_MRLR[4])
+  # idx <- which(alpha_p_mat[,l]<=1E-03)
+  # Gamma = gamma_est_mat[idx,l]
+  # var_Gamma = gamma_sd_mat[idx,l]^2
+  # alpha = alpha_est_mat[idx,l]
+  # var_alpha = alpha_sd_mat[idx,l]^2
+  # result_IVW = IVW_c(Gamma,var_Gamma,
+  #                    alpha,var_alpha)
+  # IVW_PRS_est[l] = result_IVW[1]
+  # IVW_PRS_low_est[l] = result_IVW[4]
+  # IVW_PRS_high_est[l] = result_IVW[5]
+  # IVW_PRS_cover[l] = result_IVW[3]
+  # IVW_PRS_p[l] = result_IVW[6]
+  # result_PRS_MRLR = MRLR(Gamma,var_Gamma,
+  #                        alpha,var_alpha)
+  # MRLR_PRS_est = as.numeric(result_PRS_MRLR[1])
+  # MRLR_PRS_low_est = as.numeric(result_PRS_MRLR[2])
+  # MRLR_PRS_high_est = as.numeric(result_PRS_MRLR[3])
+  # MRLR_PRS_cover = as.numeric(result_PRS_MRLR[4])
   
   #PRS_est[l] = crossprod(Gamma,alpha)/crossprod(alpha,alpha)
   

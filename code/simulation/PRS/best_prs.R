@@ -7,7 +7,7 @@ gamma_est_mat = result[[4]]
 
 
 
-  load(paste0("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M.rdata"))
+load(paste0("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M.rdata"))
   
 
 n.train = 100000

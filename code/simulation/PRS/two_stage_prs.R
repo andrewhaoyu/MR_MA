@@ -10,14 +10,14 @@ gamma_est_mat = result[[4]]
 
 
 if(i1==1){
-  load(paste0("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_M.rdata"))
+  load(paste0("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_Y.rdata"))
   
 }else{
-  load(paste0("/data/zhangh24/MR_MA/result/simulation/prs/noncau_genotype_M_",i1,".rdata"))
+  load(paste0("/data/zhangh24/MR_MA/result/simulation/prs/noncau_genotype_Y_",i1,".rdata"))
   
 }
-n.train = 100000
-genotype_m_test = genotype_s[(n.train+1):nrow(genotype_s),]
+#genotype s2 is the genotype data for y
+genotype_m_test = genotype_s2
 n.rep = 1000
 prs_m_mat = matrix(0,nrow(genotype_m_test),n.rep)
 prs_y_mat = matrix(0,nrow(genotype_m_test),n.rep)

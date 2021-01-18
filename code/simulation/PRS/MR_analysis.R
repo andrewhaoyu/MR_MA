@@ -150,10 +150,13 @@ for(l in 1:n.rep){
   IVW_cover[l] = result_IVW[3]
   IVW_p[l] = result_IVW[6]
   #MR-PRS method restricted to best C+T SNPs
-  model_m = lm(M_mat[,l]~prs_m_mat[,l])
-  sigma_m = summary(model_m)$sigma
+  #model_m = lm(M_mat[,l]~prs_m_mat[,l])
+  
   idx = which(alpha_p_mat[,l]<=1E-03)
   Q = length(idx)
+  alpha_prs = alpha_est_mat[idx,l]
+  sd_prs = alpha_sd_mat[idx,l]
+  sigma_m = 1-sum(alpha_prs^2-sd_prs^2)
   F =   crossprod(prs_m_mat[,l])/sigma_m/Q
   model <- lm(prs_y_mat[,l]~prs_m_mat[,l])
     MRPRS_est[l] <- coefficients(summary(model))[2,1]*(F+1)/F

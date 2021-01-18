@@ -74,6 +74,7 @@ Meta = function(coef_vec,var_vec){
 #   return(c(coef_est,coef_low,coef_high))
 # }
 
+
 args = commandArgs(trailingOnly = T)
 i1 = as.numeric(args[[1]])
 #generate phenotypes for the two-sample MR analysis

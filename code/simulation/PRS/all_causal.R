@@ -138,7 +138,7 @@ for(m in 1:length(n.snp.vec)){
   #G_value2 =  genotype_s2%*%alpha_G 
   #+ alpha_U*U2
   #sigma_ey = sigma_G*beta_M^2/0.2-beta_M^2-beta_U^2*var_U
-  rho = 0
+  rho = 0.3
   sigma_y = 1-beta_M^2
   sigma_ym = sigma_y*sigma_m*rho
   Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)
@@ -309,7 +309,7 @@ result= list(beta_est_result,
              beta_est_IVW_cover,
              beta_est_IVW_inner,
              beta_est_IVW_inner_cover)
-save(result,file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_500k_",i1))
+save(result,file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_rho_",i1))
 # confint(model)
 # 
 # library(ggplot2)

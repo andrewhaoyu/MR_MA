@@ -235,9 +235,12 @@ for(m in 1:length(n.snp.vec)){
     beta_est_result_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
                                       (beta_M<=beta_est_result_high),1,0)
     #two-sample MR using summary level data
-    sigma_m_est = 1-sum(alpha_est^2-alpha_sd^2)
+    #sigma_m_est = 1-sum(alpha_est^2-alpha_sd^2)
+    sigma_m_est = 1-sum(alpha_est^2)
+    #sigma_m_est = sigma_m
     N <- nrow(prs_y_mat)
-    F = N*sum(alpha_est^2-alpha_sd^2)/sigma_m_est/n.snp
+    #F = N*sum(alpha_est^2-alpha_sd^2)/sigma_m_est/n.snp
+    F = N*sum(alpha_est^2)/sigma_m_est/n.snp
     beta_est_result_summary[l,m] <- (crossprod(alpha_est,Gamma_est)/crossprod(alpha_est))*(F+1)/F
     beta_est = as.numeric(beta_est_result_summary[l,m])
     
@@ -246,22 +249,32 @@ for(m in 1:length(n.snp.vec)){
     beta_est_result_summary_high <- beta_est+1.96*sqrt(beta_est_var)
     beta_est_result_summary_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
                                            (beta_M<=beta_est_result_high),1,0)
+    
+    
     #one sample analysis using individual level data
+    prs_m_mat_inner = genotype_m_test%*%alpha_est_inner
     model  = lm(prs_y_mat~prs_m_mat_inner)
+    model_m = lm(M_mat_inner[,l]~prs_m_mat_inner)
+    sigma_m_est = summary(model_m)$sigma^2
+    
+    F = N*sum(alpha_est_inner^2)/sigma_m_est/n.snp
+    sigma_my = sigma_ym
     beta_est_result_inner[l,m] = coefficients(summary(model))[2,1]
-    beta_est = as.numeric(beta_est_result_inner[l,m])
+    beta_est = as.numeric(beta_est_result_inner[l,m])-sigma_my/(sigma_m_est*(F+1))
     beta_est_var = var(Y_mat[,l]-M_mat_inner[,l]*beta_est)/crossprod(prs_m_mat_inner)
     beta_est_result_low <- beta_est-1.96*sqrt(beta_est_var)
     beta_est_result_high <- beta_est+1.96*sqrt(beta_est_var)
     beta_est_result_inner_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
                                            (beta_M<=beta_est_result_high),1,0)
     #one sample analysis using summary level data
-    sigma_m_est = 1-sum(alpha_est^2-alpha_sd^2)
+    sigma_m_est = 1-sum(alpha_est^2)
+    #sigma_m_est = sigma_m
     N <- nrow(prs_y_mat)
     #model  = lm(prs_y_mat~prs_m_mat_inner)
     beta_est_result_inner_summary[l,m] = (crossprod(alpha_est_inner,Gamma_est)/crossprod(alpha_est_inner))
-    beta_est = as.numeric(beta_est_result_inner_summary[l,m])
-    beta_est_var = (1-beta_est^2)/(N*sum(alpha_est^2-alpha_sd^2)) 
+    beta_est = as.numeric(beta_est_result_inner_summary[l,m])-sigma_my/(sigma_m_est*(F+1))
+    #beta_est_var = (1-beta_est^2)/(N*sum(alpha_est^2-alpha_sd^2)) 
+    beta_est_var = (1-beta_est^2)/(N*sum(alpha_est^2)) 
     beta_est_result_low <- beta_est-1.96*sqrt(beta_est_var)
     beta_est_result_high <- beta_est+1.96*sqrt(beta_est_var)
     beta_est_result_inner_summary_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&

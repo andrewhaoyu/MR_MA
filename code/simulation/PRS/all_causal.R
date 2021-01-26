@@ -259,8 +259,9 @@ for(m in 1:length(n.snp.vec)){
     sigma_m_est = summary(model_m)$sigma^2
     #sigma_m_est = sigma_m
     F = N*sum(alpha_est_inner^2)/sigma_m_est/n.snp
-    beta_temp = coefficients(summary(model))[2,1]
-    sigma_my = cov(Y_mat[,l]-M_mat_inner[,l]*beta_temp)
+    beta_temp = as.numeric(coefficients(summary(model))[2,1])
+    sigma_my = cov(Y_mat[,l]-M_mat_inner[,l]*beta_temp,
+                   model_m$residuals)
     
     beta_est_result_inner[l,m] = coefficients(summary(model))[2,1]
     beta_est = as.numeric(beta_est_result_inner[l,m])-sigma_my/(sigma_m_est*(F+1))

@@ -145,14 +145,20 @@ for(m in 1:length(n.snp.vec)){
   library(MASS)
   for(j in 1:n.rep){
     print(j)
-    error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma)
-    M =G_value2+error[,2]
-    #+ rnorm(n.sub,sd = sqrt(sigma_e))  
+    #error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma)
+    # M =G_value2+error[,2]
+    # #+ rnorm(n.sub,sd = sqrt(sigma_e))  
+    # #M =G_value2 
+    # #+ rnorm(n.sub,sd = sqrt(sigma_e))  
+    # #Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_ey))  
+    # Y_mat[,j] = beta_M*M+error[,1]
+    # M_mat_inner[,j] = M
+    M =G_value2 + rnorm(n.sub,sd = sqrt(sigma_e))  
+    M_mat_inner[,j] = M
     #M =G_value2 
     #+ rnorm(n.sub,sd = sqrt(sigma_e))  
-    #Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_ey))  
-    Y_mat[,j] = beta_M*M+error[,1]
-    M_mat_inner[,j] = M
+    Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_ey))  
+    
     #M =G_value2 
     #+ rnorm(n.sub,sd = sqrt(sigma_e))  
     #Y_mat[,j] = beta_M*M

@@ -233,7 +233,7 @@ result= list(beta_est_result,
              beta_est_result_inner,
              beta_est_IVW_inner,
              beta_est_MRLR_inner)
-save(result,file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_500k_",i1))
+save(result,file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_test_",i1))
 # confint(model)
 # 
 # library(ggplot2)

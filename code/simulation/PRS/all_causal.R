@@ -157,7 +157,7 @@ for(m in 1:length(n.snp.vec)){
     M_mat_inner[,j] = M
     #M =G_value2 
     #+ rnorm(n.sub,sd = sqrt(sigma_e))  
-    Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_ey))  
+    Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_y))  
     
     #M =G_value2 
     #+ rnorm(n.sub,sd = sqrt(sigma_e))  

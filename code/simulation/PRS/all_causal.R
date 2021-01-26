@@ -138,7 +138,7 @@ for(m in 1:length(n.snp.vec)){
   #G_value2 =  genotype_s2%*%alpha_G 
   #+ alpha_U*U2
   #sigma_ey = sigma_G*beta_M^2/0.2-beta_M^2-beta_U^2*var_U
-  rho = 0.3
+  rho = 0
   sigma_y = 1-beta_M^2
   sigma_ym = sigma_y*sigma_m*rho
   Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)

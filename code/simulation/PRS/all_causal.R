@@ -142,13 +142,20 @@ for(m in 1:length(n.snp.vec)){
   sigma_y = 0.2-beta_M^2
   sigma_ym = sigma_y*sigma_m*rho
   Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)
+  
   library(MASS)
   for(j in 1:n.rep){
     print(j)
-    error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma)
-    M = G_value2+error[,2]
-    Y_mat[,j] = beta_M*M+error[,1]
+    # error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma)
+    # M = G_value2+error[,2]
+    # Y_mat[,j] = beta_M*M+error[,1]
+    # M_mat_inner[,j] = M
+    sigma_e = sigma_m
+    sigma_ey = sigma_y
+    
+    M =G_value2 + rnorm(n.sub,sd = sqrt(sigma_e))  
     M_mat_inner[,j] = M
+    Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_ey))  
     
     # M =G_value2 + rnorm(n.sub,sd = sqrt(sigma_e))  
     # M_mat_inner[,j] = M

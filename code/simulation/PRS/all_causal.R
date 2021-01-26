@@ -102,7 +102,7 @@ for(m in 1:length(n.snp.vec)){
   n.snp = n.snp.vec[m]
   genotype_s = genotype_s[,1:n.snp]
   
-  beta_M = 0.4
+  beta_M = 0.15
   h2  = 0.4
   #sigma_m = 1
   #sigma_u = alpha_U^2*var_U
@@ -139,7 +139,7 @@ for(m in 1:length(n.snp.vec)){
   #+ alpha_U*U2
   #sigma_ey = sigma_G*beta_M^2/0.2-beta_M^2-beta_U^2*var_U
   rho = 0
-  sigma_y = 1-beta_M^2
+  sigma_y = 0.2-beta_M^2
   sigma_ym = sigma_y*sigma_m*rho
   Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)
   library(MASS)

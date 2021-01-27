@@ -139,10 +139,11 @@ for(m in 1:length(n.snp.vec)){
   #+ alpha_U*U2
   #sigma_ey = sigma_G*beta_M^2/0.2-beta_M^2-beta_U^2*var_U
   rho = 0
-  sigma_y = 0.2-beta_M^2
-  sigma_ym = sigma_y*sigma_m*rho
+  sigma_y = 0.2
+  #-beta_M^2
+  sigma_ym = sqrt(sigma_y*sigma_m)*rho
   Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)
-  
+  #set.seed(i1)
   library(MASS)
   for(j in 1:n.rep){
     print(j)
@@ -231,7 +232,10 @@ for(m in 1:length(n.snp.vec)){
     prs_y_mat <- genotype_m_test%*%Gamma_est
     #two sample MR-PRS using individual level data
     model = lm(prs_y_mat~prs_m_mat)
-    model = lm(Y_mat[,l]~prs_m_mat)
+    #coefficients(model1)
+    #crossprod(prs_y_mat,prs_m_mat)/crossprod(prs_m_mat)
+    #model2 = lm(Y_mat[,l]~prs_m_mat)
+    #coefficients(model2)
     prs_m_train = genotype_m_train%*%alpha_est
     model_m = lm(M_mat_train[,l]~prs_m_train)
     #sigma_m_est = summary(model_m)$sigma^2
@@ -251,7 +255,7 @@ for(m in 1:length(n.snp.vec)){
     sigma_m_est = sigma_m
     N <- nrow(prs_y_mat)
     #F = N*sum(alpha_est^2-alpha_sd^2)/sigma_m_est/n.snp
-    F = N*sum(alpha_est^2)/sigma_m_est/n.snp
+    #F = N*sum(alpha_est^2)/sigma_m_est/n.snp
     beta_est_result_summary[l,m] <- (crossprod(alpha_est,Gamma_est)/crossprod(alpha_est))*(F+1)/F
     beta_est = as.numeric(beta_est_result_summary[l,m])
     

@@ -96,12 +96,12 @@ for(m in 1:length(n.snp.vec)){
   beta_M = 0.15
   sigma_G  = 0.4
   #sigma_m = 1
-  var_U = 1
-  U = rnorm(n.sub,sd = sqrt(var_U))
-  alpha_U <- 0.1
-  beta_U <- 0.1
-  sigma_u = alpha_U^2*var_U
-  #sigma_e = 1-sigma_G-sigma_u
+  #var_U = 1
+  # U = rnorm(n.sub,sd = sqrt(var_U))
+  # alpha_U <- 0.1
+  # beta_U <- 0.1
+  # sigma_u = alpha_U^2*var_U
+  # #sigma_e = 1-sigma_G-sigma_u
   sigma_e = 1-sigma_G
   #generate M phenotypes
   
@@ -125,7 +125,7 @@ for(m in 1:length(n.snp.vec)){
   load("/data/zhangh24/MR_MA/result/simulation/prs/cau_genotype_Y.rdata")
   genotype_s2 = genotype_s2[,1:n.snp]
   n.sub <- nrow(genotype_s2)
-  U2 = rnorm(n.sub,sd = sqrt(var_U))
+  #U2 = rnorm(n.sub,sd = sqrt(var_U))
   n.rep = 2
   M_mat_inner = matrix(0,n.sub,n.rep)
   Y_mat <- matrix(0,n.sub,n.rep)
@@ -135,6 +135,7 @@ for(m in 1:length(n.snp.vec)){
   #+ alpha_U*U2
   #sigma_ey = sigma_G*beta_M^2/0.2-beta_M^2-beta_U^2*var_U
   sigma_ey = 0.2
+  
   for(j in 1:n.rep){
     print(j)
     M =G_value2 + rnorm(n.sub,sd = sqrt(sigma_e))  

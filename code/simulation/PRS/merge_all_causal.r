@@ -29,6 +29,11 @@ beta_est_IVW = matrix(0,n.rep,n.snp.vec)
 beta_est_IVW_cover = matrix(0,n.rep,n.snp.vec)
 beta_est_IVW_inner = matrix(0,n.rep,n.snp.vec)
 beta_est_IVW_inner_cover = matrix(0,n.rep,n.snp.vec)
+beta_est_result_prs = matrix(0,n.rep,n.snp.vec)
+beta_est_result_prs_cover = matrix(0,n.rep,n.snp.vec)
+beta_est_result_inner_prs = matrix(0,n.rep,n.snp.vec)
+beta_est_result_inner_prs_cover = matrix(0,n.rep,n.snp.vec)
+
 total = 0
 filedir = "/data/zhangh24/MR_MA/result/simulation/prs/"
 
@@ -49,6 +54,10 @@ for(i1 in 1:1000){
     beta_est_IVW_cover[total+(1:temp),] = result[[10]]
     beta_est_IVW_inner[total+(1:temp),] = result[[11]]
     beta_est_IVW_inner_cover[total+(1:temp),] = result[[12]]
+    beta_est_result_prs[total+(1:temp),] = result[[13]]
+    beta_est_result_prs_cover[total+(1:temp),] = result[[14]]
+    beta_est_result_inner_prs[total+(1:temp),] = result[[15]]
+    beta_est_result_inner_prs_cover[total+(1:temp),] = result[[16]]
     
     total = total+temp  
   }
@@ -65,12 +74,14 @@ Getestimate <- function(est_mat){
 }
 
 
-method = rep(c("Best PRS","Best PRS (summary)","IVW (P<5E-08)"),2)
-sample = c(rep("Two sample",3),rep("One sample",3))
+method = rep(c("Best PRS (Y)","Best PRS","Best PRS (summary)","IVW (P<5E-08)"),2)
+sample = c(rep("Two sample",4),rep("One sample",4))
 result <- rbind(Getestimate(beta_est_result),
+                Getestimate(beta_est_result_prs),
                 Getestimate(beta_est_result_summary),
                 Getestimate(beta_est_IVW),
                 Getestimate(beta_est_result_inner),
+                Getestimate(beta_est_result_inner_prs),
                 Getestimate(beta_est_result_inner_summary),
                 Getestimate(beta_est_IVW_inner))
 print(result)

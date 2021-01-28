@@ -235,7 +235,7 @@ for(m in 1:length(n.snp.vec)){
     #crossprod(prs_y_mat,prs_m_mat)/crossprod(prs_m_mat)
     #model2 = lm(Y_mat[,l]~prs_m_mat)
     #coefficients(model2)
-    #prs_m_train = genotype_m_train%*%alpha_est
+    prs_m_train = genotype_m_train%*%alpha_est
     model_m = lm(M_mat_train[,l]~prs_m_train)
     #sigma_m_est = summary(model_m)$sigma^2
     sigma_m_est = sigma_m
@@ -251,10 +251,10 @@ for(m in 1:length(n.snp.vec)){
     #two-sample MR using summary level data
     #sigma_m_est = 1-sum(alpha_est^2-alpha_sd^2)
     #sigma_m_est = 1-sum(alpha_est^2)
-    (crossprod(alpha_est,Gamma_est)/crossprod(alpha_est))
-    prs_m = genotype_m_test%*%alpha_est
-    prs_y = genotype_m_test%*%Gamma_est
-    crossprod(prs_y,prs_m)/crossprod(prs_m,prs_m)
+    #(crossprod(alpha_est,Gamma_est)/crossprod(alpha_est))
+    # prs_m = genotype_m_test%*%alpha_est
+    # prs_y = genotype_m_test%*%Gamma_est
+    # crossprod(prs_y,prs_m)/crossprod(prs_m,prs_m)
     sigma_m_est = sigma_m
     N <- nrow(prs_y_mat)
     #F = N*sum(alpha_est^2-alpha_sd^2)/sigma_m_est/n.snp

@@ -76,15 +76,35 @@ Getestimate <- function(est_mat){
 
 method = rep(c("Best PRS (Y)","Best PRS","Best PRS (summary)","IVW (P<5E-08)"),2)
 sample = c(rep("Two sample",4),rep("One sample",4))
-result <- rbind(Getestimate(beta_est_result),
-                Getestimate(beta_est_result_prs),
-                Getestimate(beta_est_result_summary),
-                Getestimate(beta_est_IVW),
-                Getestimate(beta_est_result_inner),
-                Getestimate(beta_est_result_inner_prs),
-                Getestimate(beta_est_result_inner_summary),
-                Getestimate(beta_est_IVW_inner))
+result <-   rbind(Getestimate(beta_est_result),
+                  Getestimate(beta_est_result_prs),
+                  Getestimate(beta_est_result_summary),
+                  Getestimate(beta_est_IVW),
+                  Getestimate(beta_est_result_inner),
+                  Getestimate(beta_est_result_inner_prs),
+                  Getestimate(beta_est_result_inner_summary),
+                  Getestimate(beta_est_IVW_inner))
+
+
+
 print(result)
+GetCover <- function(est_mat){
+  return(paste0(sprintf("%.3f",round(colMeans(est_mat),3))))
+}
+
+method = rep(c("Best PRS (Y)","Best PRS","Best PRS (summary)","IVW (P<5E-08)"),2)
+sample = c(rep("Two sample",4),rep("One sample",4))
+result.cover <- rbind(GetCover(beta_est_result_cover),
+        GetCover(beta_est_result_prs_cover),
+        GetCover(beta_est_result_summary_cover),
+        GetCover(beta_est_IVW_cover),
+        GetCover(beta_est_result_inner_cover),
+        GetCover(beta_est_result_inner_prs_cover),
+        GetCover(beta_est_result_inner_cover_summary),
+        GetCover(beta_est_IVW_inner_cover))
+             
+print(result.cover)
+
 final.result <- cbind(sample,method,result)
 write.csv(final.result, file = "/data/zhangh24/MR_MA/result/simulation/prs/prs_mr_result_rho0.3.csv",row.names = F)
 

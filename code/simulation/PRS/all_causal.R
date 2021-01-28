@@ -102,7 +102,7 @@ for(m in 1:length(n.snp.vec)){
   n.snp = n.snp.vec[m]
   genotype_s = genotype_s[,1:n.snp]
   
-  beta_M = 0.15
+  beta_M = 0.4
   h2  = 0.4
   #sigma_m = 1
   #sigma_u = alpha_U^2*var_U
@@ -138,26 +138,25 @@ for(m in 1:length(n.snp.vec)){
   #G_value2 =  genotype_s2%*%alpha_G 
   #+ alpha_U*U2
   #sigma_ey = sigma_G*beta_M^2/0.2-beta_M^2-beta_U^2*var_U
-  rho = 0
-  sigma_y = 0.2
-  #-beta_M^2
+  rho = 0.3
+  sigma_y = 1-beta_M^2
   sigma_ym = sqrt(sigma_y*sigma_m)*rho
   Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)
   #set.seed(i1)
   library(MASS)
   for(j in 1:n.rep){
     print(j)
-    # error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma)
-    # M = G_value2+error[,2]
-    # Y_mat[,j] = beta_M*M+error[,1]
-    # M_mat_inner[,j] = M
-    sigma_e = sigma_m
-    sigma_ey = sigma_y
-    
-    M =G_value2 + rnorm(n.sub,sd = sqrt(sigma_e))  
+    error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma)
+    M = G_value2+error[,2]
+    Y_mat[,j] = beta_M*M+error[,1]
     M_mat_inner[,j] = M
-    Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_ey))  
-    
+    # sigma_e = sigma_m
+    # sigma_ey = sigma_y
+    # 
+    # M =G_value2 + rnorm(n.sub,sd = sqrt(sigma_e))  
+    # M_mat_inner[,j] = M
+    # Y_mat[,j] = beta_M*M+rnorm(n.sub,sd=sqrt(sigma_ey))  
+    # 
     # M =G_value2 + rnorm(n.sub,sd = sqrt(sigma_e))  
     # M_mat_inner[,j] = M
     # #M =G_value2 
@@ -236,7 +235,7 @@ for(m in 1:length(n.snp.vec)){
     #crossprod(prs_y_mat,prs_m_mat)/crossprod(prs_m_mat)
     #model2 = lm(Y_mat[,l]~prs_m_mat)
     #coefficients(model2)
-    prs_m_train = genotype_m_train%*%alpha_est
+    #prs_m_train = genotype_m_train%*%alpha_est
     model_m = lm(M_mat_train[,l]~prs_m_train)
     #sigma_m_est = summary(model_m)$sigma^2
     sigma_m_est = sigma_m
@@ -252,6 +251,10 @@ for(m in 1:length(n.snp.vec)){
     #two-sample MR using summary level data
     #sigma_m_est = 1-sum(alpha_est^2-alpha_sd^2)
     #sigma_m_est = 1-sum(alpha_est^2)
+    (crossprod(alpha_est,Gamma_est)/crossprod(alpha_est))
+    prs_m = genotype_m_test%*%alpha_est
+    prs_y = genotype_m_test%*%Gamma_est
+    crossprod(prs_y,prs_m)/crossprod(prs_m,prs_m)
     sigma_m_est = sigma_m
     N <- nrow(prs_y_mat)
     #F = N*sum(alpha_est^2-alpha_sd^2)/sigma_m_est/n.snp

@@ -73,7 +73,7 @@ result <- rbind(Getestimate(beta_est_result),
                 Getestimate(beta_est_result_inner),
                 Getestimate(beta_est_result_inner_summary),
                 Getestimate(beta_est_IVW_inner))
-
+print(result)
 final.result <- cbind(sample,method,result)
 write.csv(final.result, file = "/data/zhangh24/MR_MA/result/simulation/prs/prs_mr_result_rho0.3.csv",row.names = F)
 

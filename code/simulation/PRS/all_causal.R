@@ -84,10 +84,13 @@ beta_est_result = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_cover = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_prs = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_prs_cover = matrix(0,n.rep,length(n.snp.vec))
+beta_est_result_prs_cover_sw = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_inner = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_inner_cover = matrix(0,n.rep,length(n.snp.vec))
+beta_est_result_inner_cover_sw = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_inner_prs = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_inner_prs_cover = matrix(0,n.rep,length(n.snp.vec))
+beta_est_result_inner_prs_cover_sw = matrix(0,n.rep,length(n.snp.vec))
 beta_est_IVW = matrix(0,n.rep,length(n.snp.vec))
 beta_est_IVW_cover = matrix(0,n.rep,length(n.snp.vec))
 beta_est_IVW_inner = matrix(0,n.rep,length(n.snp.vec))
@@ -96,8 +99,10 @@ beta_est_IVW_inner = matrix(0,n.rep,length(n.snp.vec))
 beta_est_IVW_inner_cover = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_summary = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_summary_cover = matrix(0,n.rep,length(n.snp.vec))
+beta_est_result_summary_cover_sw = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_inner_summary = matrix(0,n.rep,length(n.snp.vec))
 beta_est_result_inner_summary_cover = matrix(0,n.rep,length(n.snp.vec))
+beta_est_result_inner_summary_cover_sw = matrix(0,n.rep,length(n.snp.vec))
 #beta_est_MRLR = matrix(0,n.rep,length(n.snp.vec))
 #beta_est_MRLR_inner = matrix(0,n.rep,length(n.snp.vec))
 set.seed(i1)
@@ -251,20 +256,30 @@ for(m in 1:length(n.snp.vec)){
     
     beta_est_result[l,m]= coefficients(summary(model))[2,1]*(F+1)/F
     beta_est = as.numeric(beta_est_result[l,m])
-    beta_est_var = var(Y_mat[,l]-M_mat_train[,l]*beta_est)/crossprod(prs_m_mat)
+    sigma_y_est = var(Y_mat[,l]-M_mat_train[,l]*beta_est)
+    beta_temp = beta_est
+    
+    beta_est_var = sigma_y_est/crossprod(prs_m_mat)
     beta_est_result_low <- beta_est-1.96*sqrt(beta_est_var)
     beta_est_result_high <- beta_est+1.96*sqrt(beta_est_var)
     beta_est_result_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
                                       (beta_M<=beta_est_result_high),1,0)
     
+    
     model = lm(prs_y_mat~prs_m_mat)
     beta_est_result_prs[l,m]= coefficients(summary(model))[2,1]*(F+1)/F
     beta_est = as.numeric(beta_est_result_prs[l,m])
     beta_est_var = var(Y_mat[,l]-M_mat_train[,l]*beta_est)/crossprod(prs_m_mat)
+    sigma_my_est = as.numeric(cov(Y_mat[,l]-beta_est*M_mat_inner[,l],M_mat_inner[,l]-prs_m_mat_inner))
     beta_est_result_low <- beta_est-1.96*sqrt(beta_est_var)
     beta_est_result_high <- beta_est+1.96*sqrt(beta_est_var)
     beta_est_result_prs_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
                                            (beta_M<=beta_est_result_high),1,0)
+    beta_est_var = (sigma_y_est+beta_est*sigma_my_est)/crossprod(prs_m_mat)
+    beta_est_result_low <- beta_est-1.96*sqrt(beta_est_var)
+    beta_est_result_high <- beta_est+1.96*sqrt(beta_est_var)
+    beta_est_result_prs_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
+                                              (beta_M<=beta_est_result_high),1,0)
     
     #two-sample MR using summary level data
     sigma_m_est = 1-sum(alpha_est^2-alpha_sd^2)
@@ -283,8 +298,8 @@ for(m in 1:length(n.snp.vec)){
     beta_est_var = (1-beta_est^2)/(N*sum(alpha_est^2-alpha_sd^2)) 
     beta_est_result_summary_low <- beta_est-1.96*sqrt(beta_est_var)
     beta_est_result_summary_high <- beta_est+1.96*sqrt(beta_est_var)
-    beta_est_result_summary_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
-                                           (beta_M<=beta_est_result_high),1,0)
+    beta_est_result_summary_cover[l,m] <- ifelse((beta_M>=beta_est_result_summary_low)&
+                                           (beta_M<=beta_est_result_summary_high),1,0)
     
     
     #one sample analysis using individual level data
@@ -317,16 +332,21 @@ for(m in 1:length(n.snp.vec)){
     beta_temp = as.numeric(coefficients(summary(model))[2,1])
     #sigma_my = cov(Y_mat[,l]-M_mat_inner[,l]*beta_temp,
     #              model_m$residuals)
-    sigma_my = as.numeric(cov(Y_mat[,l]-beta_temp*M_mat_inner[,l],M_mat_inner[,l]-prs_m_mat_inner))
-    beta_est_result_inner_prs[l,m] = coefficients(summary(model))[2,1]-as.numeric(sigma_my/(sigma_m_est*(F+1)))
+    sigma_my_est = as.numeric(cov(Y_mat[,l]-beta_temp*M_mat_inner[,l],M_mat_inner[,l]-prs_m_mat_inner))
+    beta_est_result_inner_prs[l,m] = coefficients(summary(model))[2,1]-as.numeric(sigma_my_est/(sigma_m_est*(F+1)))
     beta_est = as.numeric(beta_est_result_inner_prs[l,m])
-    beta_est_var = var(Y_mat[,l]-M_mat_inner[,l]*beta_est)/crossprod(prs_m_mat_inner)
+    sigma_y_est = var(Y_mat[,l]-M_mat_inner[,l]*beta_est)
+    beta_est_var = (sigma_y_est)/crossprod(prs_m_mat_inner)
     beta_est_result_low <- beta_est-1.96*sqrt(beta_est_var)
     beta_est_result_high <- beta_est+1.96*sqrt(beta_est_var)
     beta_est_result_inner_prs_cover[l,m] <- ifelse((beta_M>=beta_est_result_low)&
                                                  (beta_M<=beta_est_result_high),1,0)
     
-    
+    beta_est_var = (sigma_y_est+sigma_my_est*beta_est)/crossprod(prs_m_mat_inner)
+    beta_est_result_low <- beta_est-1.96*sqrt(beta_est_var)
+    beta_est_result_high <- beta_est+1.96*sqrt(beta_est_var)
+    beta_est_result_inner_prs_cover_sw[l,m] <- ifelse((beta_M>=beta_est_result_low)&
+                                                     (beta_M<=beta_est_result_high),1,0)
     
     
     
@@ -375,7 +395,9 @@ result= list(beta_est_result,
              beta_est_result_prs,
              beta_est_result_prs_cover,
              beta_est_result_inner_prs,
-             beta_est_result_inner_prs_cover)
+             beta_est_result_inner_prs_cover,
+             beta_est_result_prs_cover_sw,
+             beta_est_result_inner_prs_cover_sw)
 save(result,file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs/beta_test_result_rho_",i1))
 # confint(model)
 # 

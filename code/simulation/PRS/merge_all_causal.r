@@ -105,7 +105,10 @@ result.cover <- rbind(GetCover(beta_est_result_cover),
              
 print(result.cover)
 
-final.result <- cbind(sample,method,result)
+
+
+final.result <- rbind(cbind(sample,method,result),
+                      cbind(sample,method,result.cover))
 write.csv(final.result, file = "/data/zhangh24/MR_MA/result/simulation/prs/prs_mr_result_rho0.3.csv",row.names = F)
 
 

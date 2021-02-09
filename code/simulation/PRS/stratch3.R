@@ -14,8 +14,8 @@ N = 10000
 for(i_rep in 1:n.rep){
   print(i_rep)
   Sigma_G = matrix(c(1,0.5,0,
-                     0.5,1,0.5,
-                     0,0.5,1),3,3)
+                     0.5,1,0.8,
+                     0,0.8,1),3,3)
   G = mvrnorm(N,mu = rep(0,3),Sigma =Sigma_G)
   beta_M = 0.3
   G1 = G[,1]

@@ -33,8 +33,8 @@ print(i1)
 print(i2)
 print(i3)
 print(i4)
-setwd("/n/holystore01/LABS/xlin/Lab/hzhang/MR_MA")
-#setwd("/data/zhangh24/MR_MA/")
+#setwd("/n/holystore01/LABS/xlin/Lab/hzhang/MR_MA")
+setwd("/data/zhangh24/MR_MA/")
 Meta = function(coef_vec,var_vec){
   meta_var = (sum(1/var_vec))^-1
   meta_coef = meta_var*sum(coef_vec/var_vec)
@@ -206,7 +206,7 @@ MRLR <- function(Gamma,var_Gamma,gamma,var_gamma){
 
 n_vec <- c(15000,75000,150000)
 alpha_vec <- c(0.00,0.01,0.03,0.05)
-beta_vec = c(0,0.3,0.5,1)
+beta_vec = c(0,0.3,0.5)
 times = 1000
 p <- 5
 n <- n_vec[i1]

@@ -9,7 +9,16 @@ setwd("/data/zhangh24/MR_MA")
 library(data.table)
 library(dplyr)
 library(tidyr)
-load("/data/zhangh24/KG.plink/EUR/KG.SNP_process.Rdata")
+KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/KG.all.chr.bim",header=F))
+colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
+KG.SNP = KG.SNP %>% 
+  mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos)
+
+
+KG.SNP <- as.data.frame(fread("/data/zhangh24/KG.plink/EUR/chr_all.bim",header=F))
+colnames(KG.SNP) <- c("CHR","SNP","Nothing","BP","Allele1","Allele2")
+KG.SNP = KG.SNP %>% 
+  mutate(chr.pos = paste0(CHR,":",BP)) %>% select(SNP,chr.pos)
 
 
 
@@ -20,27 +29,31 @@ n = nrow(LDL)
 colnames(LDL)[7] = "P"
 LDL = LDL %>% 
   mutate(chr = gsub("chr","",chr)) %>%mutate(chr.pos = paste0(chr,":",pos))%>% 
-  mutate(A1=toupper(other_allele),
+  mutate(A1=toupper(reference_allele),
          TEST = "ADD",
          NMISS= 0,
          BETA=beta,
          STAT = rnorm(n)) %>% rename(CHR=chr,
-        BP =pos)
+                                     BP =pos)
 #get the SNPs that are shared by LDL and KG
 LDL.KG = inner_join(LDL,KG.SNP,
                     by="chr.pos")
-
 
 assoc = LDL.KG %>% 
   select(CHR,SNP,BP,A1,TEST,NMISS,BETA,STAT,P)
 write.table(assoc,file = "/data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_assoc",quote=F,row.names = F,col.names=T)
 
-pthr = 0.01
-r2thr = 0.1
+pthr = 5E-08
+r2thr = 0.001
 kbpthr = 3000
 LD.clump.code <- paste0("/data/zhangh24/software/plink2 --bfile /data/zhangh24/KG.plink/EUR/chr_all --clump /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_assoc --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out /data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_clump")
 #run the code in terminal
+#clumping only takes 3 minutes
 write.table(LD.clump.code,file = "/data/zhangh24/MR_MA/code/real_data_analysis/LD.clump_LDL.sh",quote = F,row.names = F,col.names = F)
+
+
+
+
 
 #load the clumped SNPs
 clump_SNP = as.data.frame(fread("/gpfs/gsfs11/users/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_clump.clumped",header=T))
@@ -54,7 +67,7 @@ clump_SNP_infor = clump_SNP_infor %>%
   rename(beta_ex = beta,
          se_ex = se,
          P_ex = P) %>% 
-  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex,chr.pos,EAF)
+  select(SNP,reference_allele,other_allele,CHR,BP,beta_ex,se_ex,P_ex,chr.pos)
 
 #load CAD summary level statistics
 CAD <- as.data.frame(fread("./data/UKBB.GWAS1KG.EXOME.CAD.SOFT.META.PublicRelease.300517.txt",header=T))
@@ -63,9 +76,11 @@ CAD = CAD %>%
   rename(SNP=snptestid) %>% 
   mutate(chr.pos= paste0(chr,":",bp_hg19))
 out_clump_SNP = inner_join(clump_SNP_infor,
-                          CAD,by="chr.pos") %>% 
+                          CAD,by="chr.pos") 
+
+out_clump_SNP = out_clump_SNP%>% 
   rename(SNP=SNP.x) %>% 
-select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue,EAF)
+select(SNP,CHR,BP,reference_allele,other_allele,beta_ex,se_ex,P_ex,noneffect_allele,effect_allele,effect_allele_freq,logOR,se_gc,pvalue)
 
 #align the SNP to the reference SNP
 idx <- which(out_clump_SNP$reference_allele!=out_clump_SNP$effect_allele)
@@ -76,31 +91,26 @@ out_clump_SNP$noneffect_allele[idx] =allele_temp
 
 idx.order <- order(as.numeric(out_clump_SNP$CHR),
                    as.numeric(out_clump_SNP$BP))
-out_clump_SNP = out_clump_SNP[idx.order,]
-
-out_clump_SNP = out_clump_SNP %>% 
-  mutate(beta_ex_sd = beta_ex*sqrt(2*effect_allele_freq*(1-effect_allele_freq)),
-         se_ex_sd = se_ex*sqrt(2*effect_allele_freq*(1-effect_allele_freq)),
-         logOR_sd = logOR*sqrt(2*effect_allele_freq*(1-effect_allele_freq)),
-         se_gc_sd = se_gc*sqrt(2*effect_allele_freq*(1-effect_allele_freq)))
+out_clump_SNP = out_clump_SNP[idx.order,] %>% 
+  mutate(Gamma = out_clump_SNP$logOR,
+         var_Gamma = out_clump_SNP$se_gc^2,
+         gamma = out_clump_SNP$beta_ex,
+         var_gamma = out_clump_SNP$se_ex^2)
 
 
-pdx <- which(out_clump_SNP$P_ex<=5E-08)
-out_clump_SNP_temp = out_clump_SNP[pdx,]
 
 
-Gamma = out_clump_SNP_temp$logOR
-var_Gamma = out_clump_SNP_temp$se_gc^2
-gamma = out_clump_SNP_temp$beta_ex
-var_gamma = out_clump_SNP_temp$se_ex^2
+write.table(out_clump_SNP,file = "/data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL_CAD.aligned",row.names = F,col.names = T,quote=F)
 
 
-gamma_sd = out_clump_SNP_temp$beta_ex_sd
-
-pcut <- c(5E-08,5E-07,5E-06,5e-05)
+pcut <- c(5E-08)
 l <- length(pcut)
 IVW_c_result <- rep("c",l)
-MRLR_result <- rep("c",l)
+MRweight_result <- rep("c",l)
+MR_egger_result <- rep("c",l)
+MR_median_result <- rep("c",l)
+MR_raps_result <- rep("c",l)
+MR_presso_result <- rep("c",l)
 n.snp <- rep(0,l)
 keep.snp <- rep(0,l)
 for(k in 1:l){
@@ -113,19 +123,48 @@ for(k in 1:l){
   n.snp[k] <- length(Gamma)
   num = 3
   IVW_c_temp <- IVW_c(Gamma,var_Gamma,
-        gamma,var_gamma)
-  IVW_c_result[k] <- paste0(round(IVW_c_temp[[1]],num)," (",round(IVW_c_temp[[3]],num),",",
-                            round(IVW_c_temp[[4]],num),")")
-  MRLR_result_temp <- MRLR(Gamma,var_Gamma,
-                        gamma,var_gamma)
-  MRLR_result[k] <-paste0(round(MRLR_result_temp[[1]],num)," (",round(MRLR_result_temp[[2]],num),",",
-                          round(MRLR_result_temp[[3]],num),")")
+                       gamma,var_gamma)
+  IVW_c_result[k] <- paste0(round(IVW_c_temp[[1]],num)," (",round(IVW_c_temp[[4]],num),")")
+  MR_weight_temp = MRWeight(Gamma,var_Gamma,
+                            gamma,var_gamma)
+  MRweight_result[k] <- paste0(round(MR_weight_temp[[1]],num)," (",round(MR_weight_temp[[4]],num),")")
+  MRInputObject <- mr_input(bx = gamma,
+                            bxse = sqrt(var_gamma),
+                            by = Gamma,
+                            byse = sqrt(var_Gamma))
+  median_result <- mr_median(MRInputObject,
+                             weighting = "weighted",
+                             distribution = "normal",
+                             alpha = 0.05,
+                             iterations = 10000,
+                             seed = 314159265)
+  MR_median_result[k] <- paste0(round(median_result$Estimate,num)," (",round(median_result$StdError,num),")")
+  egger_result <- mr_egger(MRInputObject,
+                           robust = FALSE,
+                           penalized = FALSE,
+                           correl = FALSE,
+                           distribution = "normal",
+                           alpha = 0.05)
+  MR_egger_result[k] <- paste0(round(egger_result$Estimate,num)," (",round(egger_result$StdError.Est,num),")")
+  # raps_result <- mr.raps(data = data.frame(beta.exposure = gamma,
+  #                                          beta.outcome = Gamma,
+  #                                          se.exposure = sqrt(var_gamma),
+  #                                          se.outcome = sqrt(var_Gamma)),
+  #                                           )
+  #MR_raps_result[k] <- paste0(round(raps_result$beta.hat,num)," (",round(raps_result$beta.se,num),")")
+  summary.data = data.frame(E1_effect = gamma,
+                            E1_se = sqrt(var_gamma),
+                            
+                            Y_effect = Gamma,
+                            Y_se = sqrt(var_Gamma))
+  presso_result <- mr_presso(BetaOutcome = "Y_effect", BetaExposure = "E1_effect", SdOutcome = "Y_se", SdExposure = "E1_se", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = summary.data, NbDistribution = 1000,  SignifThreshold = 0.05)
+  mr_presso_result = paste0(round(presso_result$`Main MR results`[1,3],num)," (",round(presso_result$`Main MR results`[1,4],num),")")
 }
 
 
-LDL.result.summary <- data.frame(pcut,n.snp,IVW_s_result,
-                        IVW_c_result,AR_result_1,AR_result_2,keep.snp,stringsAsFactors = F)
-write.csv(LDL.result.summary,file = "/data/zhangh24/MR_MA/result/real_data_analysis/LDL/LDL.result.summary.csv")
+LDL.result.summary <- data.frame(IVW_c_result,MRweight_result,MR_egger_result,MR_median_result
+                                 ,MR_raps_result,mr_presso_result)
+write.csv(LDL.result.summary,file = "/data/MR_MA/result/real_data_analysis/LDL/LDL_clump.clumped")
 
 
 

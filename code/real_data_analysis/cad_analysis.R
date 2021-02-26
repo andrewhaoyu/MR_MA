@@ -4,49 +4,69 @@
 #update date: 012720
 #down load data ( https://github.com/qingyuanzhao/mr.raps)
 
-setwd("/data/zhangh24/MR_MA")
+#setwd("/data/zhangh24/MR_MA")
 library(data.table)
 library(dplyr)
 library(tidyr)
 library(devtools)
 library(withr)
-with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
-library(mr.raps, lib.loc ="/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/")
-cad.cad <- cad.cad[-984,]
-pcut <- c(5E-08,5E-07,5E-6,5E-5,5E-04,5E-03,5E-02,5E-01,1)
+library(mr.raps)
+pcut <- c(1)
 l <- length(pcut)
-IVW_s_result <- rep("c",l)
 IVW_c_result <- rep("c",l)
-AR_result_1 <- rep("c",l)
-AR_result_2 <- rep("c",l)
+MRweight_result <- rep("c",l)
+MR_egger_result <- rep("c",l)
+MR_median_result <- rep("c",l)
+MR_raps_result <- rep("c",l)
+MR_presso_result <- rep("c",l)
 n.snp <- rep(0,l)
 keep.snp <- rep(0,l)
+num = 3
 for(k in 1:l){
-  pdx <- which(cad.cad$pval.exposure<=pcut[k])
+  pdx <- which(cad.cad$pval.selection<=pcut[k])
   out_clump_SNP_temp = cad.cad[pdx,]
   Gamma = out_clump_SNP_temp$beta.outcome
   var_Gamma = out_clump_SNP_temp$se.outcome^2
   gamma = out_clump_SNP_temp$beta.exposure
   var_gamma = out_clump_SNP_temp$se.exposure^2
   n.snp[k] <- length(Gamma)
-  IVW_s_temp <- IVW_s(Gamma,var_Gamma,
-                      gamma,var_gamma)
-  num = 3
-  IVW_s_result[k] <- paste0(round(IVW_s_temp[[1]],num)," (",round(IVW_s_temp[[3]],num),",",
-                            round(IVW_s_temp[[4]],num),")")
   IVW_c_temp <- IVW_c(Gamma,var_Gamma,
                       gamma,var_gamma)
-  IVW_c_result[k] <- paste0(round(IVW_c_temp[[1]],num)," (",round(IVW_c_temp[[3]],num),",",
-                            round(IVW_c_temp[[4]],num),")")
-  AR_result <- ARMethod(Gamma,var_Gamma,
-                        gamma,var_gamma)
-  keep.snp[k] <- length(AR_result[[4]])
-  AR_result_1[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[2]],num),",",
-                           round(AR_result[[3]],num),")")
-  AR_result_2[k] <- paste0(round(AR_result[[1]],num)," (",round(AR_result[[6]],num),",",
-                           round(AR_result[[7]],num),")")
+  IVW_c_result[k] <- paste0(round(IVW_c_temp[[1]],num)," (",round(IVW_c_temp[[4]],num),")")
+  MR_weight_temp = MRWeight(Gamma,var_Gamma,
+                            gamma,var_gamma)
+  MRweight_result[k] <- paste0(round(MR_weight_temp[[1]],num)," (",round(MR_weight_temp[[4]],num),")")
+  MRInputObject <- mr_input(bx = gamma,
+                            bxse = sqrt(var_gamma),
+                            by = Gamma,
+                            byse = sqrt(var_Gamma))
+  median_result <- mr_median(MRInputObject,
+                             weighting = "weighted",
+                             distribution = "normal",
+                             alpha = 0.05,
+                             iterations = 10000,
+                             seed = 314159265)
+  MR_median_result[k] <- paste0(round(median_result$Estimate,num)," (",round(median_result$StdError,num),")")
+  egger_result <- mr_egger(MRInputObject,
+                           robust = FALSE,
+                           penalized = FALSE,
+                           correl = FALSE,
+                           distribution = "normal",
+                           alpha = 0.05)
+  MR_egger_result[k] <- paste0(round(egger_result$Estimate,num)," (",round(egger_result$StdError.Est,num),")")
+  raps_result <- mr.raps(data = data.frame(beta.exposure = gamma,
+                                           beta.outcome = Gamma,
+                                           se.exposure = sqrt(var_gamma),
+                                           se.outcome = sqrt(var_Gamma)))
+  MR_raps_result[k] <- paste0(round(raps_result$beta.hat,num)," (",round(raps_result$beta.se,num),")")
+  summary.data = data.frame(E1_effect = gamma,
+                            E1_se = sqrt(var_gamma),
+                            
+                            Y_effect = Gamma,
+                            Y_se = sqrt(var_Gamma))
+  presso_result <- mr_presso(BetaOutcome = "Y_effect", BetaExposure = "E1_effect", SdOutcome = "Y_se", SdExposure = "E1_se", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = summary.data, NbDistribution = 1000,  SignifThreshold = 0.05)
+  mr_presso_result = paste0(round(presso_result$`Main MR results`[1,3],num)," (",round(presso_result$`Main MR results`[1,4],num),")")
+  # 
 }
-cad.result.summary <- data.frame(pcut,n.snp,IVW_s_result,
-                                 IVW_c_result,AR_result_1,AR_result_2,keep.snp,stringsAsFactors = F)
-write.csv(cad.result.summary,file = "/data/zhangh24/MR_MA/result/real_data_analysis/cad.cad.summary.csv")
-
+cad.result.summary <- data.frame(IVW_c_result,MRweight_result,MR_egger_result,MR_median_result
+                                 ,MR_raps_result,mr_presso_result)

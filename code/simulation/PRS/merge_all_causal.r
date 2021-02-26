@@ -15,7 +15,7 @@ for(i1 in 1:1000){
   
 }
 
-n.rep = total
+n.rep = total = 1996
 n.snp.vec = 3
 beta_est_result = matrix(0,n.rep,n.snp.vec)
 beta_est_result_cover = matrix(0,n.rep,n.snp.vec)
@@ -33,11 +33,13 @@ beta_est_result_prs = matrix(0,n.rep,n.snp.vec)
 beta_est_result_prs_cover = matrix(0,n.rep,n.snp.vec)
 beta_est_result_inner_prs = matrix(0,n.rep,n.snp.vec)
 beta_est_result_inner_prs_cover = matrix(0,n.rep,n.snp.vec)
+beta_est_result_prs_cover_sw = matrix(0,n.rep,n.snp.vec)
+beta_est_result_inner_prs_cover_sw = matrix(0,n.rep,n.snp.vec)
 
 total = 0
 filedir = "/data/zhangh24/MR_MA/result/simulation/prs/"
 
-for(i1 in 1:1000){
+for(i1 in c(1:971,974:1000)){
   file  = paste0("/data/zhangh24/MR_MA/result/simulation/prs//beta_test_result_rho_",i1)
   if(file %in% files){
     load(file)  
@@ -58,6 +60,8 @@ for(i1 in 1:1000){
     beta_est_result_prs_cover[total+(1:temp),] = result[[14]]
     beta_est_result_inner_prs[total+(1:temp),] = result[[15]]
     beta_est_result_inner_prs_cover[total+(1:temp),] = result[[16]]
+    beta_est_result_prs_cover_sw = result[[17]]
+    beta_est_result_inner_prs_cover_sw = result[[18]]
     
     total = total+temp  
   }
@@ -101,7 +105,10 @@ result.cover <- rbind(GetCover(beta_est_result_cover),
         GetCover(beta_est_result_inner_cover),
         GetCover(beta_est_result_inner_prs_cover),
         GetCover(beta_est_result_inner_cover_summary),
-        GetCover(beta_est_IVW_inner_cover))
+        GetCover(beta_est_IVW_inner_cover),
+        GetCover(beta_est_result_prs_cover_sw),
+        GetCover(beta_est_result_inner_prs_cover_sw)
+        )
              
 print(result.cover)
 

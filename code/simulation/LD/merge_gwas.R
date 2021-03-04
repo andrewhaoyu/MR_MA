@@ -17,7 +17,7 @@ for(l in 1:3){
   }
   effect <- bind_cols(effect.list)
   sum.data = cbind(sum.infor,effect)
-  write.table(sum.data,file = paste0(cur.dir,"y_summary_chr_",j,"_rho_",l))
+  write.table(sum.data,file = paste0(cur.dir,"y_summary_chr_",j,"_rho_",l),row.names = F,col.names = T,quote=F)
   effect.list = list()
   for(i1 in 1:num){
     sum.temp <- fread(paste0(cur.dir,"m_summary_chr_",j,"_rho_",l,"_sub_",i1))
@@ -25,7 +25,7 @@ for(l in 1:3){
   }
   effect <- bind_cols(effect.list)
   sum.data = cbind(sum.infor,effect)
-  write.table(sum.data,file = paste0(cur.dir,"m_summary_chr_",j,"_rho_",l))
+  write.table(sum.data,file = paste0(cur.dir,"m_summary_chr_",j,"_rho_",l),row.names = F,col.names = T,quote=F)
 }
 system(paste0("rm ",cur.dir,"*_sub_*"))
 

@@ -14,6 +14,8 @@ n.snp = nrow(sum.data.m)
 n.rep = 100
 for(i_rep in  1:n.rep){
   p = sum.data.m[,(6+3*i_rep)]
+  print(range(p))
+}
   idx = which(p<=0.05/n.snp)
   Gamma = sum.data.y[idx,(6+3*i_rep-2)]
   var_Gamma = (sum.data.y[idx,(6+3*i_rep-2)]/sum.data.y[idx,(6+3*i_rep-1)])^2

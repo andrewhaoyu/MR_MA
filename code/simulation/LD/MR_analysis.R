@@ -32,11 +32,25 @@ beta_M = 0.15
 for(i_rep in  start:end){
   p = sum.data.m[,(6+3*i_rep)]
   idx = which(p<=0.05/n.snp)
-  if(length(idx)>1){
-    Gamma = sum.data.y[idx,(6+3*i_rep-2),drop=F]
-    var_Gamma = (sum.data.y[idx,(6+3*i_rep-2),drop=F]/sum.data.y[idx,(6+3*i_rep-1),drop=F])^2
-    gamma = sum.data.m[idx,(6+3*i_rep-2),drop=F]
-    var_gamma = (sum.data.m[idx,(6+3*i_rep-2),drop=F]/sum.data.m[idx,(6+3*i_rep-1),drop=F])^2
+  if(length(idx)>3){
+    
+    
+    
+    
+    
+    
+    
+    
+    Gamma = sum.data.y[idx,(6+3*i_rep-2)]
+    var_Gamma = (sum.data.y[idx,(6+3*i_rep-2)]/sum.data.y[idx,(6+3*i_rep-1),drop=F])^2
+    gamma = sum.data.m[idx,(6+3*i_rep-2)]
+    var_gamma = (sum.data.m[idx,(6+3*i_rep-2)]/sum.data.m[idx,(6+3*i_rep-1),drop=F])^2
+    
+    
+    
+    
+    
+    
     
     num = 3
     IVW_c_temp <- IVW_c(Gamma,var_Gamma,

@@ -15,9 +15,11 @@ cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 j =22
 sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"_rho_",l)))
 sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"_rho_",l)))
+pos = sum.data.m$BP
 n.snp = nrow(sum.data.m)
 n.rep = 100
 library(susieR)
+library(caret)
 num = 10
 library(bc2)
 start.end = startend(n.rep,num,sub)
@@ -33,11 +35,30 @@ load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
 R = as.matrix(corr0)
 for(i_rep in  start:end){
   Z = sum.data.m[,(6+3*i_rep-1)]
+  
+  p = sum.data.m[,(6+3*i_rep)]
+  idx = which(p<=0.1/n.snp)
+  for(k in 1:length(idx)){
+    select.bp = pos[idx[k]]
+    select.idx = which(pos>=select.bp-500000&pos<=select.bp+500000)
+    z.select = Z[select.idx]
+    R.select = R[select.idx,select.idx]
+    drop = findCorrelation(mtx,cutoff=0.98)
+    drop = names(prs.mat)[drop]
+    
+    fit_rss  = susie_rss(z.select, R.select, L = 10,
+                         estimate_residual_variance = TRUE, 
+                         estimate_prior_variance = TRUE)
+    
+  }
+  
+  
+  
   fit_rss  = susie_rss(Z, R, L = 10,
             estimate_residual_variance = TRUE, 
             estimate_prior_variance = TRUE)
   idx = which(p<=0.05/n.snp)
-  if(length(idx)!=0){
+  if(length(idx)>1){
     Gamma = sum.data.y[idx,(6+3*i_rep-2)]
     var_Gamma = (sum.data.y[idx,(6+3*i_rep-2)]/sum.data.y[idx,(6+3*i_rep-1)])^2
     gamma = sum.data.m[idx,(6+3*i_rep-2)]

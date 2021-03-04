@@ -30,21 +30,12 @@ bmi.filter <- bmi %>%
 #paste0("python extract_snpvar.py --sumstats ",cur.dir,"/result/real_data_analysis/bmi/bmi_sumdata.txt --out ",cur.dir,"/result/real_data_analysis/bmi/bmi_polyfunout --allow-missing")
 #paste0("python polyfun.py --compute-h2-L2 --no-partitions --output-prefix output/testrun --sumstats cur.dir,"/result/real_data_analysis/bmi/bmi_sumdata.txt --out ",cur.dir,"/result/real_data_analysis/bmi/bmi_polyfunout --ref-ld-chr example_data/annotations. --w-ld-chr example_data/weights.")
 
-python finemapper.py 
---geno /data/zhangh24/KG.plink/EUR 
---sumstats /data/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi_polyfunout
---chr 1 \
---start 753541
---end 3753541
---method susie \
---max-num-causal 5 \
---cache-dir LD_cache \
---out output/test
+python finemapper.py --geno /data/zhangh24/KG.plink/EUR --sumstats /data/zhangh24/MR_MA/result/real_data_analysis/bmi/bmi_polyfunout --chr 1 --start 753541 --end 3753541 --method susie --max-num-causal 5 \ --cache-dir LD_cache --out output/test
 
 
 
-
-
+idx <- which(bmi.filter$SNP=="rs6664664")
+bmi.filter[idx,]
 
 output <- as.data.frame(fread("/gpfs/gsfs11/users/zhangh24/MR_MA/software/polyfun/output/test",header=T))
 

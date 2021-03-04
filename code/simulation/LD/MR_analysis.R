@@ -109,7 +109,7 @@ for(i_rep in  start:end){
     MR_result[temp,2] = NA
     MR_result[temp,3] = NA
     MR_result[temp,4] = "MR-PRESSO"
-    
+    temp = temp+1
   }else{
     MR_result[temp,4] = "IVW"
     temp = temp+1

@@ -17,7 +17,7 @@ sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"_rho_",l)))
 sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"_rho_",l)))
 n.snp = nrow(sum.data.m)
 n.rep = 100
-
+library(susieR)
 num = 10
 library(bc2)
 start.end = startend(n.rep,num,sub)
@@ -29,14 +29,19 @@ MR_result <- matrix(NA,total,4)
 colnames(MR_result) <- c("est","sd","cover","method")
 temp = 1
 beta_M = 0.15
+load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
+R = as.matrix(corr0)
 for(i_rep in  start:end){
-  p = sum.data.m[,(6+3*i_rep)]
+  Z = sum.data.m[,(6+3*i_rep-1)]
+  fit_rss  = susie_rss(Z, R, L = 10,
+            estimate_residual_variance = TRUE, 
+            estimate_prior_variance = TRUE)
   idx = which(p<=0.05/n.snp)
-  if(length(idx)>1){
-    Gamma = sum.data.y[idx,(6+3*i_rep-2),drop=F]
-    var_Gamma = (sum.data.y[idx,(6+3*i_rep-2),drop=F]/sum.data.y[idx,(6+3*i_rep-1),drop=F])^2
-    gamma = sum.data.m[idx,(6+3*i_rep-2),drop=F]
-    var_gamma = (sum.data.m[idx,(6+3*i_rep-2),drop=F]/sum.data.m[idx,(6+3*i_rep-1),drop=F])^2
+  if(length(idx)!=0){
+    Gamma = sum.data.y[idx,(6+3*i_rep-2)]
+    var_Gamma = (sum.data.y[idx,(6+3*i_rep-2)]/sum.data.y[idx,(6+3*i_rep-1)])^2
+    gamma = sum.data.m[idx,(6+3*i_rep-2)]
+    var_gamma = (sum.data.m[idx,(6+3*i_rep-2)]/sum.data.m[idx,(6+3*i_rep-1)])^2
     
     num = 3
     IVW_c_temp <- IVW_c(Gamma,var_Gamma,
@@ -44,7 +49,7 @@ for(i_rep in  start:end){
     MR_result[temp,1] = c(IVW_c_temp[1])
     MR_result[temp,2] = c(IVW_c_temp[4])
     MR_result[temp,3] = ifelse(IVW_c_temp[2]<=beta_M&
-                            IVW_c_temp[3]>=beta_M,1,0)
+                                 IVW_c_temp[3]>=beta_M,1,0)
     MR_result[temp,4] = "IVW"
     temp   = temp + 1
     MR_weight_temp = MRWeight(Gamma,var_Gamma,
@@ -87,7 +92,7 @@ for(i_rep in  start:end){
                                              beta.outcome = Gamma,
                                              se.exposure = sqrt(var_gamma),
                                              se.outcome = sqrt(var_Gamma)),
-    diagnostics = F)
+                           diagnostics = F)
     MR_result[temp,1] = raps_result$beta.hat
     MR_result[temp,2] = raps_result$beta.se
     MR_result[temp,3] = ifelse(raps_result$beta.hat-1.96*raps_result$beta.se<=beta_M&

@@ -7,7 +7,7 @@ num = 10
 library(dplyr)
 library(bc2)
 library(data.table)
-n_rep = 100
+n.rep = n_rep = 100
 start.end = startend(n.rep,num,i1)
 start = start.end[1]
 end = start.end[2]

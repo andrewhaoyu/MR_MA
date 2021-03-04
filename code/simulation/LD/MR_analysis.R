@@ -107,10 +107,11 @@ library(dplyr)
                                   
                                   Y_effect = Gamma,
                                   Y_se = sqrt(var_Gamma))
-        # presso_result <- mr_presso(BetaOutcome = "Y_effect", BetaExposure = "E1_effect", SdOutcome = "Y_se", SdExposure = "E1_se", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = summary.data, NbDistribution = 1000,  SignifThreshold = 0.05)
-        MR_result[temp,1] = NA
-        MR_result[temp,2] = NA
-        MR_result[temp,3] = NA
+        presso_result <- mr_presso(BetaOutcome = "Y_effect", BetaExposure = "E1_effect", SdOutcome = "Y_se", SdExposure = "E1_se", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = summary.data, NbDistribution = 1000,  SignifThreshold = 0.05)
+        MR_result[temp,1] = presso_est = presso_result$`Main MR results`[1,3]
+        MR_result[temp,2] = presso_sd = presso_result$`Main MR results`[1,4]
+        MR_result[temp,3] = ifelse(presso_est-1.96*presso_sd<=beta_M&
+                                     presso_est+1.96*presso_sd>=beta_M,1,0)
         MR_result[temp,4] = "MR-PRESSO"
         temp = temp+1
       }else{

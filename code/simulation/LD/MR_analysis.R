@@ -30,21 +30,18 @@ colnames(MR_result) <- c("est","sd","cover","method")
 temp = 1
 beta_M = 0.15
 for(i_rep in  start:end){
-  p = sum.data.m[,(6+3*i_rep)]
-  idx = which(p<=0.05/n.snp)
+  
+  
+  sum.data.match.m = left_join(LD.snp,sum.data.m)
+  p = sum.data.match.m[,(6+3*i_rep)]
+  
+  idx = which(p<=0.05/nrow(sum.data.match.m))
   if(length(idx)>3){
-    LD.snp = as.data.frame(fread(paste0(cur.dir,"LD_chr_",j,"_rho_",l,"_rep_",i_rep,".clumped")))
-    idx = which(p<=0.05/n.snp)
     sum.data.match.y = left_join(LD.snp,sum.data.y)
-    
-    sum.data.match.m = left_join(LD.snp,sum.data.m)
-    p = sum.data.match.m[,(6+3*i_rep)]
-    idx = which(p<=0.05/n.snp)
-    
     Gamma = sum.data.match.y[idx,(6+3*i_rep-2)]
-    var_Gamma = (sum.data.match.y[idx,(6+3*i_rep-2)]/sum.data.match.y[idx,(6+3*i_rep-1),drop=F])^2
-    gamma = sum.data.match.m[idx,(6+3*i_rep-2)]
-    var_gamma = (sum.data.match.m[idx,(6+3*i_rep-2)]/sum.data.match.m[idx,(6+3*i_rep-1),drop=F])^2
+    var_Gamma = (as.numeric(sum.data.match.y[idx,(6+3*i_rep-2)])/as.numeric(sum.data.match.y[idx,(6+3*i_rep-1)]))^2
+    gamma = as.numeric(sum.data.match.m[idx,(6+3*i_rep-2)])
+    var_gamma = (as.numeric(sum.data.match.m[idx,(6+3*i_rep-2)])/as.numeric(sum.data.match.m[idx,(6+3*i_rep-1)]))^2
     
     num = 3
     IVW_c_temp <- IVW_c(Gamma,var_Gamma,
@@ -107,11 +104,10 @@ for(i_rep in  start:end){
                               
                               Y_effect = Gamma,
                               Y_se = sqrt(var_Gamma))
-    presso_result <- mr_presso(BetaOutcome = "Y_effect", BetaExposure = "E1_effect", SdOutcome = "Y_se", SdExposure = "E1_se", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = summary.data, NbDistribution = 1000,  SignifThreshold = 0.05)
-    MR_result[temp,1] = presso_est = presso_result$`Main MR results`[1,3]
-    MR_result[temp,2] = presso_sd = presso_result$`Main MR results`[1,4]
-    MR_result[temp,3] = ifelse(presso_est-1.96*presso_sd<=beta_M&
-                                 presso_est+1.96*presso_sd>=beta_M,1,0)
+   # presso_result <- mr_presso(BetaOutcome = "Y_effect", BetaExposure = "E1_effect", SdOutcome = "Y_se", SdExposure = "E1_se", OUTLIERtest = TRUE, DISTORTIONtest = TRUE, data = summary.data, NbDistribution = 1000,  SignifThreshold = 0.05)
+    MR_result[temp,1] = NA
+    MR_result[temp,2] = NA
+    MR_result[temp,3] = NA
     MR_result[temp,4] = "MR-PRESSO"
     
   }else{

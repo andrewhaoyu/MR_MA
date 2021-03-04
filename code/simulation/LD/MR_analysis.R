@@ -31,7 +31,7 @@ temp = 1
 beta_M = 0.15
 for(i_rep in  start:end){
   
-  
+  LD.snp = as.data.frame(fread(paste0(cur.dir,"LD_chr_",j,"_rho_",l,"_rep_",i_rep,".clumped")))
   sum.data.match.m = left_join(LD.snp,sum.data.m)
   p = sum.data.match.m[,(6+3*i_rep)]
   

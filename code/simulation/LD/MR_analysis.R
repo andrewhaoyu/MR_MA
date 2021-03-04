@@ -33,24 +33,18 @@ for(i_rep in  start:end){
   p = sum.data.m[,(6+3*i_rep)]
   idx = which(p<=0.05/n.snp)
   if(length(idx)>3){
+    LD.snp = as.data.frame(fread(paste0(cur.dir,"LD_chr_",j,"_rho_",l,"_rep_",i_rep,".clumped")))
+    idx = which(p<=0.05/n.snp)
+    sum.data.match.y = left_join(LD.snp,sum.data.y)
     
+    sum.data.match.m = left_join(LD.snp,sum.data.m)
+    p = sum.data.match.m[,(6+3*i_rep)]
+    idx = which(p<=0.05/n.snp)
     
-    
-    
-    
-    
-    
-    
-    Gamma = sum.data.y[idx,(6+3*i_rep-2)]
-    var_Gamma = (sum.data.y[idx,(6+3*i_rep-2)]/sum.data.y[idx,(6+3*i_rep-1),drop=F])^2
-    gamma = sum.data.m[idx,(6+3*i_rep-2)]
-    var_gamma = (sum.data.m[idx,(6+3*i_rep-2)]/sum.data.m[idx,(6+3*i_rep-1),drop=F])^2
-    
-    
-    
-    
-    
-    
+    Gamma = sum.data.match.y[idx,(6+3*i_rep-2)]
+    var_Gamma = (sum.data.match.y[idx,(6+3*i_rep-2)]/sum.data.match.y[idx,(6+3*i_rep-1),drop=F])^2
+    gamma = sum.data.match.m[idx,(6+3*i_rep-2)]
+    var_gamma = (sum.data.match.m[idx,(6+3*i_rep-2)]/sum.data.match.m[idx,(6+3*i_rep-1),drop=F])^2
     
     num = 3
     IVW_c_temp <- IVW_c(Gamma,var_Gamma,

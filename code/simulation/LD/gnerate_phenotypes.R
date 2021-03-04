@@ -2,7 +2,7 @@
 library(bigsnpr)
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 j = 22
-snp_readBed(paste0(cur.dir,"chr",j,".hm3.bed"))
+#snp_readBed(paste0(cur.dir,"chr",j,".hm3.bed"))
 obj.bigSNP <- snp_attach(paste0(cur.dir,"chr",j,".hm3.rds"))
 G  = obj.bigSNP$genotypes
 fam  = obj.bigSNP$fam
@@ -10,7 +10,7 @@ map = obj.bigSNP$map
 setwd("/data/zhangh24/multi_ethnic/")
 load("/data/zhangh24/MR_MA/result/LD/chr22_snp_infor.rdata")
 colnames(map)[2] <- "SNP"
-cau_vec = c(0.1,0.01,0.001)
+cau_vec = c(0.01,0.001,5E-04)
 snp.infor.update = left_join(map,snp.infor.subset,by="SNP")
 MAF = snp.infor.update %>% select(EUR)
 #hapmap3 contains 1217311 SNPs
@@ -42,7 +42,7 @@ for(l in 1:3){
   for(i_rep in 1:n.rep){
     error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma)  
     M_mat[,i_rep] = Galpha+error[,1]
-    Y_mat[,i_rep] = Galpha+error[,2]
+    Y_mat[,i_rep] = beta_M*Galpha+error[,2]
   }
   #create phenotypes files for plink
   pheno_M <- fam[,1:2]

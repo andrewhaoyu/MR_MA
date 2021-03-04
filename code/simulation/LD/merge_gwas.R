@@ -29,3 +29,14 @@ for(l in 1:3){
 }
 system(paste0("rm ",cur.dir,"*_sub_*"))
 
+# 
+# for(l in 1:3){
+#   sum.data = fread(paste0(cur.dir,"y_summary_chr_",j,"_rho_",l))
+#   sum.data = sum.data[,-1]
+#   write.table(sum.data,file = paste0(cur.dir,"y_summary_chr_",j,"_rho_",l),row.names = F,col.names = T,quote=F)
+#   
+#   sum.data = fread(paste0(cur.dir,"m_summary_chr_",j,"_rho_",l))
+#   sum.data = sum.data[,-1]
+#   
+#   write.table(sum.data,file = paste0(cur.dir,"m_summary_chr_",j,"_rho_",l),row.names = F,col.names = T,quote=F)
+# }

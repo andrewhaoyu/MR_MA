@@ -1,3 +1,14 @@
+Meta = function(coef_vec,var_vec){
+  meta_var = (sum(1/var_vec))^-1
+  meta_coef = meta_var*sum(coef_vec/var_vec)
+  return(c(meta_coef,meta_var))
+}
+MetaWeight = function(coef_vec,var_vec){
+  meta_var = (sum(1/var_vec))^-1
+  weight = meta_var/var_vec
+  return(weight)
+}
+
 MRLR <- function(Gamma,var_Gamma,gamma,var_gamma){
   K <- length(Gamma)
   keep.ind <- c(1:K)

@@ -38,7 +38,7 @@ library(dplyr)
       sum.data.match.m = left_join(LD.snp,sum.data.m)
       p = sum.data.match.m[,(6+3*i_rep)]
       
-      idx = which(p<=0.05/nrow(sum.data.match.m))
+      idx = which(p<=0.05/nrow(sum.data.m))
       if(length(idx)>3){
         sum.data.match.y = left_join(LD.snp,sum.data.y)
         Gamma = sum.data.match.y[idx,(6+3*i_rep-2)]

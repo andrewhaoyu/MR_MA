@@ -49,7 +49,7 @@ for(IV in c(1,5)){
            alpha = paste0("alpha = ",alpha_vec),
            Method = method_vec)
   p = ggplot(data = plot.data.sub, aes(x=sample_size,y = coverage_vec))+
-    geom_bar(aes(fill=Method),
+    geom_bar(aes(fill=øMethod),
              stat = "identity",
              position="dodge")+
     facet_grid(vars(beta),vars(alpha))+

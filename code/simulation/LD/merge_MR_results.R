@@ -1,21 +1,23 @@
 library(data.table)
 library(dplyr)
 MR_result_list = list()
-l = 3
+
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
+temp = 1
+for(l in 1:3){
   for(sub in 1:10){
     load(paste0(cur.dir,"MR_result_rho_",l,"_sub_",sub,".rdata"))
-    MR_result_list[[sub]] = as.data.frame(MR_result)
+    MR_result_list[[temp]] = data.frame(MR_result,l_vec = rep(l,nrow(MR_result)))
+    temp  = temp+1
   }
-
+  
+}
+ 
 MR_result_com = rbindlist(MR_result_list) %>% 
   mutate(est = as.numeric(est),
          sd = as.numeric(sd),
          cover = as.numeric(cover))
-MR_result_temp= MR_result_com %>% 
-  group_by(method) %>% 
-  summarize(mean_est = mean(est,na.rm =T),
-            mean_cover = mean(cover,na.rm =T))
+save(MR_result_com,file = paste0("/data/zhangh24/MR_MA/result/LD/MR_result_summary.rdata"))
   
 
   MR_result_com = as.data.frame(MR_result_com)

@@ -28,7 +28,7 @@ sigma_y = 1-beta_M^2
 sigma_ym = sigma_y*sigma_m*rho
 Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)
 n.sub = nrow(G)
-library(MASS)
+
 sample_size_vec = c(60000)
 for(l in 1:3){
   cau = cau_vec[l]

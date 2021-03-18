@@ -37,16 +37,16 @@ for(i_rep in  start:end){
   Z = sum.data.m[,(6+3*i_rep-1)]
   
   p = sum.data.m[,(6+3*i_rep)]
-  idx = which(p<=0.1/n.snp)
+  idx = which(p<=1E-03)
   for(k in 1:length(idx)){
     select.bp = pos[idx[k]]
     select.idx = which(pos>=select.bp-500000&pos<=select.bp+500000)
     z.select = Z[select.idx]
     R.select = R[select.idx,select.idx]
-    drop = findCorrelation(mtx,cutoff=0.98)
-    drop = names(prs.mat)[drop]
-    
-    fit_rss  = susie_rss(z.select, R.select, L = 10,
+    #det(R.select[1:63,1:63])
+    R.select.sub = R.select[-drop,-drop]
+    z.select.sub = z.select[-drop] 
+    fit_rss  = susie_rss(z.select.sub, R.select.sub, L = 10,
                          estimate_residual_variance = TRUE, 
                          estimate_prior_variance = TRUE)
     

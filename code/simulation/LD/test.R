@@ -126,6 +126,14 @@ fitted_rss <- susie_rss(z_scores, R, L = 10,
                         estimate_residual_variance = TRUE, 
                         estimate_prior_variance = TRUE)
 
+
+fitted_rss <- susie(G2, M2,
+                L = 10,
+                estimate_residual_variance = TRUE, 
+                estimate_prior_variance = FALSE,
+                scaled_prior_variance = 0.1,
+                verbose = TRUE)
+
 susie_plot(fitted_rss, y="PIP", b=b)
 library(dplyr)
 
@@ -157,6 +165,12 @@ R = R.select
 MR_weight_result = MRWeight(Gamma,var_Gamma,
                 gamma,var_gamma,R.select)
 
+
+raps_result <- mr.raps(data = data.frame(beta.exposure = gamma,
+                                         beta.outcome = Gamma,
+                                         se.exposure = sqrt(var_gamma),
+                                         se.outcome = sqrt(var_Gamma)),
+                       diagnostics = F)                       
 
 
 result = list(raps_result,IVW_c_result,MR_weight_result)

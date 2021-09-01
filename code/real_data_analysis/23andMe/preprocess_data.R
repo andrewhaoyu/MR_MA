@@ -22,13 +22,20 @@ i = as.numeric(vecargs[1])
 l = as.numeric(vecargs[2])
 eth = c("european","african_american",
         "latino","trans_ethnic")
-traits = c("positive_vs_negative",
+trait = c("positive_vs_negative",
            "positive_hospitalized_dx_negative_controls",
            "positive_pneumonia_dx_negative_controls",
-           "positive_respiratory_broad_dx_negative_controls",
-           "positive_respiratory_support_dx_negative_controls")
+           "positive_respiratory_support_dx_negative_controls",
+           "positive_respiratory_broad_dx_negative_controls")
+traitname = c("Test-positive versus test-negative",
+               "Hospitalized",
+               "Pneumonia",
+               "Respriatory support",
+               "Severe respiratory sympotoms"
+               )
+
 snp.infor <- fread("./data/covid/8.2_Annotation/all_snp_info.txt")
-data = fread(paste0("./data/covid/",eth[i],"/stats/covid_test_",traits[l],".dat.gz"))
+data = fread(paste0("./data/covid/",eth[i],"/stats/covid_test_",trait[l],".dat.gz"))
 imputed.infor = fread("./data/covid/8.2_Annotation/im_snp_stat.txt")
 data.pass = data %>% filter(pass=="Y") %>% 
   select(all.data.id,src,pvalue,effect,stderr)
@@ -55,4 +62,4 @@ data = data.com %>%
   rename(effect_allele_freq = freq.b,
          non_effect_allele_freq = freq.a)
 
-save(data,file = paste0("./data/cleaned/",eth[i],"/",traits[l],".rdata"))
+save(data,file = paste0("./data/cleaned/",eth[i],"/",trait[l],".rdata"))

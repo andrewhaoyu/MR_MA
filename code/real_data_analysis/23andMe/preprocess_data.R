@@ -28,7 +28,7 @@ traits = c("positive_vs_negative",
            "positive_respiratory_broad_dx_negative_controls",
            "positive_respiratory_support_dx_negative_controls")
 snp.infor <- fread("./data/covid/8.2_Annotation/all_snp_info.txt")
-data = fread(paste0("./data/covid/",eth[i1],"/stats/covid_test_",traits[l],".dat.gz"))
+data = fread(paste0("./data/covid/",eth[i],"/stats/covid_test_",traits[l],".dat.gz"))
 imputed.infor = fread("./data/covid/8.2_Annotation/im_snp_stat.txt")
 data.pass = data %>% filter(pass=="Y") %>% 
   select(all.data.id,src,pvalue,effect,stderr)

@@ -61,7 +61,7 @@ MRLR <- function(Gamma,var_Gamma,alpha,var_alpha,R){
   # }
   # 
   # coef_best = coef_vec[which.min(quad_vec)]
-  return(coef_best)
+  return(as.numeric(coef_best))
 }
 
 TestPleotropic <- function(Gamma,var_Gamma,alpha,var_alpha,coef_best){
@@ -182,7 +182,8 @@ MRLRVariance <- function(Gamma,var_Gamma,alpha,var_alpha,coef_est,R){
   K <- length(Gamma)
   se_Gamma = sqrt(var_Gamma)
   se_alpha = sqrt(var_alpha)
-  
+  alpha = as.vector(alpha)
+  Gamma = as.vector(Gamma)
   sigma_est  = sum((Gamma-coef_est*alpha)^2)/(K-1)
   
   #A(beta)
@@ -207,7 +208,7 @@ MRLRVariance <- function(Gamma,var_Gamma,alpha,var_alpha,coef_est,R){
   
   
   
-  var_coef_est = solve(t(alpha)%*%W%*%alpha)
+  #var_coef_est = solve(t(alpha)%*%W%*%alpha)
   W = GetWMat(var_Gamma,var_alpha,
               se_Gamma,se_alpha,coef_est,R)
 

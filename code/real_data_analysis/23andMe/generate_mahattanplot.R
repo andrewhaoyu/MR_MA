@@ -128,6 +128,6 @@ png(filename = paste0(outpath,"/QQ_",eth[i1],"_",trait[l],".png"), width = 8, he
 qq(dat$P)
 text(5,1,expression(paste(lambda[1000]," = ")),cex = 1.5)
 text(5.7,1,paste(lambda_1000),cex = 1.5)
-title(paste0(trait_name[l]," for ",eth[i1]))
+title(paste0(traitname[l]," for ",eth[i1]))
 dev.off()
 

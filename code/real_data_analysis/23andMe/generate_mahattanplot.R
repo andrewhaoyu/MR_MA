@@ -40,7 +40,7 @@ traitname = c("Test-positive versus test-negative",
                "Severe respiratory sympotoms"
 )
 
-
+source("./code/real_data_analysis/23andMe/theme_publication.R")
 load(paste0("./data/cleaned/",eth[i1],"/",trait[l],".rdata"))
 data = data %>% 
   rename(BP = position,

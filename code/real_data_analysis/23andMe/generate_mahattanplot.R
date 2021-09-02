@@ -108,6 +108,7 @@ scale_x_continuous(label = axis.set$CHR, breaks = axis.set$center) +
        linetype = "",
        title = paste0(traitname[l]," for ",ethname[i1]))+
   #subtitle = "A2: Critically ill COVID19+ vs. population controls;\nB1: Hospitalized COVID19+ vs non-hospitalized COVID19+;\nB2: Hospitalized COVID19+ vs. population controls;\nC2: Reported SARS-CoV-2 infection vs. population controls") + 
+  theme_Publication()+
   theme(
     legend.position = "top",
     panel.border = element_blank(),
@@ -126,8 +127,8 @@ ggsave(filename=paste0("man_",eth[i1],"_",trait[l],".png"),
 
 png(filename = paste0(outpath,"/QQ_",eth[i1],"_",trait[l],".png"), width = 8, height = 8, units = "in",res=300)
 qq(dat$P)
-text(5,1,expression(paste(lambda[1000]," = ")),cex = 1.5)
-text(5.7,1,paste(lambda_1000),cex = 1.5)
-title(paste0(traitname[l]," for ",eth[i1]))
+text(5,1,expression(paste(lambda," = ")),cex = 1.5)
+text(5.7,1,paste(lambda),cex = 1.5)
+title(paste0(traitname[l]," for ",ethname[i1]))
 dev.off()
 

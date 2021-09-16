@@ -224,12 +224,21 @@ for(k in 1:n.rep){
   
 }
 
-result = data.frame(
-  method = c("WMR","IVW","MR-Egger","MR-median","MRRAPs"),
-  est = c(mean(beta_est),mean(beta_IVW),mean(beta_est_egger),mean(beta_est_median),mean(beta_est_raps)),
-  em_se = c(sd(beta_est),sd(beta_IVW),sd(beta_est_egger),sd(beta_est_median),sd(beta_est_raps)),
-  es_se = c(mean(beta_se),mean(beta_se_IVW),mean(beta_se_egger),mean(beta_se_median),mean(beta_se_Raps),),
-  cover = c(mean(beta_cover),mean(beta_cover_IVW),mean(beta_cover_egger),mean(beta_cover_median),mean(beta_cover_raps))
+mean.result = data.frame(
+  beta_est,beta_est_IVW,beta_est_egger,beta_est_median,beta_est_Raps
 )
+colnames(mean.result) = c("WMR","IVW","MR-Egger","MR-median","MRRAPs")
 
-save(result,file = paste0("./result/simulation/LD_simulation_test/result_"i1,"_",i2,"_",i3,".rdata"))
+se.result = data.frame(
+  beta_se,beta_se_IVW,beta_se_egger,beta_se_median,beta_se_Raps
+)
+colnames(se.result) = c("WMR","IVW","MR-Egger","MR-median","MRRAPs")
+
+cover.result = data.frame(
+  beta_cover,beta_cover_IVW,beta_cover_egger,beta_cover_median,beta_cover_Raps
+)
+colnames(cover.result) = c("WMR","IVW","MR-Egger","MR-median","MRRAPs")
+
+result = list(mean.result,se.result,cover.result)
+
+save(result,file = paste0("./result/simulation/LD_simulation_test/result_",i1,"_",i2,"_",i3,".rdata"))

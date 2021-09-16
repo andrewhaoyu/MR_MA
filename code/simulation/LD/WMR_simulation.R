@@ -11,9 +11,9 @@
 #i2 for ple
 #i3 for rep
 args = commandArgs(trailingOnly = T)
-i1 = args[[1]]
-i2 = args[[2]]
-i3 = args[[3]]
+i1 = as.numeric(args[[1]])
+i2 = as.numeric(args[[2]])
+i3 = as.numeric(args[[3]])
 
 print(c(i1,i2,i3))
 setwd("/data/zhangh24/MR_MA/")

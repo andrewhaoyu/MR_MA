@@ -15,7 +15,7 @@ i1 = args[[1]]
 i2 = args[[2]]
 i3 = args[[3]]
 
-
+print(c(i1,i2,i3))
 setwd("/data/zhangh24/MR_MA/")
 beta_vec = c(sqrt(0.4),0.3,0)
 pleo_vec  = c(1,0.5,0.25)
@@ -37,7 +37,7 @@ set.seed(123)
 idx.cau_m = sample(c(1:n.snp),n.cau)
 #plotropic settings
 pleosnp.pro = pleo_vec[i2]
-n.cau.overlap = pleosnp.pro*n.cau
+n.cau.overlap = as.integer(pleosnp.pro*n.cau)
 n.cau.specific = n.cau - n.cau.overlap
 #pleotrpic snps proportion the same as causal snps
 idx.cau_pleo = c(sample(idx.cau_m,n.cau.overlap),

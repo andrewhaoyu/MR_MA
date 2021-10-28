@@ -20,19 +20,19 @@ setwd("/data/zhangh24/MR_MA/")
 source("./code/simulation/functions/WMR_function.R")
 beta_vec = c(1,0.5,0)
 pleo_vec  = c(1,0.5,0.25)
-n.snp = 5
+n.snp = 500
 beta = beta_vec[i1]
 N = 6000
-cau.pro = 1
+cau.pro = 0.2
 n.cau = as.integer(n.snp*cau.pro)
 h2_m = 0.4
 h2_y = 0.4
 sigma_alpha = h2_m/n.cau
 sigma_theta = 0
 #alpha_u = sqrt(0.3)
-sigma_error_m = 0.1
+sigma_error_m = 1-h2_m
 beta_u = 0
-sigma_error_y = 0.1
+sigma_error_y = 1-h2_y
 
 
 set.seed(123)
@@ -90,16 +90,22 @@ beta_cover_median = rep(0,n.rep)
 beta_se_median = rep(0,n.rep)
 library(MendelianRandomization)
 library(susieR)
+cor.error = 0.25
+sigma_error_m  = 0.6
+sigma_error_y = 0.6
+cov_my = sqrt(sigma_error_m*sigma_error_y)*cor.error
+Sigma = matrix(c(sigma_error_m,cov_my,cov_my,sigma_error_y),2,2)
 for(k in 1:n.rep){
   print(k)
-  error_m = rnorm(N,sd = sqrt(sigma_error_m))
-  error_y = rnorm(N,sd = sqrt(sigma_error_y))
+  error = mvrnorm(N,mu = c(0,0), Sigma =Sigma)
+  error_m = error[,1]
+  error_y = error[,2]
+  
   # M1 = G1.cau%*%alpha_G+U1*alpha_u+error_m
   # Y1 = M1%*%beta + G1.pleo%*%theta_G+U1*beta_u + error_y
   #Y1 = M1%*%beta +U1*beta_u + error_y
   M1 = G1.cau%*%alpha_G+error_m
   Y1 = M1%*%beta  + error_y
-  
   error_m = rnorm(N,sd = sqrt(sigma_error_m))
   M2 = G2.cau%*%alpha_G+error_m
   

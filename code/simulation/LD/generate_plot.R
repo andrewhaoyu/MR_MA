@@ -1,6 +1,6 @@
 setwd("/Users/zhangh24/GoogleDrive/MR_MA/")
 source("./code/simulation/LD/theme_publication.R")
-load("./result/simulation/LD/wmr_simu_result_com.rdata")
+load("./result/simulation/LD/wmr_simu_result_com_indi.rdata")
 beta_vec = round(c(sqrt(0.4),0.3,0),2)
 pleo_vec  = c(1,0.5,0.25)
 library(dplyr)
@@ -27,10 +27,10 @@ for(i1 in 1:3){
         geom_hline(yintercept = 0.95, col="red",linetype ="dashed")+
         ylab("Coverage")+
         ggtitle(paste0("Beta = ",beta_vec[i1],",overlap_plo = ",pleo_vec[i2]))
-      png(filename = paste0("bias_result_",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
+      png(filename = paste0("bias_result_indi",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
       print(p1)
       dev.off()
-      png(filename = paste0("cover_result_",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
+      png(filename = paste0("cover_result_indi",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
       print(p2)
       dev.off()
       

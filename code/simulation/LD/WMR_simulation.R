@@ -88,10 +88,17 @@ beta_cover_median = rep(0,n.rep)
 beta_se_median = rep(0,n.rep)
 library(MendelianRandomization)
 library(susieR)
+cor.error = 0.25
+sigma_error_m  = 0.6
+sigma_error_y = 0.6
+cov_my = sqrt(sigma_error_m*sigma_error_y)*cor.error
+Sigma = matrix(c(sigma_error_m,cov_my,cov_my,sigma_error_y),2,2)
+
 for(k in 1:n.rep){
   print(k)
-  error_m = rnorm(N,sd = sqrt(sigma_error_m))
-  error_y = rnorm(N,sd = sqrt(sigma_error_y))
+  error = mvrnorm(N,mu = c(0,0), Sigma =Sigma)
+  error_m = error[,1]
+  error_y = error[,2]
   # M1 = G1.cau%*%alpha_G+U1*alpha_u+error_m
   # Y1 = M1%*%beta + G1.pleo%*%theta_G+U1*beta_u + error_y
   M1 = G1.cau%*%alpha_G+error_m
@@ -243,4 +250,4 @@ colnames(cover.result) = c("WMR","IVW","MR-Egger","MR-median","MRRAPs")
 
 result = list(mean.result,se.result,cover.result)
 
-save(result,file = paste0("./result/simulation/LD_simulation_test/result_indi",i1,"_",i2,"_",i3,".rdata"))
+save(result,file = paste0("./result/simulation/LD_simulation_test/result_",i1,"_",i2,"_",i3,".rdata"))

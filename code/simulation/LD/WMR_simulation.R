@@ -92,11 +92,12 @@ for(k in 1:n.rep){
   print(k)
   error_m = rnorm(N,sd = sqrt(sigma_error_m))
   error_y = rnorm(N,sd = sqrt(sigma_error_y))
-  M1 = G1.cau%*%alpha_G+U1*alpha_u+error_m
-  Y1 = M1%*%beta + G1.pleo%*%theta_G+U1*beta_u + error_y
-  #Y1 = M1%*%beta +U1*beta_u + error_y
+  # M1 = G1.cau%*%alpha_G+U1*alpha_u+error_m
+  # Y1 = M1%*%beta + G1.pleo%*%theta_G+U1*beta_u + error_y
+  M1 = G1.cau%*%alpha_G+error_m
+  Y1 = M1%*%beta + error_y
   error_m = rnorm(N,sd = sqrt(sigma_error_m))
-  M2 = G2.cau%*%alpha_G+U2*alpha_u+error_m
+  M2 = G2.cau%*%alpha_G+error_m
   
   
   sumstats <- univariate_regression(G1, Y1)
@@ -157,7 +158,7 @@ for(k in 1:n.rep){
                       weights = "simple",
                       psi = 0,
                       distribution =
-                      "normal",
+                        "normal",
                       alpha = 0.05)
   
   beta_est_IVW[k] = IVWObject$Estimate
@@ -174,7 +175,7 @@ for(k in 1:n.rep){
     distribution = "normal",
     alpha = 0.05
   )
-    
+  
   beta_est_egger[k] = EggerObject$Estimate
   beta_cover_egger[k] = ifelse(EggerObject$CILower.Est<=beta&
                                  EggerObject$CIUpper.Est>=beta,1,0)
@@ -192,7 +193,7 @@ for(k in 1:n.rep){
   
   beta_est_median[k] = MedianObject$Estimate
   beta_cover_median[k] = ifelse(MedianObject$CILower<=beta&
-                               MedianObject$CIUpper>=beta,1,0)
+                                  MedianObject$CIUpper>=beta,1,0)
   beta_se_median[k] = MedianObject$StdError
   
   
@@ -207,18 +208,18 @@ for(k in 1:n.rep){
   beta_cover_Raps[k] = ifelse(raps_result$beta.hat-1.96*raps_result$beta.se<=beta&
                                 raps_result$beta.hat+1.96*raps_result$beta.se>=beta,1,0)
   beta_se_Raps[k] = raps_result$beta.se
- # se_Gamma = sqrt(var_Gamma)
+  # se_Gamma = sqrt(var_Gamma)
   #se_alpha = sqrt(var_alpha)
   
-   #R.select = R[select.id,select.id]
+  #R.select = R[select.id,select.id]
   MR_result <- WMRFun(Gamma,se_Gamma,
-                                 alpha,se_alpha,
-                                 ldscore,R)
-    # MRWeight(Gamma = sumGamma,
-    #                     var_Gamma = var_Gamma,
-    #                     alpha = sumalpha,
-    #                     var_alpha = var_alpha,
-    #                     R = R)
+                      alpha,se_alpha,
+                      ldscore,R)
+  # MRWeight(Gamma = sumGamma,
+  #                     var_Gamma = var_Gamma,
+  #                     alpha = sumalpha,
+  #                     var_alpha = var_alpha,
+  #                     R = R)
   beta_est[k] = MR_result[1]
   beta_cover[k] = ifelse(MR_result[3]<=beta&MR_result[4]>=beta,1,0)
   beta_se[k] = MR_result[2]
@@ -242,4 +243,4 @@ colnames(cover.result) = c("WMR","IVW","MR-Egger","MR-median","MRRAPs")
 
 result = list(mean.result,se.result,cover.result)
 
-save(result,file = paste0("./result/simulation/LD_simulation_test/result_",i1,"_",i2,"_",i3,".rdata"))
+save(result,file = paste0("./result/simulation/LD_simulation_test/result_indi",i1,"_",i2,"_",i3,".rdata"))

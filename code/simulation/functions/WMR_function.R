@@ -2,6 +2,15 @@ WMRFun = function(Gamma,se_Gamma,
                   alpha,se_alpha,
                   ldscore,R){
   #initial estimate of beta
+  profile.loglike <- function(beta) {
+    -(1/2) * sum((b_out - b_exp * beta)^2/(se_out^2 + se_exp^2 * 
+                                             beta^2))
+  }
+  bound <- quantile(abs(b_out/b_exp), 0.95, na.rm = TRUE) * 
+    2
+  beta.hat <- optimize(profile.loglike, bound * c(-1, 1), maximum = TRUE, 
+                       tol = .Machine$double.eps^0.5)$maximum
+  
   beta_est = as.numeric(crossprod(Gamma,alpha)/crossprod(alpha))
   
   #step two: estimate tau
@@ -41,3 +50,35 @@ GetWtauMat = function(Gamma,se_Gamma,
   W[abs(W)<=1E-06] = 0
   return(W)
 }
+
+#p_Gamma = 2*pnorm(-abs(Gamma/sqrt(var_Gamma)),lower.tail = T)
+Myclumping <- function(R,p){
+  n.snp = ncol(R)
+  
+  
+  #keep snps for clumpinp
+  keep.ind = c(1:n.snp)
+  #remove snps due to clumping
+  remove.ind  = NULL
+  #select snp ind
+  select.ind = NULL
+  temp = 1
+  while(length(keep.ind)>0){
+    # print(temp)
+    p.temp = p[keep.ind]
+    #select top snp
+    top.ind = which.min(p.temp)
+    select.ind = c(select.ind,keep.ind[top.ind])
+    #print(keep.ind[top.ind])
+    #tempory correlation
+    R.temp = R[keep.ind[top.ind],]
+    idx.remove = which(R.temp>=0.001)
+    #take out
+    remove.ind= c(remove.ind,idx.remove)
+    keep.ind = setdiff(keep.ind,remove.ind)
+    temp = temp+1
+  }
+  result = data.frame(select.ind,p[select.ind])
+  return(result)
+}
+

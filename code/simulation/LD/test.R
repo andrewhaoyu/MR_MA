@@ -1,176 +1,308 @@
-set.seed(i1)
-library(susieR)
+#Goal: Simulate data with realistic LD information
+#Y = M\beta + G\theta + U\beta_u + error_y
+#M = G\alpha + U\alpha_U + error_m
+#h2_y  = var(\beta G\alpha+G\theta) = 0.4
+#h2_m = var(\alphaG) = 0.4
+#var(error_m+U\alpha_U) = 0.6
+#var(error_y+U\beta_U) = 0.6
+#causal SNPs proportion for M: 0.1, 0.01
+#overlapping between pleotripic and non pleotropic 1, 0.5, 0.75
+#i1 for beta
+#i2 for ple
+#i3 for rep
+args = commandArgs(trailingOnly = T)
+i1 = as.numeric(args[[1]])
+i2 = as.numeric(args[[2]])
+i3 = as.numeric(args[[3]])
+
+print(c(i1,i2,i3))
 setwd("/data/zhangh24/MR_MA/")
-source("./code/simulation/functions/MR_weight_new.R")
-setwd("/Users/zhangh24/GoogleDrive/MR_MA/result/simulation/LD")
-load("example_G.rdata")
-library(MASS)
-n.sub = 60000
-G1 = G.temp[1:n.sub,]
-G2 = G.temp[(n.sub+1):(2*n.sub),]
-n.snp = ncol(G1)
-b <- rep(0,1000)
-set.seed(666)
-n.cau = 6
-idx.cau = c(250,245,500,505,700,710)
-R[idx.cau,idx.cau]
-b[idx.cau] = rnorm(n.cau,0,sd = 0.04)
-idx <- which(b!=0)
-plot(b, pch=16, ylab='effect size')
-MAF = colSums(G)/(nrow(G))
+source("./code/simulation/functions/WMR_function.R")
+beta_vec = c(1,0.5,0)
+pleo_vec  = c(1,0.5,0.25)
+n.snp = 50
+beta = beta_vec[i1]
+N = 60000
+cau.pro = 1
+n.cau = as.integer(n.snp*cau.pro)
+h2_m = 0.4
+h2_y = 0.4
+sigma_alpha = h2_m/n.cau
+sigma_theta = (h2_y-beta^2*h2_m)/n.cau
+alpha_u = sqrt(0.3)
+sigma_error_m = 1-h2_m-alpha_u^2*beta^2
+beta_u = sqrt(0.3-beta^2*alpha_u^2)
+sigma_error_y = 0.3-beta^2*sigma_error_m
+sigma_error_y = ifelse(sigma_error_y>0,sigma_error_y,0)
 
-beta_M = 0.15
-sigma_m = 0.6
-beta_M = 0.15
-rho = 0.3
-sigma_y = 1-beta_M^2
-sigma_ym = sigma_y*sigma_m*rho
-Sigma = matrix(c(sigma_y,sigma_ym,sigma_ym,sigma_m),2,2)
-error = mvrnorm(n.sub,mu = c(0,0),Sigma = Sigma) 
-M1 = G1%*%b+error[,1]
-Y1 = M1*beta_M+error[,2]
-M2 = G2%*%b+rnorm(n.sub,mean = 0, sd = sqrt(sigma_m))
-sumstats_M <- univariate_regression(G2, M2)
-sumstats_Y <- univariate_regression(G1, Y1)
-z_scores <- sumstats_M$betahat / sumstats_M$sebetahat
-p.value = 2*pnorm(-abs(z_scores),lower.tail=T)
+set.seed(123)
+idx.cau_m = sample(c(1:n.snp),n.cau)
+#plotropic settings
+pleosnp.pro = pleo_vec[i2]
+n.cau.overlap = as.integer(pleosnp.pro*n.cau)
+n.cau.specific = n.cau - n.cau.overlap
+#pleotrpic snps proportion the same as causal snps
+idx.cau_pleo = c(sample(idx.cau_m,n.cau.overlap),
+                 sample(setdiff(c(1:n.cau),idx.cau_m),n.cau-n.cau.overlap))
 
-cau = rep("Not causal SNPs",n.snp)
-cau[idx.cau] = "Causal SNPs"
-SNP.index = c(1:n.snp)
-plot.data = data.frame(SNP.index,p = -log10(p.value),cau)
-library(ggplot2)
-
-ggplot(plot.data,aes(x= SNP.index,
-                     y = p,col=cau))+
-  geom_point()+
-  scale_colour_manual(values =c("red","black"))+
-  ylab("-log10(p)")+
-  xlab("SNP")+
-  theme(legend.title = element_blank())+
-  theme_Publication()
-library(ggplot2)
-
-#sample subjects to calculate correlations
-idx <- sample(c(1:nrow(G)),3000)
-G_sub = G.temp[idx,]
-R = cor(G_sub)
-R2 = R^2
-R[idx.cau,idx.cau]
-R_temp = R
-p_temp = p.value
-
-Myclumping <- function(R,p){
-  n.snp = ncol(R)
-
-
-  #keep snps for clumpinp
-  keep.ind = c(1:n.snp)
-  #remove snps due to clumping
-  remove.ind  = NULL
-  #select snp ind
-  select.ind = NULL
-  temp = 1
-  while(length(keep.ind)>0){
-   # print(temp)
-    p.temp = p[keep.ind]
-    #select top snp
-    top.ind = which.min(p.temp)
-    select.ind = c(select.ind,keep.ind[top.ind])
-    #print(keep.ind[top.ind])
-    #tempory correlation
-    R.temp = R[keep.ind[top.ind],]
-    idx.remove = which(R.temp>=0.01)
-    #take out
-    remove.ind= c(remove.ind,idx.remove)
-    keep.ind = setdiff(keep.ind,remove.ind)
-    temp = temp+1
-  }
-  result = data.frame(select.ind,p[select.ind])
-  return(result)
-  }
-
-
-
-
-clump = Myclumping(R2,p.value)
-
-select.ind = clump[,1]
-
-
-idx = which(clump[,2]<=5E-08)
-select.ind = clump[idx,1]
-
-Gamma = sumstats_Y$betahat[select.ind]
-var_Gamma = sumstats_Y$sebetahat[select.ind]^2
-gamma = sumstats_M$betahat[select.ind]
-var_gamma = sumstats_Y$sebetahat[select.ind]^2
+alpha_G = rnorm(n.cau,mean = 0,sd = sqrt(sigma_alpha))
+theta_G = rnorm(n.cau,mean = 0, sd = sqrt(sigma_theta))
+ar1_cor <- function(n, rho) {
+  exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
+                    (1:n - 1))
+  rho^exponent
+}
 library(mr.raps)
-raps_result <- mr.raps(data = data.frame(beta.exposure = gamma,
-                                         beta.outcome = Gamma,
-                                         se.exposure = sqrt(var_gamma),
-                                         se.outcome = sqrt(var_Gamma)),
-                       diagnostics = F)
-raps_result$beta.hat
-raps_result$beta.se
+library(Rfast)
+library(MASS)
+library(MESS)
+#R = ar1_cor(n.snp,0.5)
+R = diag(n.snp)
+G1 = rmvnorm(N,mu = rep(0,n.snp),R)
+G2 = rmvnorm(N,mu = rep(0,n.snp),R)
+U1 = rnorm(N)
+U2 = rnorm(N)
+G1.cau = G1[,idx.cau_m]
+G2.cau = G2[,idx.cau_m]
+G1.pleo = G1[,idx.cau_pleo]
+G2.pleo = G2[,idx.cau_pleo]
+ldscore = rep(sum(R[1,2:15]^2),n.snp)
+
+#G1 to obtain sum data for Y
+#G2 to obtain sum data for M
+n.rep = 50
+beta_est = rep(0,n.rep)
+beta_cover = rep(0,n.rep)
+beta_se = rep(0,n.rep)
 
 
+beta_est_Raps = rep(0,n.rep)
+beta_cover_Raps = rep(0,n.rep)
+beta_se_Raps = rep(0,n.rep)
+beta_est_IVW = rep(0,n.rep)
+beta_cover_IVW = rep(0,n.rep)
+beta_se_IVW = rep(0,n.rep)
+library(MendelianRandomization)
+library(susieR)
+log.likelihood = rep(0,n.rep)
+log.likelihood.rap  = rep(0,n.rep)
 
-
-
-IVW_c_result<- IVW_c(Gamma,var_Gamma,
-                    gamma,var_gamma)
-
-
-fitted_rss <- susie_rss(z_scores, R, L = 10,
-                        estimate_residual_variance = TRUE, 
-                        estimate_prior_variance = TRUE)
-
-
-fitted_rss <- susie(G2, M2,
-                L = 10,
-                estimate_residual_variance = TRUE, 
-                estimate_prior_variance = FALSE,
-                scaled_prior_variance = 0.1,
-                verbose = TRUE)
-
-susie_plot(fitted_rss, y="PIP", b=b)
-library(dplyr)
-
-FindIV <- function(fitted_rss){
-  fitted_rss_temp = as.data.frame(summary(fitted_rss)$vars) %>% 
-    filter(cs!=-1) %>% 
-    group_by(cs) %>% 
-    filter(variable_prob == max(variable_prob)) %>% 
-    select(variable)
-  select = as.vector(fitted_rss_temp$variable)
+for(k in 1:n.rep){
+  print(k)
+  error_m = rnorm(N,sd = sqrt(sigma_error_m))
+  error_y = rnorm(N,sd = sqrt(sigma_error_y))
+  M1 = G1.cau%*%alpha_G+U1*alpha_u+error_m
+  #Y1 = M1%*%beta + G1.pleo%*%theta_G+U1*beta_u + error_y
+  Y1 = M1%*%beta +U1*beta_u + error_y
+  error_m = rnorm(N,sd = sqrt(sigma_error_m))
+  M2 = G2.cau%*%alpha_G+U2*alpha_u+error_m
   
-  return(select)
+  
+  sumstats <- univariate_regression(G1, Y1)
+  
+  Gamma = sumstats$betahat
+  se_Gamma = sumstats$sebetahat
+  
+  sumstats <- univariate_regression(G2, M2)
+  alpha = sumstats$betahat
+  se_alpha = sumstats$sebetahat
+  p_alpha = 2*pnorm(-abs(alpha/se_alpha),lower.tail = T)
+  clump.snp = Myclumping(R,p_alpha)
+  #select.id = clump.snp[clump.snp$p.select.ind.<=5E-08,1]
+  select.id  = c(1:n.snp)
+  alpha_select =alpha[select.id]
+  se_alpha_select = se_alpha[select.id]
+  Gamma_select = Gamma[select.id]
+  se_Gamma_select = se_Gamma[select.id]
+  
+  MRInputObject <- mr_input(bx = alpha_select,
+                            bxse = se_alpha_select,
+                            by = Gamma_select,
+                            byse = se_Gamma_select)
+  IVWObject <- mr_ivw(MRInputObject,
+                      model = "default",
+                      robust = FALSE,
+                      penalized = FALSE,
+                      correl = FALSE,
+                      weights = "simple",
+                      psi = 0,
+                      distribution =
+                        "normal",
+                      alpha = 0.05)
+  
+  beta_est_IVW[k] = IVWObject$Estimate
+  beta_cover_IVW[k] = ifelse(IVWObject$CILower<=beta&
+                               IVWObject$CIUpper>=beta,1,0)
+  beta_se_IVW[k] = IVWObject$StdError
+  
+  n.select =length(alpha_G)
+  alpha_select = rnorm(n.select,
+                       mean = alpha_G,
+                       sd = sqrt(1/N))
+  Gamma_select = rnorm(n.select,beta*alpha_G,
+                       sd = sqrt(1/N))
+  se_alpha_select = rep(sqrt(1/N),n.select)
+  se_Gamma_select = rep(sqrt(1/N),n.select)
+  MRInputObject <- mr_input(bx = alpha_select,
+                            bxse = se_alpha_select,
+                            by = Gamma_select,
+                            byse = se_Gamma_select)
+  IVWObject <- mr_ivw(MRInputObject,
+                      model = "default",
+                      robust = FALSE,
+                      penalized = FALSE,
+                      correl = FALSE,
+                      weights = "simple",
+                      psi = 0,
+                      distribution =
+                        "normal",
+                      alpha = 0.05)
+  beta_est_IVW[k] = IVWObject$Estimate
+  beta_cover_IVW[k] = ifelse(IVWObject$CILower<=beta&
+                               IVWObject$CIUpper>=beta,1,0)
+  beta_se_IVW[k] = IVWObject$StdError
+  
+  
+  # raps_result <- mr.raps.simple(data = data.frame(beta.exposure = alpha_select,
+  #                                          beta.outcome = Gamma_select,
+  #                                          se.exposure = se_alpha_select,
+  #                                          se.outcome = se_Gamma_select),
+  #                        diagnostics = F)
+  raps_result <- mr.raps.simple(b_exp = alpha_select,
+                                                  b_out = Gamma_select,
+                                                  se_exp = se_alpha_select,
+                                                  se_out = se_Gamma_select,
+                                diagnostics = F)
+  b_exp = alpha_select;
+  b_out = Gamma_select;
+  se_exp = se_alpha_select;
+  se_out = se_Gamma_select;
+  beta_est_Raps[k] = raps_result$beta.hat
+  beta_cover_Raps[k] = ifelse(raps_result$beta.hat-1.96*raps_result$beta.se<=beta&
+                                raps_result$beta.hat+1.96*raps_result$beta.se>=beta,1,0)
+  beta_se_Raps[k] = raps_result$beta.se
+  log.likelihood.rap[k] = profile.loglike(raps_result$beta.hat)
+  # se_Gamma = sqrt(var_Gamma)
+  #se_alpha = sqrt(var_alpha)
+  
+  #R.select = R[select.id,select.id]
+  MR_result <- WMRFun(Gamma,se_Gamma,
+                      alpha,se_alpha,
+                      ldscore,R)
+  log.likelihood[k] = profile.loglike(MR_result[1])
+  # MRWeight(Gamma = sumGamma,
+  #                     var_Gamma = var_Gamma,
+  #                     alpha = sumalpha,
+  #                     var_alpha = var_alpha,
+  #                     R = R)
+  beta_est[k] = MR_result[1]
+  beta_cover[k] = ifelse(MR_result[3]<=beta&MR_result[4]>=beta,1,0)
+  beta_se[k] = MR_result[2]
+  
+}
+print(cbind(log.likelihood,log.likelihood.rap))
+log.likelihood<log.likelihood.rap
+mean.result = data.frame(
+  beta_est,beta_est_IVW,beta_est_Raps)
+colnames(mean.result) = c("WMR","IVW","MRRAPs")
+
+se.result = data.frame(
+  beta_se,beta_se_IVW,beta_se_Raps
+)
+colnames(se.result) = c("WMR","IVW","MRRAPs")
+
+cover.result = data.frame(
+  beta_cover,beta_cover_IVW,beta_cover_Raps
+)
+colnames(cover.result) = c("WMR","IVW","MRRAPs")
+
+
+result = data.frame(
+  method = c("WMR","IVW","MRRAPs"),
+  bias = apply(mean.result,2,mean)-beta,
+  em_se = apply(mean.result,2,sd),
+  es_se = apply(se.result,2,mean),
+  cover = apply(cover.result,2,mean))
+print(result)
+
+beta_est_IVW = rep(0,n.rep)
+beta_cover_IVW = rep(0,n.rep)
+beta_se_IVW = rep(0,n.rep)
+for(k in 1:n.rep){
+  Gamma_select = rnorm(n.select,beta*alpha_G,
+                       sd = sqrt(1/N))
+  se_alpha_select = rep(sqrt(1/N),n.select)
+  se_Gamma_select = rep(sqrt(1/N),n.select)
+  MRInputObject <- mr_input(bx = alpha_select,
+                            bxse = se_alpha_select,
+                            by = Gamma_select,
+                            byse = se_Gamma_select)
+  IVWObject <- mr_ivw(MRInputObject,
+                      model = "default",
+                      robust = FALSE,
+                      penalized = FALSE,
+                      correl = FALSE,
+                      weights = "simple",
+                      psi = 0,
+                      distribution =
+                        "normal",
+                      alpha = 0.05)
+  beta_est_IVW[k] = IVWObject$Estimate
+  beta_cover_IVW[k] = ifelse(IVWObject$CILower<=beta&
+                               IVWObject$CIUpper>=beta,1,0)
+  beta_se_IVW[k] = IVWObject$StdError
+  MR_result <- WMRFun(Gamma_select,se_Gamma_select,
+                      alpha_select,se_alpha_select,
+                      ldscore,R)
+  # MRWeight(Gamma = sumGamma,
+  #                     var_Gamma = var_Gamma,
+  #                     alpha = sumalpha,
+  #                     var_alpha = var_alpha,
+  #                     R = R)
+  beta_est[k] = MR_result[1]
+  beta_cover[k] = ifelse(MR_result[3]<=beta&MR_result[4]>=beta,1,0)
+  beta_se[k] = MR_result[2]
+  
+  
 }
 
+mean.result = data.frame(
+  beta_est,beta_est_IVW,beta_est_Raps)
+colnames(mean.result) = c("WMR","IVW","MRRAPs")
+
+se.result = data.frame(
+  beta_se,beta_se_IVW,beta_se_Raps
+)
+colnames(se.result) = c("WMR","IVW","MRRAPs")
+
+cover.result = data.frame(
+  beta_cover,beta_cover_IVW,beta_cover_Raps
+)
+colnames(cover.result) = c("WMR","IVW","MRRAPs")
 
 
-select.ind = FindIV(fitted_rss)
+result = data.frame(
+  method = c("WMR","IVW","MRRAPs"),
+  bias = apply(mean.result,2,mean)-beta,
+  em_se = apply(mean.result,2,sd),
+  es_se = apply(se.result,2,mean),
+  cover = apply(cover.result,2,mean))
 
-Gamma = sumstats_Y$betahat[select.ind]
-var_Gamma = sumstats_Y$sebetahat[select.ind]^2
-gamma = sumstats_M$betahat[select.ind]
-var_gamma = sumstats_Y$sebetahat[select.ind]^2
+print(result)
 
-R.select= R[select.ind,select.ind]
-R_keep = R
+result <- rep(0,100)
+for(k in 2:100){
+  #result[k] = (k+1)*((2/3)^k-2*(1/3)^k)
+  #result[k] = (k+1)*(2*(1/3)^k)
+  #result[k] = ((2/3)^k-2*(1/3)^k)
+  result[k] = ()
+}
 
-
-R = R.select
-MR_weight_result = MRWeight(Gamma,var_Gamma,
-                gamma,var_gamma,R.select)
-
-
-raps_result <- mr.raps(data = data.frame(beta.exposure = gamma,
-                                         beta.outcome = Gamma,
-                                         se.exposure = sqrt(var_gamma),
-                                         se.outcome = sqrt(var_Gamma)),
-                       diagnostics = F)                       
-
-
-result = list(raps_result,IVW_c_result,MR_weight_result)
+result <- rep(0,100)
+for(k in 1:100){
+  #result[k] = (k+1)*((2/3)^k-2*(1/3)^k)
+  #result[k] = (k+1)*(2*(1/3)^k)
+  #result[k] = ((2/3)^k-2*(1/3)^k)
+  result[k] = (k+1)*(1/2)^k
+}
+sum(result)

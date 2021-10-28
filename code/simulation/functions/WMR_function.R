@@ -2,15 +2,7 @@ WMRFun = function(Gamma,se_Gamma,
                   alpha,se_alpha,
                   ldscore,R){
   #initial estimate of beta
-  profile.loglike <- function(beta) {
-    -(1/2) * sum((b_out - b_exp * beta)^2/(se_out^2 + se_exp^2 * 
-                                             beta^2))
-  }
-  bound <- quantile(abs(b_out/b_exp), 0.95, na.rm = TRUE) * 
-    2
-  beta.hat <- optimize(profile.loglike, bound * c(-1, 1), maximum = TRUE, 
-                       tol = .Machine$double.eps^0.5)$maximum
-  
+ 
   beta_est = as.numeric(crossprod(Gamma,alpha)/crossprod(alpha))
   
   #step two: estimate tau

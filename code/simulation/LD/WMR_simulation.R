@@ -22,7 +22,7 @@ beta_vec = c(1,0.5,0)
 pleo_vec  = c(1,0.5,0.25)
 n.snp = 1000
 beta = beta_vec[i1]
-N = 600
+N = 1000
 cau.pro = 0.2
 n.cau = as.integer(n.snp*cau.pro)
 h2_m = 0.4
@@ -147,7 +147,8 @@ for(k in 1:n.rep){
     return(result)
   }
   clump.snp = Myclumping(R,p_alpha)
-  select.id = clump.snp[clump.snp$p.select.ind.<=5E-08,1]
+  #select.id = clump.snp[clump.snp$p.select.ind.<=5E-08,1]
+  select.id = clump.snp[clump.snp$p.select.ind.<=1E-05,1]
   alpha_select =alpha[select.id]
   se_alpha_select = se_alpha[select.id]
   Gamma_select = Gamma[select.id]

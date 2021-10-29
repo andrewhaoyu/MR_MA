@@ -1,13 +1,13 @@
 setwd("/Users/zhangh24/GoogleDrive/MR_MA/")
 source("./code/simulation/LD/theme_publication.R")
-load("./result/simulation/LD/wmr_simu_result_com_indi.rdata")
+load("./result/simulation/LD/wmr_simu_result_com.rdata")
 beta_vec = round(c(sqrt(0.4),0.3,0),2)
 pleo_vec  = c(1,0.5,0.25)
 library(dplyr)
 library(ggplot2)
 for(i1 in 1:3){
   for(i2 in 1:3){
-    result.sub = result %>% filter(i1_vec==1&i2_vec==i2)
+    result.sub = result %>% filter(i1_vec==&i2_vec==i2)
     p1 = ggplot(result.sub,aes(x = i1_vec,y = bias,fill=method))+
       geom_bar(stat="identity",position=position_dodge())+
       theme_Publication()+
@@ -27,10 +27,19 @@ for(i1 in 1:3){
         geom_hline(yintercept = 0.95, col="red",linetype ="dashed")+
         ylab("Coverage")+
         ggtitle(paste0("Beta = ",beta_vec[i1],",overlap_plo = ",pleo_vec[i2]))
-      png(filename = paste0("bias_result_indi",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
+      p3 = ggplot(result.sub,aes(x = i1_vec, y = rmse, fill = method))+
+        geom_bar(stat="identity",position=position_dodge())+
+        # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
+        #               width=.2,
+        #               position=position_dodge(.9))+
+        theme_Publication()+
+        scale_fill_Publication()+
+        ylab("RMSE")+
+        ggtitle(paste0("Beta = ",beta_vec[i1],",overlap_plo = ",pleo_vec[i2]))
+      png(filename = paste0("./result/simulation/LD/bias_result",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
       print(p1)
       dev.off()
-      png(filename = paste0("cover_result_indi",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
+      png(filename = paste0("./result/simulation/LD/cover_result",i1,"_",i2,".png"),width = 12, height = 8, res=300,units  = "in")
       print(p2)
       dev.off()
       

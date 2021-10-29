@@ -23,7 +23,9 @@ for(i1 in 1:3){
       bias = apply(est,2,mean)-beta,
       em_se = apply(est,2,sd),
       es_se = apply(se_est,2,mean),
-      cover = apply(cover,2,mean))
+      cover = apply(cover,2,mean),
+      rmse = apply(est,2,function(x){sqrt(mean((x-beta)^2))})
+    )
     result$i1_vec = rep(i1,5)
     result$i2_vec = rep(i2,5)
     result.list[[temp]] = result

@@ -18,7 +18,7 @@ i3 = as.numeric(args[[3]])
 print(c(i1,i2,i3))
 setwd("/data/zhangh24/MR_MA/")
 source("./code/simulation/functions/WMR_function.R")
-beta_vec = c(sqrt(0.4),0.3,0)
+beta_vec = c(1,0.5,0)
 pleo_vec  = c(1,0.5,0.25)
 n.snp = 500
 beta = beta_vec[i1]
@@ -28,7 +28,7 @@ n.cau = as.integer(n.snp*cau.pro)
 h2_m = 0.4
 h2_y = 0.4
 sigma_alpha = h2_m/n.cau
-sigma_theta = (h2_y-beta^2)/n.cau
+sigma_theta = (h2_y-beta^2*h2_m)/n.cau
 alpha_u = 0.547
 sigma_error_m = 1-h2_m-alpha_u^2
 beta_u = 0.547

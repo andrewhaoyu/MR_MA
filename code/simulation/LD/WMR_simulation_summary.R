@@ -1,6 +1,6 @@
 setwd("/data/zhangh24/MR_MA/")
 library(data.table)
-beta_vec = c(sqrt(0.4),0.3,0)
+beta_vec = c(1,0.5,0)
 result.list = list()
 temp = 1
 for(i1 in 1:3){

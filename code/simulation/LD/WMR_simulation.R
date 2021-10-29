@@ -68,7 +68,7 @@ ldscore = rep(sum(R[2:15,]^2),n.snp)
 
 #G1 to obtain sum data for Y
 #G2 to obtain sum data for M
-n.rep = 25
+n.rep = 100
 beta_est = rep(0,n.rep)
 beta_cover = rep(0,n.rep)
 beta_se = rep(0,n.rep)

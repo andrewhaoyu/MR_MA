@@ -9,7 +9,7 @@ for(i1 in 1:3){
     se.list = list()
     cover.list = list()
     for(i3 in 1:40){
-      load(paste0("./result/simulation/LD_simulation_test/result_indi",i1,"_",i2,"_",i3,".rdata"))
+      load(paste0("./result/simulation/LD_simulation_test/result_",i1,"_",i2,"_",i3,".rdata"))
       mean.list[[i3]] = result[[1]]
       se.list[[i3]] = result[[2]]
       cover.list[[i3]] = result[[3]]

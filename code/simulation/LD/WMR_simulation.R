@@ -20,9 +20,9 @@ setwd("/data/zhangh24/MR_MA/")
 source("./code/simulation/functions/WMR_function.R")
 beta_vec = c(1,0.5,0)
 pleo_vec  = c(1,0.5,0.25)
-n.snp = 500
+n.snp = 1000
 beta = beta_vec[i1]
-N = 60000
+N = 600
 cau.pro = 0.2
 n.cau = as.integer(n.snp*cau.pro)
 h2_m = 0.4
@@ -250,4 +250,4 @@ colnames(cover.result) = c("WMR","IVW","MR-Egger","MR-median","MRRAPs")
 
 result = list(mean.result,se.result,cover.result)
 
-save(result,file = paste0("./result/simulation/LD_simulation_test/result_",i1,"_",i2,"_",i3,".rdata"))
+save(result,file = paste0("./result/simulation/LD_simulation_test/result_np",i1,"_",i2,"_",i3,".rdata"))

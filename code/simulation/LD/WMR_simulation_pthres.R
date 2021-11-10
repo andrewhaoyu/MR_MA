@@ -1,0 +1,156 @@
+#Goal: Simulate data with realistic LD information
+#Y = M\beta + G\theta + U\beta_u + error_y
+#M = G\alpha + U\alpha_U + error_m
+#h2_y  = var(\beta G\alpha+G\theta) = 0.4
+#h2_m = var(\alphaG) = 0.4
+#var(error_m+U\alpha_U) = 0.6
+#var(error_y+U\beta_U) = 0.6
+#causal SNPs proportion for M: 0.1, 0.01
+#overlapping between pleotripic and non pleotropic 1, 0.5, 0.75
+#i1 for beta
+#i2 for different sample size
+#i3 for rep
+args = commandArgs(trailingOnly = T)
+i1 = as.numeric(args[[1]])
+i2 = as.numeric(args[[2]])
+i3 = as.numeric(args[[3]])
+
+print(c(i1,i2,i3))
+setwd("/data/zhangh24/MR_MA/")
+source("./code/simulation/functions/WMR_function.R")
+beta_vec = c(1,0.5,0)
+pleo_vec  = c(1,0.5,0.25)
+
+beta = beta_vec[i1]
+n.snp = 1000
+N = 2000
+cau.pro = 0.2
+n.cau = as.integer(n.snp*cau.pro)
+h2_m = 0.4
+h2_y = 0.4
+sigma_alpha = h2_m/n.cau
+sigma_theta = (h2_y-beta^2*h2_m)/n.cau
+alpha_u = 0.547
+sigma_error_m = 1-h2_m-alpha_u^2
+beta_u = 0.547
+sigma_error_y = 1-h2_y-beta_u^2
+
+set.seed(123)
+idx.cau_m = sample(c(1:n.snp),n.cau)
+#plotropic settings
+pleosnp.pro = 1
+n.cau.overlap = as.integer(pleosnp.pro*n.cau)
+n.cau.specific = n.cau - n.cau.overlap
+#pleotrpic snps proportion the same as causal snps
+idx.cau_pleo = c(sample(idx.cau_m,n.cau.overlap),
+                 sample(setdiff(c(1:n.cau),idx.cau_m),n.cau-n.cau.overlap))
+
+alpha_G = rnorm(n.cau,mean = 0,sd = sqrt(sigma_alpha))
+theta_G = rnorm(n.cau,mean = 0, sd = sqrt(sigma_theta))
+ar1_cor <- function(n, rho) {
+  exponent <- abs(matrix(1:n - 1, nrow = n, ncol = n, byrow = TRUE) - 
+                    (1:n - 1))
+  rho^exponent
+}
+library(mr.raps)
+library(Rfast)
+library(MASS)
+library(MESS)
+R =ar1_cor(n.snp,0.5)
+G1 = rmvnorm(N,mu = rep(0,n.snp),R)
+G2 = rmvnorm(N,mu = rep(0,n.snp),R)
+U1 = rnorm(N)
+U2 = rnorm(N)
+G1.cau = G1[,idx.cau_m]
+G2.cau = G2[,idx.cau_m]
+G1.pleo = G1[,idx.cau_pleo]
+G2.pleo = G2[,idx.cau_pleo]
+ldscore = rep(sum(R[2:15,]^2),n.snp)
+
+#G1 to obtain sum data for Y
+#G2 to obtain sum data for M
+n.rep = 100
+pthres = c(1,0.1,0.01,1E-03,1E-4,1E-05)
+n_pthres = length(pthres)
+beta_est = matrix(0,n.rep,n_pthres)
+beta_cover = matrix(0,n.rep,n_pthres)
+beta_se = matrix(0,n.rep,n_pthres)
+
+
+library(MendelianRandomization)
+library(susieR)
+cor.error = 0.25
+sigma_error_m  = 0.6
+sigma_error_y = 0.6
+cov_my = sqrt(sigma_error_m*sigma_error_y)*cor.error
+Sigma = matrix(c(sigma_error_m,cov_my,cov_my,sigma_error_y),2,2)
+
+for(k in 1:n.rep){
+  print(k)
+  error = mvrnorm(N,mu = c(0,0), Sigma =Sigma)
+  error_m = error[,1]
+  error_y = error[,2]
+  # M1 = G1.cau%*%alpha_G+U1*alpha_u+error_m
+  # Y1 = M1%*%beta + G1.pleo%*%theta_G+U1*beta_u + error_y
+  M1 = G1.cau%*%alpha_G+error_m
+  Y1 = M1%*%beta + error_y
+  error_m = rnorm(N,sd = sqrt(sigma_error_m))
+  M2 = G2.cau%*%alpha_G+error_m
+  
+  
+  sumstats <- univariate_regression(G1, Y1)
+  
+  Gamma = sumstats$betahat
+  se_Gamma = sumstats$sebetahat
+  
+  sumstats <- univariate_regression(G2, M2)
+  alpha = sumstats$betahat
+  se_alpha = sumstats$sebetahat
+  p_alpha = 2*pnorm(-abs(alpha/se_alpha),lower.tail = T)
+  
+  for(i_p in 1:n_pthres){
+    print(i_p)
+    select.id = which(p_alpha<=pthres[i_p])
+    alpha_select =alpha[select.id]
+    se_alpha_select = se_alpha[select.id]
+    Gamma_select = Gamma[select.id]
+    se_Gamma_select = se_Gamma[select.id]
+    ldscore_select = ldscore[select.id]
+    R_select = R[select.id,select.id]
+    
+    MR_result <- WMRFun(Gamma_select,se_Gamma_select,
+                        alpha_select,se_alpha_select,
+                        ldscore_select,R_select)
+    # MRWeight(Gamma = sumGamma,
+    #                     var_Gamma = var_Gamma,
+    #                     alpha = sumalpha,
+    #                     var_alpha = var_alpha,
+    #                     R = R)
+    beta_est[k,i_p] = MR_result[1]
+    beta_cover[k,i_p] = ifelse(MR_result[3]<=beta&MR_result[4]>=beta,1,0)
+    beta_se[k,i_p] = MR_result[2]
+  }
+
+  
+  
+  
+}
+
+mean.result = data.frame(
+  beta_est
+)
+colnames(mean.result) = pthres
+
+se.result = data.frame(
+  beta_se
+)
+colnames(se.result) = pthres
+
+cover.result = data.frame(
+  beta_cover
+)
+colnames(cover.result) = pthres
+
+result = list(mean.result,se.result,cover.result)
+#np represent small sample size large p
+save(result,file = paste0("./result/simulation/LD_simulation_test/result_phtres_np",i1,"_",i2,"_",i3,".rdata"))

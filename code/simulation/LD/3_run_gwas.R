@@ -4,7 +4,7 @@ args = commandArgs(trailingOnly = T)
 i = as.numeric(args[[1]])
 l = as.numeric(args[[2]])
 #i1 represent the sub id, split 100 replciates into 10
-i1 = as.numeric(args[[2]])
+i1 = as.numeric(args[[3]])
 j = 22
 num = 10
 library(dplyr)

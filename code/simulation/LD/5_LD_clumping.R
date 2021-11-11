@@ -2,16 +2,16 @@ args = commandArgs(trailingOnly = T)
 i = as.numeric(args[[1]])
 l = as.numeric(args[[2]])
 #i1 represent the sub id, split 100 replciates into 10
-i1 = as.numeric(args[[3]])
+# i1 = as.numeric(args[[3]])
 j = 22
-num = 10
+num = 1
 library(dplyr)
 library(bc2)
 library(data.table)
 n.rep = n_rep = 100
-start.end = startend(n.rep,num,i1)
-start = start.end[1]
-end = start.end[2]
+#start.end = startend(n.rep,num,i1)
+start = 1
+end = 100
 #load the phenotpypes data and use plink to run
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 sid<-Sys.getenv('SLURM_JOB_ID')

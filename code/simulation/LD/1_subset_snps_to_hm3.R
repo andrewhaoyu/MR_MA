@@ -1,4 +1,4 @@
-#goal subset the SNPs data to mega list
+#goal subset the SNPs data to hm3 list
 i =1
 j = 22
 library(data.table)
@@ -50,3 +50,16 @@ cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 system(paste0("mv ",temp.dir,"/chr",j,".hm3.bed ",cur.dir,"chr",j,".hm3.bed"))
 system(paste0("mv ",temp.dir,"/chr",j,".hm3.bim ",cur.dir,"chr",j,".hm3.bim"))
 system(paste0("mv ",temp.dir,"/chr",j,".hm3.fam ",cur.dir,"chr",j,".hm3.fam"))
+
+
+
+
+#subset 3000 people for clumping purpose
+setwd("/data/zhangh24/MR_MA/result/LD")
+cur.dir = "/data/zhangh24/MR_MA/result/LD/"
+j = 22
+all.fam <- as.data.frame(fread(paste0("chr",j,".hm3.fam")))
+idx <- sample(c(1:12000),3000)
+sub.fam <- all.fam[idx,]
+write.table(sub.fam,file = paste0("sub_fam.txt"),row.names = F,col.names = F,quote=F)
+res = system(paste0("/data/zhangh24/software/plink2 --bfile ",cur.dir,"chr",j,".hm3  --out ",cur.dir,"chr",j,".sub.hm3 --make-bed --keep ",cur.dir,"sub_fam.txt"))

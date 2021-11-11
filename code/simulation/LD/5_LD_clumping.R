@@ -30,11 +30,11 @@ for(i_rep in  start:end){
   sum.data.sub = sum.data.m[,c(1:6,6+(i_rep-1)*3+c(1:3))]
   colnames(sum.data.sub)[7:9] =  c("BETA","STAT","P")
  
-  write.table(sum.data.sub,file =paste0(temp.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_rep_",i_rep),col.names = T,row.names = F,quote=F)
+ write.table(sum.data.sub,file =paste0(temp.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_rep_",i_rep),col.names = T,row.names = F,quote=F)
  
-  res = system(paste0("/data/zhangh24/software/plink2 --threads 2 --bfile ",temp.dir,"chr",j,".hm3 --clump ",temp.dir,"m_summary_chr_",j,"_rho_",l,"_rep_",i_rep," --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out ",temp.dir,"LD_chr_",j,"_rho_",l,"_rep_",i_rep))
-  clump.result = as.data.frame(fread(paste0(temp.dir,"LD_chr_",j,"_rho_",l,"_rep_",i_rep,".clumped")))
+  res = system(paste0("/data/zhangh24/software/plink2 --threads 2 --bfile ",temp.dir,"chr",j,".sub.hm3 --clump ",temp.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_rep_",i_rep," --clump-p1 ",pthr," --clump-r2 ",r2thr,"  --clump-kb ",kbpthr," --out ",temp.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_rep_",i_rep))
+  clump.result = as.data.frame(fread(paste0(temp.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_rep_",i_rep,".clumped")))
   clump.snp = clump.result[,3,drop=F]
-  write.table(clump.snp,file = paste0(cur.dir,"LD_chr_",j,"_rho_",l,"_rep_",i_rep,".clumped"),row.names = F,col.names = T,quote=F)
+  write.table(clump.snp,file = paste0(cur.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_rep_",i_rep,".clumped"),row.names = F,col.names = T,quote=F)
 }
   

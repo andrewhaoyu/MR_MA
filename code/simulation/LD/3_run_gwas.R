@@ -1,5 +1,8 @@
 args = commandArgs(trailingOnly = T)
-l = as.numeric(args[[1]])
+#i represent the beta vector
+#l represent the causal SNPs proportion
+i = as.numeric(args[[1]])
+l = as.numeric(args[[2]])
 #i1 represent the sub id, split 100 replciates into 10
 i1 = as.numeric(args[[2]])
 j = 22
@@ -21,7 +24,7 @@ end = start.end[2]
   system(paste0("cp ", cur.dir,"chr",j,".hm3.bim /lscratch/",sid,"/test/chr",j,".hm3.bim"))
   system(paste0("cp ", cur.dir,"chr",j,".hm3.fam /lscratch/",sid,"/test/chr",j,".hm3.fam"))
   
-  pheno_y = as.data.frame(fread(paste0(cur.dir,"y_pheno_plink_rho_",l,".phen")))
+  pheno_y = as.data.frame(fread(paste0(cur.dir,"y_pheno_plink_beta_",i,"_rho_",l,".phen")))
   
   pheno_y_sub = pheno_y[,c(1:2,(2+start):(2+end))]
   write.table(pheno_y_sub,file = paste0(temp.dir,"pheno_y_sub_",i1,".phen"),row.names = F,col.names =F,quote=F )
@@ -40,11 +43,11 @@ end = start.end[2]
   }
   effect = bind_cols(sum.data.list)
   sum.data = cbind(sum.data.infor,effect)
-  write.table(sum.data,file = paste0(cur.dir,"y_summary_chr_",j,"_rho_",l,"_sub_",i1),row.names = F,col.names = T,quote=F)
+  write.table(sum.data,file = paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_sub_",i1),row.names = F,col.names = T,quote=F)
   
   #system(paste0('rm -rf /lscratch/',sid,'/test/y_summary_chr_*'))
   
-  pheno_m= as.data.frame(fread(paste0(cur.dir,"m_pheno_plink_rho_",l,".phen")))
+  pheno_m= as.data.frame(fread(paste0(cur.dir,"m_pheno_plink_beta_",i,"_rho_",l,".phen")))
   pheno_m_sub = pheno_m[,c(1:2,(2+start):(2+end))]
   write.table(pheno_m_sub,file = paste0(temp.dir,"pheno_m_sub_",i1,".phen"),row.names = F,col.names =F,quote=F )
   # G_temp  = G[,idx[1]]
@@ -69,7 +72,7 @@ end = start.end[2]
   }
   effect = bind_cols(sum.data.list)
   sum.data = cbind(sum.data.infor,effect)
-  write.table(sum.data,file = paste0(cur.dir,"m_summary_chr_",j,"_rho_",l,"_sub_",i1),row.names = F,col.names = T,quote=F)
+  write.table(sum.data,file = paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_sub_",i1),row.names = F,col.names = T,quote=F)
   
   
   

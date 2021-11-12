@@ -57,7 +57,7 @@ end = start.end[2]
   # summary(lm(pheno_m_sub[,3]~G_temp))
   # 
   
-  res <- system(paste0("/data/zhangh24/software/plink2 --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"m_summary_chr_",j,"_rho_",l,".out --linear --all-pheno --allow-no-sex --pheno ",temp.dir,"pheno_m_sub_",i1,".phen"))
+  res <- system(paste0("/data/zhangh24/software/plink2_alpha --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"m_summary_chr_",j,"_rho_",l,".out --linear --all-pheno --allow-no-sex --pheno ",temp.dir,"pheno_m_sub_",i1,".phen"))
   if(res==2){
     stop()
   }

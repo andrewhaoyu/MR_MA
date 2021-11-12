@@ -1,15 +1,11 @@
 WMRFun = function(Gamma,se_Gamma,
                   alpha,se_alpha,
                   ldscore,R,MAF){
-  
-  alpha = alpha*sqrt(2*MAF(1-MAF))
-  se_alpha=  se_alpha*sqrt(2*MAF(1-MAF))
-  Gamma = Gamma*sqrt(2*MAF(1-MAF))
-  se_Gamma = se_Gamma*sqrt(2*MAF(1-MAF))
-  
-  
   #initial estimate of beta
-  
+  alpha = alpha*sqrt(2*MAF*(1-MAF))
+  se_alpha=  se_alpha*sqrt(2*MAF*(1-MAF))
+  Gamma = Gamma*sqrt(2*MAF*(1-MAF))
+  se_Gamma = se_Gamma*sqrt(2*MAF*(1-MAF))
   beta_est = as.numeric(crossprod(Gamma,alpha)/crossprod(alpha))
   
   #step two: estimate tau
@@ -22,18 +18,14 @@ WMRFun = function(Gamma,se_Gamma,
   
   
   #step three: estimate beta 
-  W_inv = GetWtauMat(Gamma,se_Gamma,
+  W = GetWtauMat(Gamma,se_Gamma,
                  alpha,se_alpha,
                  ldscore,tau_est,beta_est,R)
-  alphaw_inv = t(solve(W_inv,alpha))
-  awa = alphaw_inv%*%alpha
-    
-    #quadform(x= as.matrix(alpha),M = W)
+  awa = quadform(x= as.matrix(alpha),M = W)
   beta_est = awa^-1*
-    crossprod(alphaw_inv,Gamma)
+    crossprod(t(crossprod(alpha,W)),Gamma)
   #beta_se = sqrt(awa)
- # beta_var= (awa-quadform(x= as.matrix(se_alpha),M = W*R))^-1
-  beta_var= (awa)^-1
+  beta_var= (awa-quadform(x= as.matrix(se_alpha),M = W*R))^-1
   beta_se = sqrt(beta_var)
   #beta_se = sqrt(awa-quadform(x= as.matrix(se_alpha),M = diag(diag(W)))
   # best_est = (alpha%*%W%*%Gamma)/(alpha%*%W%*%alpha)
@@ -49,8 +41,39 @@ GetWtauMat = function(Gamma,se_Gamma,
   #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
   W_inv = diag(se_Gamma+beta_est*se_alpha)%*%R%*%diag(se_Gamma+beta_est*se_alpha)
   +tau*diag(ldscore)
-  #W = solve(W_inv)
-  #W[abs(W)<=1E-06] = 0
-  return(W_inv)
+  W = solve(W_inv)
+  W[abs(W)<=1E-06] = 0
+  return(W)
+}
+
+#p_Gamma = 2*pnorm(-abs(Gamma/sqrt(var_Gamma)),lower.tail = T)
+Myclumping <- function(R,p){
+  n.snp = ncol(R)
+  
+  
+  #keep snps for clumpinp
+  keep.ind = c(1:n.snp)
+  #remove snps due to clumping
+  remove.ind  = NULL
+  #select snp ind
+  select.ind = NULL
+  temp = 1
+  while(length(keep.ind)>0){
+    # print(temp)
+    p.temp = p[keep.ind]
+    #select top snp
+    top.ind = which.min(p.temp)
+    select.ind = c(select.ind,keep.ind[top.ind])
+    #print(keep.ind[top.ind])
+    #tempory correlation
+    R.temp = R[keep.ind[top.ind],]
+    idx.remove = which(R.temp>=0.001)
+    #take out
+    remove.ind= c(remove.ind,idx.remove)
+    keep.ind = setdiff(keep.ind,remove.ind)
+    temp = temp+1
+  }
+  result = data.frame(select.ind,p[select.ind])
+  return(result)
 }
 

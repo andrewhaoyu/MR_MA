@@ -37,7 +37,10 @@ snp.infor.subset = inner_join(snp.infor,hm3.list,by="rs_id") %>%
 #save(snp.infor.subset,file = "/data/zhangh24/MR_MA/result/LD/chr22_snp_infor.rdata")
 write.table(snp.infor.subset,file = paste0(temp.dir,"extract_snp_list.txt"),row.names = F,col.names = F,quote=F)
 
-
+snp.infor.subset = inner_join(snp.infor,hm3.list,by="rs_id") %>% 
+  mutate(MAF = ifelse(EUR<0.5,EUR,1-EUR)) %>% 
+  select(SNP,rs_id,MAF)
+save(snp.infor.subset,file ="/data/zhangh24/MR_MA/result/LD/chr22_snp_infor.rdata")
 all.fam <- as.data.frame(fread(paste0(temp.dir,eth[i],"chr",j,".tag.fam")))
 sub.fam <- all.fam[1:120000,]
 write.table(sub.fam,file = paste0(temp.dir,"sub_fam.txt"),row.names = F,col.names = F,quote=F)

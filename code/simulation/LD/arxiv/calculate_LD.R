@@ -20,3 +20,6 @@ G.temp = G[,1:1000]
 
 load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
 save(G.temp,file = paste0(cur.dir,"example_G.rdata"))
+
+
+res <- system(paste0("/data/zhangh24/software/plink2 --threads 2 --bfile /data/zhangh24/MR_MA/result/LD/chr",j,".sub.hm3 --out ",cur.dir,"chr_",j,"_LD --r bin"))

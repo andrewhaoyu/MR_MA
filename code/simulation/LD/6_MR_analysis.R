@@ -10,6 +10,7 @@ library(MendelianRandomization)
 library(MRPRESSO)
 library(data.table)
 library(dplyr)
+library(MESS)
 
 l = 3
 temp = 1

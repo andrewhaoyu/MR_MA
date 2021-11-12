@@ -25,15 +25,16 @@ end = start.end[2]
   system(paste0("cp ", cur.dir,"chr",j,".hm3.fam /lscratch/",sid,"/test/chr",j,".hm3.fam"))
   
   pheno_y = as.data.frame(fread(paste0(cur.dir,"y_pheno_plink_beta_",i,"_rho_",l,".phen")))
-  
+  system("rm /lscratch/26650480/test/*glm.linear")
+  system("ls /lscratch/26650480/test/")
   pheno_y_sub = pheno_y[,c(1:2,(2+start):(2+end))]
   write.table(pheno_y_sub,file = paste0(temp.dir,"pheno_y_sub_",i1,".phen"),row.names = F,col.names =F,quote=F )
-  res <- system(paste0("/data/zhangh24/software/plink2 --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"y_summary_chr_",j,"_rho_",l,".out --linear --all-pheno --allow-no-sex --pheno ",temp.dir,"pheno_y_sub_",i1,".phen"))
+  res <- system(paste0("/data/zhangh24/software/plink2_alpha --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"y_summary_chr_",j,"_rho_",l,".out --glm omit-ref --pheno ",temp.dir,"pheno_y_sub_",i1,".phen"))
   if(res==2){
     stop()
   }
   i_rep = 1
-  sum.data = fread(paste0(temp.dir,"y_summary_chr_",j,"_rho_",l,".out.P",i_rep,".assoc.linear"))
+  sum.data = fread(paste0(temp.dir,"y_summary_chr_",j,"_rho_",l,".out.PHENO",i_rep,".glm.linear"))
   sum.data.infor = sum.data[,1:6]
   sum.data.list = list()
   for(i_rep in 1:(end-start+1)){
@@ -57,7 +58,7 @@ end = start.end[2]
   # summary(lm(pheno_m_sub[,3]~G_temp))
   # 
   
-  res <- system(paste0("/data/zhangh24/software/plink2_alpha --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"m_summary_chr_",j,"_rho_",l,".out --linear --all-pheno --allow-no-sex --pheno ",temp.dir,"pheno_m_sub_",i1,".phen"))
+  res <- system(paste0("/data/zhangh24/software/plink2 --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"m_summary_chr_",j,"_rho_",l,".out --linear --all-pheno --allow-no-sex --pheno ",temp.dir,"pheno_m_sub_",i1,".phen"))
   if(res==2){
     stop()
   }

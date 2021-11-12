@@ -2,6 +2,9 @@ setwd("/Users/zhangh24/GoogleDrive/MR_MA/")
 source("./code/simulation/LD/theme_publication.R")
 #this setting N = 60000 p =500 pthres = 5E-08
 load("./result/simulation/LD/MR_result_chr22.rdata")
+result.temp = result
+load("./result/simulation/LD/WMR_result_chr22_i14.rdata")
+result = rbind(result.temp,result)
 beta_vec = round(c(1,0.5,0),2)
 pleo_vec  = c(1,0.5,0.25)
 library(dplyr)

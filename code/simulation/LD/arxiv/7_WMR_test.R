@@ -19,6 +19,7 @@ library(Rfast)
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 l = 3
 #load LD score
+source("./code/simulation/functions/MR_function_temp.R")
 ldscore = fread("/data/zhangh24/MR_MA/data/eur_w_ld_chr/22.l2.ldscore.gz")
 ldscore = ldscore %>% 
   dplyr::select(SNP,L2)

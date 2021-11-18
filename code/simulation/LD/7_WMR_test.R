@@ -20,6 +20,7 @@ library(Rfast)
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 setwd("/data/zhangh24/MR_MA/")
 l = 3
+j = 22
 #load LD score
 source("./code/simulation/functions/MR_function_temp.R")
 ldscore = fread("/data/zhangh24/MR_MA/data/eur_w_ld_chr/22.l2.ldscore.gz")

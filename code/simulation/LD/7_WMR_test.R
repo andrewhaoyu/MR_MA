@@ -9,13 +9,13 @@
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
 #install_github('qingyuanzhao/mr.raps')
-library(mr.raps)
+
 library(MASS)
-library(MendelianRandomization)
-library(MRPRESSO)
+ library(MESS)
 library(data.table)
 library(dplyr)
 library(Rfast)
+
 
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 setwd("/data/zhangh24/MR_MA/")

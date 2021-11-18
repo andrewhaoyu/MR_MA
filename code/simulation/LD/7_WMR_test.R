@@ -1,4 +1,5 @@
  args = commandArgs(trailingOnly = T)
+ #i for beta vector
 # i = as.numeric(args[[1]])
 # l = as.numeric(args[[2]])
 #sub = as.numeric(args[[3]])
@@ -17,6 +18,7 @@ library(dplyr)
 library(Rfast)
 
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
+setwd("/data/zhangh24/MR_MA/")
 l = 3
 #load LD score
 source("./code/simulation/functions/MR_function_temp.R")
@@ -126,5 +128,5 @@ for(i in 1:3){
 }
 
 result = rbindlist(result.list)
-save(result,file =paste0(cur.dir,"WMR_result_chr22_i1",i1,".rdata"))
+save(result,file = paste0(cur.dir,"WMR_result_chr22_i1",i1,".rdata"))
 # }

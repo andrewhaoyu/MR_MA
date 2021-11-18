@@ -1,15 +1,19 @@
+library(dplyr)
+library(ggplot2)
+library(ggpubr)
+
 setwd("/Users/zhangh24/GoogleDrive/MR_MA/")
 source("./code/simulation/LD/theme_publication.R")
 #this setting N = 60000 p =500 pthres = 5E-08
 load("./result/simulation/LD/MR_result_chr22.rdata")
+
 result.temp = result
-load("./result/simulation/LD/WMR_result_chr22_i14.rdata")
+load("./result/simulation/LD/WMR_result_chr22_pthres.rdata")
+result = result %>% 
+  filter(method == "WMR (3e-06)")
 result = rbind(result.temp,result)
 beta_vec = round(c(1,0.5,0),2)
 pleo_vec  = c(1,0.5,0.25)
-library(dplyr)
-library(ggplot2)
-library(ggpubr)
 # for(i1 in 1:3){
 #   for(i2 in 1:3){
 result = result %>% 
@@ -20,10 +24,11 @@ result = result %>%
   beta_effect = factor(beta_effect,
                               levels = paste0(beta_vec^2*100,"% h2 of Y mediated by M"),
                               ),
-  )
+  ) %>% 
+  rename(Method=method)
   
 
-p3 = ggplot(result,aes(x = index, y = rmse, fill = method))+
+p3 = ggplot(result,aes(x = index, y = rmse, fill = Method))+
   geom_bar(stat="identity",position=position_dodge())+
   # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
   #               width=.2,
@@ -36,7 +41,7 @@ p3 = ggplot(result,aes(x = index, y = rmse, fill = method))+
   theme(axis.title.x=element_blank(),
                                                axis.text.x=element_blank(),
                                                axis.ticks.x=element_blank())
-             p1 = ggplot(result,aes(x = index,y = bias,fill=method))+
+             p1 = ggplot(result,aes(x = index,y = bias,fill=Method))+
                geom_bar(stat="identity",position=position_dodge())+
                theme_Publication()+
                scale_fill_Publication()+
@@ -48,7 +53,7 @@ p3 = ggplot(result,aes(x = index, y = rmse, fill = method))+
                theme(axis.title.x=element_blank(),
                      axis.text.x=element_blank(),
                      axis.ticks.x=element_blank())
-             p2 = ggplot(result,aes(x = index,y =  cover,fill=method))+
+             p2 = ggplot(result,aes(x = index,y =  cover,fill=Method))+
                geom_bar(stat="identity",position=position_dodge())+
                # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
                #               width=.2,

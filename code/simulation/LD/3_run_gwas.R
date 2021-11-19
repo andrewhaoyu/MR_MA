@@ -41,7 +41,7 @@ end = n_rep
   }
   effect = bind_cols(sum.data.list)
   sum.data = cbind(sum.data.infor,effect)
-  write.table(sum.data,file = paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_sub_",i1),row.names = F,col.names = T,quote=F)
+  write.table(sum.data,file = paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v),row.names = F,col.names = T,quote=F)
   
   #system(paste0('rm -rf /lscratch/',sid,'/test/y_summary_chr_*'))
   

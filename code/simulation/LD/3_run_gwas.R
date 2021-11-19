@@ -5,17 +5,14 @@ args = commandArgs(trailingOnly = T)
 i = as.numeric(args[[1]])
 l = as.numeric(args[[2]])
 v = as.numeric(args[[3]])
-#i1 represent the sub id, split 100 replciates into 10
-i1 = as.numeric(args[[4]])
 j = 22
-num = 10
 library(dplyr)
 library(bc2)
 library(data.table)
 n.rep = n_rep = 100
-start.end = startend(n.rep,num,i1)
-start = start.end[1]
-end = start.end[2]
+
+start = 1
+end = n_rep
 #load the phenotpypes data and use plink to run
   cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 
@@ -74,7 +71,7 @@ end = start.end[2]
   }
   effect = bind_cols(sum.data.list)
   sum.data = cbind(sum.data.infor,effect)
-  write.table(sum.data,file = paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_sub_",i1),row.names = F,col.names = T,quote=F)
+  write.table(sum.data,file = paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v),row.names = F,col.names = T,quote=F)
   
   
   

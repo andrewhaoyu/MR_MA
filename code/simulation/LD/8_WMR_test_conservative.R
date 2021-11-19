@@ -22,7 +22,7 @@ setwd("/data/zhangh24/MR_MA/")
 l = 3
 j = 22
 #load LD score
-source("./code/simulation/functions/MR_function_temp.R")
+source("./code/simulation/functions/MR_function_test.R")
 ldscore = fread("/data/zhangh24/MR_MA/data/eur_w_ld_chr/22.l2.ldscore.gz")
 ldscore = ldscore %>% 
   dplyr::select(SNP,L2)

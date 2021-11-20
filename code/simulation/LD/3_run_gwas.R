@@ -27,6 +27,8 @@ end = n_rep
   pheno_y_sub = pheno_y[,c(1:2,(2+start):(2+end))]
   write.table(pheno_y_sub,file = paste0(temp.dir,"pheno_y_sub.phen"),row.names = F,col.names =F,quote=F )
   res <- system(paste0("/data/zhangh24/software/plink2_alpha --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"y_summary.out --glm omit-ref --pheno ",temp.dir,"pheno_y_sub.phen"))
+  # res <- system(paste0("/data/zhangh24/software/plink2 --threads 2 --bfile /lscratch/",sid,"/test/chr",j,".hm3 --out ",temp.dir,"y_summary.out --linear --all-pheno --allow-no-sex --pheno ",temp.dir,"pheno_y_sub.phen"))
+  # temp = fread("/lscratch/27137789/test/y_summary.out.P1.assoc.linear")
   if(res==2){
     stop()
   }

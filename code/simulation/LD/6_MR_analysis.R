@@ -1,6 +1,6 @@
-# args = commandArgs(trailingOnly = T)
-# i = as.numeric(args[[1]])
-# l = as.numeric(args[[2]])
+args = commandArgs(trailingOnly = T)
+i = as.numeric(args[[1]])
+l = as.numeric(args[[2]])
 #sub = as.numeric(args[[3]])
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
@@ -12,13 +12,11 @@ library(data.table)
 library(dplyr)
 library(MESS)
 
-l = 3
-v = 1
 
 temp = 1
 result.list = list()
-for(l in 1:3){
-  for(v in 1:3){
+# for(l in 1:3){
+#   for(v in 1:3){
     for(i in 1:2){
       beta_vec = c(0,0.2)
       beta = beta_vec[i]
@@ -50,8 +48,8 @@ for(l in 1:3){
         sum.data.match.m = left_join(LD.snp,sum.data.m,by=c("SNP"="ID"))
         p = sum.data.match.m[,(6+3*i_rep)]
         
-        idx = which(p<=0.05/nrow(sum.data.m))
-        #idx = which(p<=5E-08)
+        #idx = which(p<=0.05/nrow(sum.data.m))
+        idx = which(p<=5E-08)
         if(length(idx)>3){
           sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
           Gamma = sum.data.match.y[,(6+3*i_rep-2)]
@@ -80,16 +78,7 @@ for(l in 1:3){
                               distribution =
                                 "normal",
                               alpha = 0.05)
-          IVWObject <- mr_ivw(MRInputObject,
-                              model = "default",
-                              robust = FALSE,
-                              penalized = FALSE,
-                              correl = FALSE,
-                              weights = "simple",
-                              psi = 0,
-                              distribution =
-                                "normal",
-                              alpha = 0.05)
+      
           
           beta_est_IVW[i_rep] = IVWObject$Estimate
           beta_cover_IVW[i_rep] = ifelse(IVWObject$CILower<=beta&
@@ -186,10 +175,10 @@ for(l in 1:3){
       
     }
     
-  }
-}
+#   }
+# }
   
  
 result = rbindlist(result.list)
-save(result,file =paste0(cur.dir,"MR_result_chr22.rdata"))
+save(result,file =paste0(cur.dir,"MR_result_chr22_beta_",i,"_cau_",l,".rdata"))
 

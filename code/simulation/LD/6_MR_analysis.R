@@ -1,6 +1,7 @@
 args = commandArgs(trailingOnly = T)
-i = as.numeric(args[[1]])
-l = as.numeric(args[[2]])
+l = as.numeric(args[[1]])
+v = as.numeric(args[[2]])
+i = as.numeric(args[[3]])
 #sub = as.numeric(args[[3]])
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
@@ -17,7 +18,7 @@ temp = 1
 result.list = list()
 # for(l in 1:3){
 #   for(v in 1:3){
-    for(i in 1:2){
+   # for(i in 1:2){
       beta_vec = c(0,0.2)
       beta = beta_vec[i]
       #   for(sub in 1:10){
@@ -170,15 +171,15 @@ result.list = list()
       result$i_vec = rep(i,length(method))
       result$l_vec = rep(l,length(method))
       result$v_vec = rep(v,length(method))
-      result.list[[temp]] = result
-      temp = temp + 1
-      
-    }
+      # result.list[[temp]] = result
+      # temp = temp + 1
+      # 
+    #}
     
 #   }
 # }
   
  
-result = rbindlist(result.list)
-save(result,file =paste0(cur.dir,"MR_result_chr22_beta_",i,"_cau_",l,".rdata"))
+#result = rbindlist(result.list)
+save(result,file =paste0(cur.dir,"MR_result_chr22_beta_",i,"_rho_",l,"_ple_",v,".rdata"))
 

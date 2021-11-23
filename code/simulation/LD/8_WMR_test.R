@@ -69,9 +69,9 @@ for(i in 1:2){
     #if(length(idx)>3){
       sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
       Gamma = sum.data.match.y[,(6+3*i_rep-2)]
-      se_Gamma = (as.numeric(sum.data.match.y[,(6+3*i_rep-2)])/as.numeric(sum.data.match.y[,(6+3*i_rep-1)]))
+      se_Gamma = as.numeric(sum.data.match.y[,(6+3*i_rep-1)])
       alpha = as.numeric(sum.data.match.m[,(6+3*i_rep-2)])
-      se_alpha = (as.numeric(sum.data.match.m[,(6+3*i_rep-2)])/as.numeric(sum.data.match.m[,(6+3*i_rep-1)]))
+      se_alpha = as.numeric(sum.data.match.m[,(6+3*i_rep-1)])
       MAF = sum.data.m[,"MAF"]
       SNP.select = sum.data.match.m$SNP[idx]
       idx.match = match(SNP.select,sum.data.m$ID)

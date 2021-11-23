@@ -42,7 +42,7 @@ GetWtauMat = function(Gamma,se_Gamma,
                       ldscore,tau,beta_est,R){
   #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
   W_inv = diag(se_Gamma)%*%R%*%diag(se_Gamma)+
-    diag(beta_est*se_alpha)%*%R%*%diag(beta_est*se_alpha)
+    beta_est^2+diag(se_alpha)%*%R%*%diag(se_alpha)
   
   #W_inv = (se_Gamma+beta_est*se_alpha)%*%(se_Gamma+beta_est*se_alpha)
   #+tau*diag(ldscore)

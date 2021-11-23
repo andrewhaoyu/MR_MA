@@ -60,7 +60,7 @@ for(i in 1:2){
     
     #idx = which(p<=pthres[i1])
     #idx = c(1,3,5)
-    idx = which(p<=5E-08)
+    idx = phtres[i1]
     #idx = 1
     #if(length(idx)>3){
     sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
@@ -95,7 +95,7 @@ for(i in 1:2){
     
   }
   
-  method = c("WMR")
+  method = paste0("WMR (p<",pthres[i3],")")
   
   mean.result = data.frame(
     beta_est
@@ -122,6 +122,8 @@ for(i in 1:2){
   )
   print(result)
   result$i_vec = rep(i,length(method))
+  result$l_vec = rep(l,length(method))
+  result$v_vec = rep(v,length(method))
   result.list[[temp]] = result
   temp = temp + 1
   

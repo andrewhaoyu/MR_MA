@@ -8,16 +8,14 @@ result.list = list()
 temp = 1
 pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
 n_pthres = length(pthres)
-for(i1 in 1:3){
-  for(i2 in 1:3){
+for(l in 1:3){
+  for(v in 1:1){
     mean.list = list()
     se.list = list()
     cover.list = list()
-    for(i3 in 1:40){
-      load(paste0("./result/simulation/LD_simulation_test/result_phtres_np",i1,"_",i2,"_",i3,".rdata"))
-      mean.list[[i3]] = result[[1]]
-      se.list[[i3]] = result[[2]]
-      cover.list[[i3]] = result[[3]]
+    for(i1 in 1:length(pthres)){
+      load(paste0("./result/simulation/LD_simulation_test/result_phtres_noLD",l,"_",v,"_",i1,".rdata"))
+      
     }
     beta=beta_vec[i1]
     est = rbindlist(mean.list)

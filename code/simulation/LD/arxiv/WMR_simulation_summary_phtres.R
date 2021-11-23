@@ -3,10 +3,10 @@
 # load(paste0("./result/simulation/LD_simulation_test/result",i1,"_",i2,"_",i3,".rdata")) represent N 60000 p 500 p_threshold 5E-08
 setwd("/data/zhangh24/MR_MA/")
 library(data.table)
-beta_vec = c(1,0.5,0)
+beta_vec = c(0,0.2)
 result.list = list()
 temp = 1
-pthres = c(1,0.1,0.01,1E-03,1E-4,1E-05)
+pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
 n_pthres = length(pthres)
 for(i1 in 1:3){
   for(i2 in 1:3){

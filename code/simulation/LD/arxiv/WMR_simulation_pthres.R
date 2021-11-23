@@ -128,5 +128,5 @@ for(i in 1:2){
 }
 
 result = rbindlist(result.list)
-save(result,file = paste0(cur.dir,"WMR_result_chr22_i1",i1,".rdata"))
+save(result,file = paste0("./result/simulation/LD_simulation_test/result_phtres_noLD",l,"_",v,"_",i1,".rdata"))
 # }

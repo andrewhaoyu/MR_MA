@@ -7,9 +7,9 @@ source("./code/simulation/LD/theme_publication.R")
 #this setting N = 60000 p =500 pthres = 5E-08
 load("./result/simulation/LD/MR_result_chr22.rdata")
 result %>% filter(v_vec==1&
-                    i_vec==2&method=="MRRAPs")
+                    i_vec==1&method=="MRRAPs")
 result %>% filter(v_vec==1&
-                    i_vec==2&method=="IVW")
+                    i_vec==1&method=="IVW")
 
 # 
 # result.temp = result
@@ -23,26 +23,26 @@ cau_vec = c(0.05,0.01,0.001)
 # for(i1 in 1:3){
 #   for(i2 in 1:3){
 result = result %>% 
-  mutate(pleo_effect = case_when(v_vec ==1 ~ paste0("No Pleiotropic Effect"),
-                                 v_vec==2 ~paste0(pleo_vec[2]*100,"% SNPs have Pleiotropic effect"),
-                                 v_vec==3 ~paste0(pleo_vec[3]*100,"% SNPs have Pleiotropic effect")),
+  mutate(pleo_effect = case_when(v_vec ==1 ~ paste0("No pleiotropic effect"),
+                                 v_vec==2 ~paste0("Mild pleiotropic effect"),
+                                 v_vec==3 ~paste0("High pleiotropic effect")),
          cau_pro = case_when(l_vec ==1 ~ paste0(cau_vec[1]*100,"% causal SNPs"),
                              l_vec ==2 ~ paste0(cau_vec[2]*100,"% causal SNPs"),
                              l_vec ==3 ~ paste0(cau_vec[3]*100,"% causal SNPs")),
          index = 1) %>% 
   #rename(Method = method) %>% 
   mutate(pleo_effect = factor(pleo_effect,
-                                  levels = c("No Pleiotropic Effect",paste0(
-                                                  pleo_vec[2:3]*100,"% SNPs have Pleiotropic effect")))) %>% 
-  filter(method!="MR-Egger")
+                                  levels = c("No pleiotropic effect","Mild pleiotropic effect","High pleiotropic effect"))) %>% 
+  filter(method!="MR-Egger") %>% 
+  rename(Method = method)
 
-
-p3 = ggplot(result,aes(x = index, y = rmse, fill = method))+
+result.sub = result %>% filter(i_vec==1)
+p3 = ggplot(result.sub,aes(x = index, y = rmse, fill = Method))+
   geom_bar(stat="identity",position=position_dodge())+
   # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
   #               width=.2,
   #               position=position_dodge(.9))+
-  facet_grid(vars(cau_pro),vars(pleo_effect))+
+  facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
   theme_Publication()+
   scale_fill_Publication()+
   ylab("RMSE")+
@@ -50,6 +50,8 @@ p3 = ggplot(result,aes(x = index, y = rmse, fill = method))+
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
+  
+print(p3)
 p1 = ggplot(result,aes(x = index,y = bias,fill=Method))+
   geom_bar(stat="identity",position=position_dodge())+
   theme_Publication()+

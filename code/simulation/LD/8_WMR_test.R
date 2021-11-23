@@ -19,7 +19,7 @@ library(Rfast)
 
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 setwd("/data/zhangh24/MR_MA/")
-l = 3
+# l = 3
 j = 22
 #load LD score
 source("./code/simulation/functions/MR_function_temp.R")
@@ -35,44 +35,45 @@ load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
 temp = 1
 result.list = list()
 
-for(i in 1:3){
-  beta_vec = c(1,0.5,0)
+i =1
+l = 1
+v = 1
+
+for(i in 1:2){
+  beta_vec = c(0,0.2)
   beta = beta_vec[i]
   #   for(sub in 1:10){
   setwd("/data/zhangh24/MR_MA/")
-  source("./code/simulation/functions/MR_function.R")
   cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
   j =22
-  sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l)))
-  sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l)))
-  
-  sum.data.m = left_join(sum.data.m,ldscore,by = c("SNP"))
+  sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
+  sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v))) 
+  sum.data.m = left_join(sum.data.m,ldscore,by = c("ID"="SNP"))
   n.snp = nrow(sum.data.m)
   n.rep = 100
   
-  n.rep = 100
   beta_est = rep(0,n.rep)
   beta_cover = rep(0,n.rep)
   beta_se = rep(0,n.rep)
-  pthres = c(0.05/nrow(sum.data.m),1E-05,5E-05,1E-04,5E-04,1E-03)
+  pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
   for(i_rep in  1:n.rep){
     
-    LD.snp = as.data.frame(fread(paste0(cur.dir,"StrongLD_chr_",j,"beta_",i,"_rho_",l,"_rep_",i_rep,".clumped")))
-    sum.data.match.m = left_join(LD.snp,sum.data.m)
+    LD.snp = as.data.frame(fread( paste0(cur.dir,"strongLD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,".clumped")))
+    sum.data.match.m = left_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
     p = sum.data.match.m[,(6+3*i_rep)]
     
    
     idx = which(p<=pthres[i1])
     #idx = which(p<=5E-08)
     #if(length(idx)>3){
-      sum.data.match.y = left_join(LD.snp,sum.data.y)
+      sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
       Gamma = sum.data.match.y[,(6+3*i_rep-2)]
       se_Gamma = (as.numeric(sum.data.match.y[,(6+3*i_rep-2)])/as.numeric(sum.data.match.y[,(6+3*i_rep-1)]))
       alpha = as.numeric(sum.data.match.m[,(6+3*i_rep-2)])
       se_alpha = (as.numeric(sum.data.match.m[,(6+3*i_rep-2)])/as.numeric(sum.data.match.m[,(6+3*i_rep-1)]))
       MAF = sum.data.m[,"MAF"]
       SNP.select = sum.data.match.m$SNP[idx]
-      idx.match = match(SNP.select,sum.data.m$SNP)
+      idx.match = match(SNP.select,sum.data.m$ID)
       
       alpha_select =alpha[idx]
       se_alpha_select = se_alpha[idx]

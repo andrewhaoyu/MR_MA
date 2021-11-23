@@ -39,6 +39,7 @@ i =1
 l = 1
 v = 1
 
+
 for(i in 1:2){
   beta_vec = c(0,0.2)
   beta = beta_vec[i]
@@ -58,7 +59,7 @@ for(i in 1:2){
   pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
   for(i_rep in  1:n.rep){
     
-    LD.snp = as.data.frame(fread( paste0(cur.dir,"strongLD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,".clumped")))
+    LD.snp = as.data.frame(fread( paste0(cur.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,".clumped")))
     sum.data.match.m = left_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
     p = sum.data.match.m[,(6+3*i_rep)]
     
@@ -123,6 +124,7 @@ for(i in 1:2){
     cover = apply(cover.result,2,function(x){mean(x,na.rm=T)}),
     rmse = apply(mean.result,2,function(x){sqrt(mean((x-beta)^2,na.rm=T))})
   )
+  print(result)
   result$i_vec = rep(i,length(method))
   result.list[[temp]] = result
   temp = temp + 1

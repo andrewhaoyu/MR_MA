@@ -64,8 +64,9 @@ for(i in 1:2){
     p = sum.data.match.m[,(6+3*i_rep)]
     
    
-    idx = which(p<=pthres[i1])
-    #idx = which(p<=5E-08)
+    #idx = which(p<=pthres[i1])
+    #idx = c(1,3,5)
+    idx = which(p<=5E-08)
     #if(length(idx)>3){
       sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
       Gamma = sum.data.match.y[,(6+3*i_rep-2)]

@@ -7,11 +7,11 @@ G   <- obj.bigSNP$genotypes
 CHR <- obj.bigSNP$map$chromosome
 POS <- obj.bigSNP$map$physical.pos
 
-idx <- which(POS=="40950781")
-jdx = which (POS=="41627543")
+
 
 cor(G[,idx],G[,jdx])
 sum(G[,idx])/(2*nrow(G))
+sum(G[,jdx])/(2*nrow(G))
 NCORES = 2
 n.sub = nrow(G)
 #POS2 <- snp_asGeneticPos(CHR, POS, dir = paste0(cur.dir), ncores = 2)

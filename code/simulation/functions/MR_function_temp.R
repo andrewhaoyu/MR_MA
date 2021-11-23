@@ -15,8 +15,6 @@ WMRFun = function(Gamma,se_Gamma,
   tau_est = coefficients(lm(chi_est~scale_ldscore-1))
   tau_est = ifelse(tau_est>0,tau_est,0)
   
-  
-  
   #step three: estimate beta 
   W = GetWtauMat(Gamma,se_Gamma,
                  alpha,se_alpha,
@@ -24,7 +22,10 @@ WMRFun = function(Gamma,se_Gamma,
   awa = quadform(x= as.matrix(alpha),M = W)
   beta_est = awa^-1*
     crossprod(t(crossprod(alpha,W)),Gamma)
-  beta_se = sqrt(awa)
+  
+  
+  
+  
   #beta_var= (awa-quadform(x= as.matrix(se_alpha),M = W*R))^-1
   beta_var= awa^-1
   beta_se = sqrt(beta_var)
@@ -41,9 +42,9 @@ GetWtauMat = function(Gamma,se_Gamma,
                       ldscore,tau,beta_est,R){
   #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
   W_inv = diag(se_Gamma+beta_est*se_alpha)%*%R%*%diag(se_Gamma+beta_est*se_alpha)
-  +tau*diag(ldscore)
+  #+tau*diag(ldscore)
   W = solve(W_inv)
-  W[abs(W)<=1E-06] = 0
+  #W[abs(W)<=1E-06] = 0
   return(W)
 }
 

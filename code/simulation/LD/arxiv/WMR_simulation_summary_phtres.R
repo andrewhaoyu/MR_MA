@@ -10,31 +10,18 @@ pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
 n_pthres = length(pthres)
 for(l in 1:3){
   for(v in 1:1){
-    mean.list = list()
-    se.list = list()
-    cover.list = list()
+
     for(i1 in 1:length(pthres)){
       load(paste0("./result/simulation/LD_simulation_test/result_phtres_noLD",l,"_",v,"_",i1,".rdata"))
-      
+      result.list[[temp]] = result  
+      temp = temp + 1
     }
-    beta=beta_vec[i1]
-    est = rbindlist(mean.list)
-    se_est = rbindlist(se.list)
-    cover = rbindlist(cover.list)
-    result = data.frame(
-      method = pthres,
-      bias = apply(est,2,mean)-beta,
-      em_se = apply(est,2,sd),
-      es_se = apply(se_est,2,mean),
-      cover = apply(cover,2,mean),
-      rmse = apply(est,2,function(x){sqrt(mean((x-beta)^2))})
-    )
-    result$i1_vec = rep(i1,n_pthres)
-    result$i2_vec = rep(i2,n_pthres)
-    result.list[[temp]] = result
-    temp = temp + 1
+   
+    
+    
   }
   
 }
 result = rbindlist(result.list)
-save(result,file = paste0("./result/simulation/LD_simulation_test/wmr_simu_result_com_np_pthres.rdata"))
+print(result)
+save(result,file = paste0("./result/simulation/LD_simulation_test/wmr_simu_result_noLD_pthres.rdata"))

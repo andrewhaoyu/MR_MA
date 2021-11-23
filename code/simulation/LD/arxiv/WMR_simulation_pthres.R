@@ -95,7 +95,7 @@ for(i in 1:2){
     
   }
   
-  method = paste0("WMR (p<",pthres[i3],")")
+  method = paste0("WMR (p<",pthres[i1],")")
   
   mean.result = data.frame(
     beta_est

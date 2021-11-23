@@ -60,7 +60,7 @@ for(i in 1:2){
     
     #idx = which(p<=pthres[i1])
     #idx = c(1,3,5)
-    idx = pthres[i1]
+    idx = which(p<=pthres[i1])
     #idx = 1
     #if(length(idx)>3){
     sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))

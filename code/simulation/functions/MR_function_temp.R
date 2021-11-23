@@ -26,7 +26,7 @@ WMRFun = function(Gamma,se_Gamma,
     crossprod(t(crossprod(alpha,W)),Gamma)
   beta_se = sqrt(awa)
   #beta_var= (awa-quadform(x= as.matrix(se_alpha),M = W*R))^-1
-  #beta_var= awa^-1
+  beta_var= awa^-1
   beta_se = sqrt(beta_var)
   #beta_se = sqrt(awa-quadform(x= as.matrix(se_alpha),M = diag(diag(W)))
   # best_est = (alpha%*%W%*%Gamma)/(alpha%*%W%*%alpha)

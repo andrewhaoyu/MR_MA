@@ -3,6 +3,7 @@ l = as.numeric(args[[1]])
 v = as.numeric(args[[2]])
 i1 = as.numeric(args[[3]])
 
+
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
 #install_github('qingyuanzhao/mr.raps')
@@ -53,8 +54,8 @@ for(i in 1:2){
   pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
   for(i_rep in  1:n.rep){
     
-    LD.snp = as.data.frame(fread( paste0(cur.dir,"strongLD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,".clumped")))
-    #LD.snp = as.data.frame(fread( paste0(cur.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,".clumped")))
+    #LD.snp = as.data.frame(fread( paste0(cur.dir,"strongLD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,".clumped")))
+    LD.snp = as.data.frame(fread( paste0(cur.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,".clumped")))
     sum.data.match.m = left_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
     p = sum.data.match.m[,(6+3*i_rep)]
     
@@ -131,5 +132,6 @@ for(i in 1:2){
 }
 
 result = rbindlist(result.list)
-save(result,file = paste0("./result/simulation/LD_simulation_test/result_phtres_strongLD",l,"_",v,"_",i1,".rdata"))
+#save(result,file = paste0("./result/simulation/LD_simulation_test/result_phtres_strongLD",l,"_",v,"_",i1,".rdata"))
+save(result,file = paste0("./result/simulation/LD_simulation_test/result_phtres_noLD",l,"_",v,"_",i1,".rdata"))
 # }

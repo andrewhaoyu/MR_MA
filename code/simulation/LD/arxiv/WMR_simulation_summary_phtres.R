@@ -12,8 +12,8 @@ for(l in 1:3){
   for(v in 1:1){
 
     for(i1 in 1:length(pthres)){
-      #load(paste0("./result/simulation/LD_simulation_test/result_phtres_noLD",l,"_",v,"_",i1,".rdata"))
-      load(paste0("./result/simulation/LD_simulation_test/result_phtres_strongLD",l,"_",v,"_",i1,".rdata"))
+      load(paste0("./result/simulation/LD_simulation_test/result_phtres_noLD",l,"_",v,"_",i1,".rdata"))
+      #load(paste0("./result/simulation/LD_simulation_test/result_phtres_strongLD",l,"_",v,"_",i1,".rdata"))
       result.list[[temp]] = result  
       temp = temp + 1
     }

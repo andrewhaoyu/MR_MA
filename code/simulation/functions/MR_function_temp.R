@@ -14,6 +14,14 @@ WMRFun = function(Gamma,se_Gamma,
   scale_ldscore = ldscore/diff_var
   tau_est = coefficients(lm(chi_est~scale_ldscore-1))
   tau_est = ifelse(tau_est>0,tau_est,0)
+  
+    W = GetWtauMat(Gamma,se_Gamma,
+                   alpha,se_alpha,
+                   ldscore,tau_est,beta_est,R)
+    awa = quadform(x= as.matrix(alpha),M = W)
+    beta_est = awa^-1*
+      crossprod(t(crossprod(alpha,W)),Gamma)
+  
 
   beta_var= (awa-quadform(x= as.matrix(se_alpha),M = W*R))^-1
   #beta_var= awa^-1

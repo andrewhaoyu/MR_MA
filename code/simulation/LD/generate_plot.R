@@ -1,7 +1,7 @@
 library(dplyr)
 library(ggplot2)
 library(ggpubr)
-
+library(gridExtra)
 setwd("/Users/zhangh24/GoogleDrive/MR_MA/")
 source("./code/simulation/LD/theme_publication.R")
 #this setting N = 60000 p =500 pthres = 5E-08
@@ -37,6 +37,7 @@ result = result %>%
                                   levels = c("No pleiotropic effect","Mild pleiotropic effect","High pleiotropic effect"))) %>% 
   filter(method!="MR-Egger") %>% 
   rename(Method = method)
+v = 1
 for(i in 1:2){
   result.sub = result %>% filter(i_vec==i&v_vec==1)
   #p3 for rmse
@@ -67,25 +68,30 @@ for(i in 1:2){
     ggtitle(paste0("Bias"))+
     theme(axis.title.x=element_blank(),
           axis.text.x=element_blank(),
-          axis.ticks.x=element_blank())
+          axis.ticks.x=element_blank())+
+    theme(legend.position = "none")
   print(p1)
   #p2 for confidence interval
-  p2 = ggplot(result.sub,aes(x = index,y =  cover,fill=Method))+
+  p2 = ggplot(result.sub,aes(x = index,y =  em_se,fill=Method))+
     geom_bar(stat="identity",position=position_dodge())+
     # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
     #               width=.2,
     #               position=position_dodge(.9))+
     theme_Publication()+
     scale_fill_Publication()+
-    coord_cartesian(ylim=c(0.75,1))+
-    geom_hline(yintercept = 0.95, col="red",linetype ="dashed")+
+    #coord_cartesian(ylim=c(0.75,1))+
+    #geom_hline(yintercept = 0.95, col="red",linetype ="dashed")+
     facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
-    ylab("Coverage")+
-    ggtitle(paste0("Coverage"))+
+    ylab("Emirical SE")+
+    ggtitle(paste0("Emirical SE"))+
     theme(axis.title.x=element_blank(),
           axis.text.x=element_blank(),
-          axis.ticks.x=element_blank())
-  print(p2)
+          axis.ticks.x=element_blank())+
+    theme(legend.position = "none")
+ # print(p2)
+  
+   
+  #WMR performance with different p-value threshold
   pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
   result.wmr.nold.plot= result.wmr.nold %>% 
     mutate(pleo_effect = case_when(v_vec ==1 ~ paste0("No pleiotropic effect"),
@@ -103,7 +109,41 @@ for(i in 1:2){
   result.sub = result.wmr.nold.plot %>% 
     filter(i_vec==i&v_vec==1)
   
-  p4 = ggplot(result.sub,aes(x = index,y = rmse,fill=Method))+
+  
+  #p4 for bias
+  p4 = ggplot(result.sub,aes(x = index,y = bias,fill=Method))+
+    geom_bar(stat="identity",position=position_dodge())+
+    theme_Publication()+
+    scale_fill_Publication()+
+    #ylim(c(-0.1,0.1))+
+    ylab("Bias estimate")+
+    xlab(NULL)+
+    facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
+    ggtitle(paste0("Bias"))+
+    theme(axis.title.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())+
+    theme(legend.position = "none")
+  print(p4)
+  #p5 for confidence interval
+  p5 = ggplot(result.sub,aes(x = index,y =  em_se,fill=Method))+
+    geom_bar(stat="identity",position=position_dodge())+
+    # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
+    #               width=.2,
+    #               position=position_dodge(.9))+
+    theme_Publication()+
+    scale_fill_Publication()+
+    #coord_cartesian(ylim=c(0.75,1))+
+    #geom_hline(yintercept = 0.95, col="red",linetype ="dashed")+
+    facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
+    ylab("Emirical SE")+
+    ggtitle(paste0("Emirical SE"))+
+    theme(axis.title.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())+
+    theme(legend.position = "none")
+  print(p5)
+  p6 = ggplot(result.sub,aes(x = index,y = rmse,fill=Method))+
     geom_bar(stat="identity",position=position_dodge())+
     theme_Publication()+
     scale_fill_Publication()+
@@ -115,19 +155,16 @@ for(i in 1:2){
     theme(axis.title.x=element_blank(),
           axis.text.x=element_blank(),
           axis.ticks.x=element_blank())
-  print(p4)
-  png(filename = paste0("./result/simulation/LD/chr22_figures/simu_result_rmse_beta_",i,"_ple_",v,".png"),width = 12, height = 8, res=300,units  = "in")
-  print(p3)
+  png(filename = paste0("./result/simulation/LD/chr22_figures/simu_result_summary_beta_",i,"_ple_",v,".png"),width = 15, height = 8, res=300,units  = "in")
+  grid.arrange(p1,p2,p3,
+               layout_matrix=rbind(c(1, 2),
+                                   c(3, 3)))
   dev.off()
+  png(filename = paste0("./result/simulation/LD/chr22_figures/chr22_simu_resul_wmr_beta_",i,"_ple_",v,".png"),width = 15, height = 8, res=300,units  = "in")
+  grid.arrange(p4,p5,p6,
+               layout_matrix=rbind(c(1, 2),
+                                   c(3, 3)))
   
-  png(filename = paste0("./result/simulation/LD/chr22_figures/chr22_simu_result_bias_beta_",i,"_ple_",v,".png"),width = 12, height = 8, res=300,units  = "in")
-  print(p1)
-  dev.off()
-  png(filename = paste0("./result/simulation/LD/chr22_figures/chr22_simu_result_coverage_beta_",i,"_ple_",v,".png"),width = 12, height = 8, res=300,units  = "in")
-  print(p2)
-  dev.off()
-  png(filename = paste0("./result/simulation/LD/chr22_figures/chr22_simu_resul_wmr_beta_",i,"_ple_",v,".png"),width = 12, height = 8, res=300,units  = "in")
-  print(p4)
   dev.off()
   
 }
@@ -158,22 +195,57 @@ result = result %>%
                               levels = c("No pleiotropic effect","Mild pleiotropic effect","High pleiotropic effect"))) %>% 
   filter(method!="MR-Egger") %>% 
   rename(Method = method)
-result.sub = result %>% filter(i_vec==1&v_vec==1)
-p3 = ggplot(result.sub,aes(x = index, y = rmse, fill = Method))+
-  geom_bar(stat="identity",position=position_dodge())+
-  # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
-  #               width=.2,
-  #               position=position_dodge(.9))+
-  facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
-  theme_Publication()+
-  scale_fill_Publication()+
-  ylab("RMSE")+
-  ggtitle(paste0("RMSE"))+  
-  theme(axis.title.x=element_blank(),
-        axis.text.x=element_blank(),
-        axis.ticks.x=element_blank())
-
-print(p3)
-png(filename = paste0("./result/simulation/LD/chr22_figures/LDcomparasion_rmse_beta_",i,"_ple_",v,".png"),width = 12, height = 8, res=300,units  = "in")
-print(p3)
-dev.off()
+for(i in 1:2){
+  result.sub = result %>% filter(i_vec==i&v_vec==1)
+  p1 = ggplot(result.sub,aes(x = index,y = bias,fill=Method))+
+    geom_bar(stat="identity",position=position_dodge())+
+    theme_Publication()+
+    scale_fill_Publication()+
+    #ylim(c(-0.1,0.1))+
+    ylab("Bias estimate")+
+    xlab(NULL)+
+    facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
+    ggtitle(paste0("Bias"))+
+    theme(axis.title.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())+
+    theme(legend.position = "none")
+  print(p1)
+  #p2 for confidence interval
+  p2 = ggplot(result.sub,aes(x = index,y =  em_se,fill=Method))+
+    geom_bar(stat="identity",position=position_dodge())+
+    # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
+    #               width=.2,
+    #               position=position_dodge(.9))+
+    theme_Publication()+
+    scale_fill_Publication()+
+    #coord_cartesian(ylim=c(0.75,1))+
+    #geom_hline(yintercept = 0.95, col="red",linetype ="dashed")+
+    facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
+    ylab("Emirical SE")+
+    ggtitle(paste0("Emirical SE"))+
+    theme(axis.title.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())+
+    theme(legend.position = "none")
+  p3 = ggplot(result.sub,aes(x = index, y = rmse, fill = Method))+
+    geom_bar(stat="identity",position=position_dodge())+
+    # geom_errorbar(aes(ymin=mean_est-sd_est,ymax=mean_est+sd_est),
+    #               width=.2,
+    #               position=position_dodge(.9))+
+    facet_grid(vars(pleo_effect),vars(cau_pro),scales = "free")+
+    theme_Publication()+
+    scale_fill_Publication()+
+    ylab("RMSE")+
+    ggtitle(paste0("RMSE"))+  
+    theme(axis.title.x=element_blank(),
+          axis.text.x=element_blank(),
+          axis.ticks.x=element_blank())
+  
+  png(filename = paste0("./result/simulation/LD/chr22_figures/LDcomparasion_rmse_beta_",i,"_ple_",v,".png"),width = 15, height = 8, res=300,units  = "in")
+  grid.arrange(p1,p2,p3,
+               layout_matrix=rbind(c(1, 2),
+                                   c(3, 3)))
+  dev.off()
+  
+}

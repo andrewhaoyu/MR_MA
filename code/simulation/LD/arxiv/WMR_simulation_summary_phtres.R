@@ -25,4 +25,5 @@ for(l in 1:3){
 }
 result = rbindlist(result.list)
 print(result)
-save(result,file = paste0("./result/simulation/LD_simulation_test/wmr_simu_result_strongLD_pthres.rdata"))
+#save(result,file = paste0("./result/simulation/LD_simulation_test/wmr_simu_result_strongLD_pthres.rdata"))
+save(result,file = paste0("./result/simulation/LD_simulation_test/wmr_simu_result_noLD_pthres.rdata"))

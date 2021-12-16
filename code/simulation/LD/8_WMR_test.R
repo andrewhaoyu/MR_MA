@@ -64,7 +64,7 @@ for(i in 1:2){
    
     #idx = which(p<=pthres[i1])
     #idx = c(1,3,5)
-    idx = which(p<=5E-08)
+    idx = which(p<=pthres[i1])
     select.snp = data.frame(SNP=sum.data.match.m$SNP[idx])
     #idx = 1
     #if(length(idx)>3){

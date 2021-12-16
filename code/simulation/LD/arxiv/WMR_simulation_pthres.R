@@ -44,7 +44,8 @@ for(i in 1:2){
   j =22
   sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
   sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v))) 
-  sum.data.m = left_join(sum.data.m,ldscore,by = c("ID"="SNP"))
+  sum.data.m2 = as.data.frame(fread(paste0(cur.dir,"m2_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
+  sum.data.m2 = left_join(sum.data.m2,ldscore,by = c("ID"="SNP"))
   n.snp = nrow(sum.data.m)
   n.rep = 100
   
@@ -63,13 +64,15 @@ for(i in 1:2){
     #idx = which(p<=pthres[i1])
     #idx = c(1,3,5)
     idx = which(p<=pthres[i1])
+    select.snp = data.frame(SNP=sum.data.match.m$SNP[idx])
     #idx = 1
     #if(length(idx)>3){
-    sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
+    sum.data.match.y = left_join(select.snp,sum.data.y,by=c("SNP"="ID"))
+    sum.data.match.m2 = left_join(select.snp,sum.data.m2,by=c("SNP"="ID"))
     Gamma = sum.data.match.y[,(6+3*i_rep-2)]
     se_Gamma = as.numeric(sum.data.match.y[,(6+3*i_rep-1)])
-    alpha = as.numeric(sum.data.match.m[,(6+3*i_rep-2)])
-    se_alpha = as.numeric(sum.data.match.m[,(6+3*i_rep-1)])
+    alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-2)])
+    se_alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-1)])
     MAF = sum.data.m[,"MAF"]
     SNP.select = sum.data.match.m$SNP[idx]
     idx.match = match(SNP.select,sum.data.m$ID)

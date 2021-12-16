@@ -119,12 +119,17 @@ result.list = list()
                                               MedianObject$CIUpper>=beta,1,0)
           beta_se_median[i_rep] = MedianObject$StdError
           
-          
-          raps_result <- mr.raps(data = data.frame(beta.exposure = alpha_select,
-                                                   beta.outcome = Gamma_select,
-                                                   se.exposure = se_alpha_select,
-                                                   se.outcome = se_Gamma_select),
-                                 diagnostics = F)
+          #mr.raps.simple <- function(b_exp, b_out, se_exp, se_out, diagnostics = FALSE)
+            raps_result = mr.raps.simple(alpha_select,
+                                         Gamma_select,
+                                         se_alpha_select,se_Gamma_select)
+            
+          # raps_result <- mr.raps(data = data.frame(beta.exposure = alpha_select,
+          #                                          beta.outcome = Gamma_select,
+          #                                          se.exposure = se_alpha_select,
+          #                                          se.outcome = se_Gamma_select),
+          #                        diagnostics = F,
+          #                        over.dispersion = F)
           beta_est_Raps[i_rep] = raps_result$beta.hat
           beta_cover_Raps[i_rep] = ifelse(raps_result$beta.hat-1.96*raps_result$beta.se<=beta&
                                             raps_result$beta.hat+1.96*raps_result$beta.se>=beta,1,0)

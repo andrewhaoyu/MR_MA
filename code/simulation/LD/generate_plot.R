@@ -7,6 +7,9 @@ source("./code/simulation/LD/theme_publication.R")
 #this setting N = 60000 p =500 pthres = 5E-08
 load("./result/simulation/LD/MR_result_chr22.rdata")
 result.stan = result
+result.stan %>% filter(i_vec==1&
+                         l_vec==3&
+                         v_vec==1)
 load("./result/simulation/LD/wmr_simu_result_noLD_pthres.rdata")
 result.wmr.nold = result
 result.wmr.nold.sub = result.wmr.nold %>% 

@@ -73,7 +73,7 @@ for(i in 1:2){
     se_Gamma = as.numeric(sum.data.match.y[,(6+3*i_rep-1)])
     alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-2)])
     se_alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-1)])
-    MAF = sum.data.m[,"MAF"]
+    MAF = sum.data.m2[,"MAF"]
     SNP.select = sum.data.match.m$SNP[idx]
     idx.match = match(SNP.select,sum.data.m$ID)
     

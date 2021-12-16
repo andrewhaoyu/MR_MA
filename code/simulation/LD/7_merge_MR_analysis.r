@@ -14,7 +14,8 @@ for(i in 1:2)
 }
 result = rbindlist(result.list)
 library(dplyr)
-result %>% filter(method=="MRRAPs"&
+result %>% filter(
                     i_vec==1&
-                    v_vec==1)
+                    v_vec==1&
+                      l_vec==3)
 save(result,file = paste0(cur.dir,"MR_result_chr22.rdata"))

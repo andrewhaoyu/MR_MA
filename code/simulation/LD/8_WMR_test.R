@@ -83,6 +83,10 @@ for(i in 1:2){
       R = as.matrix(corr0[idx.match,idx.match])
       MAF_select = MAF[idx.match]
       
+      alpha = alpha*sqrt(2*MAF*(1-MAF))
+      se_alpha_temp=  se_alpha_select*sqrt(2*MAF_select*(1-MAF_select))
+      Gamma = Gamma*sqrt(2*MAF*(1-MAF))
+      se_Gamma = se_Gamma*sqrt(2*MAF*(1-MAF))
       
       MR_result <- WMRFun(Gamma_select,se_Gamma_select,
                           alpha_select,se_alpha_select,

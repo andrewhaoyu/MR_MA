@@ -15,6 +15,7 @@ beta_se_egger  = rep(NA,n.rep)
 beta_est_median = rep(NA,n.rep)
 beta_cover_median = rep(NA,n.rep)
 beta_se_median = rep(NA,n.rep)
+
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
 #install_github('qingyuanzhao/mr.raps')
@@ -24,17 +25,26 @@ library(MRPRESSO)
 library(data.table)
 library(dplyr)
 library(MESS)
-
+alpha = c(-0.158,
+          0.129,
+          0.271,-0.086,-0.2587,0.113,0.101,
+          -0.055,-0.050,-0.044,0.0683,0.0345,-0.0599)
+MAF_select = c(0.258,0.255,0.040,0.342,0.020,0.093,0.102,0.273,0.280,0.280,0.069,0.456,0.089)
 for(i_rep in 1:n.rep){
   #generate alpha
-  alpha = rnorm(n.snp,mean=0,sd = sqrt(h2/n.snp))
+
   
   beta = 0
-  alpha_select = rnorm(n.snp,alpha,sd = sqrt(1/N))
+  scale.factor = sqrt(2*MAF_select*(1-MAF_select))
+  alpha_select = rnorm(n.snp,alpha,sd = sqrt(1/N)/scale.factor)
   se_alpha_select = rep(sqrt(1/N),n.snp)
-  Gamma_select = rnorm(n.snp,beta*alpha,sd = sqrt(1/N))
-  se_Gamma_select = rep(sqrt(1/N),n.snp)
+  se_alpha_select=  se_alpha_select/scale.factor
   
+  
+  Gamma_select = rnorm(n.snp,beta*alpha,sd = sqrt(1/N)/scale.factor)
+  se_Gamma_select = rep(sqrt(1/N),n.snp)
+ 
+  se_Gamma_select = se_Gamma_select/scale.factor
   MRInputObject <- mr_input(bx = alpha_select,
                             bxse = se_alpha_select,
                             by = Gamma_select,
@@ -121,6 +131,7 @@ result = data.frame(
   cover = apply(cover.result,2,function(x){mean(x,na.rm=T)}),
   rmse = apply(mean.result,2,function(x){sqrt(mean((x-beta)^2,na.rm=T))})
 )
+print(result)
 result$i_vec = rep(i,length(method))
 result$l_vec = rep(l,length(method))
 result$v_vec = rep(v,length(method))

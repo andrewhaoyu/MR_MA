@@ -85,15 +85,25 @@ sample_size_vec = c(60000)
       # 
       #create phenotypes files for plink
       pheno_M <- fam[,1:2]
+      pheno_M2 <- fam[,1:2]
       pheno_Y = fam[,1:2]
       for(m in 1:length(sample_size_vec)){
-        M_mat[1:sample_size_vec[m],] = NA
-        pheno_M = cbind(pheno_M,M_mat)
-        Y_mat[(60000+1):(60000+sample_size_vec[m]),] = NA
+        #first set for selection
+        temp_mat = M_mat
+        temp_mat[40001:120000,] = NA
+        pheno_M = cbind(pheno_M,temp_mat)
+        #second set for exposure
+        temp_mat = M_mat
+        temp_mat[c(1:40000,80000:120000),] = NA
+        pheno_M2 = cbind(pheno_M2,temp_mat)
+        
+        #third set for outcome
+        Y_mat[1:80000,] = NA
         pheno_Y = cbind(pheno_Y,Y_mat)
       }
       write.table(pheno_Y,file = paste0(cur.dir,"y_pheno_plink_beta_",i,"_rho_",l,"_ple_",v,".phen"),row.names = F,col.names = F,quote=F)
       write.table(pheno_M,file = paste0(cur.dir,"m_pheno_plink_beta_",i,"_rho_",l,"_ple_",v,".phen"),row.names = F,col.names = F,quote=F)
+      write.table(pheno_M2,file = paste0(cur.dir,"m2_pheno_plink_beta_",i,"_rho_",l,"_ple_",v,".phen"),row.names = F,col.names = F,quote=F)
       
     }
 

@@ -28,6 +28,7 @@ result.list = list()
       j =22
       sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
       sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
+      sum.data.m2 = as.data.frame(fread(paste0(cur.dir,"m2_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
       n.snp = nrow(sum.data.m)
       n.rep = 100
       
@@ -51,12 +52,16 @@ result.list = list()
         
         #idx = which(p<=0.05/nrow(sum.data.m))
         idx = which(p<=5E-08)
+        
+        select.snp = data.frame(SNP=sum.data.match.m$SNP[idx])
+        
         if(length(idx)>3){
-          sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
+          sum.data.match.y = left_join(select.snp,sum.data.y,by=c("SNP"="ID"))
+          sum.data.match.m2 = left_join(select.snp,sum.data.m2,by=c("SNP"="ID"))
           Gamma = sum.data.match.y[,(6+3*i_rep-2)]
           se_Gamma = as.numeric(sum.data.match.y[,(6+3*i_rep-1)])
-          alpha = as.numeric(sum.data.match.m[,(6+3*i_rep-2)])
-          se_alpha = as.numeric(sum.data.match.m[,(6+3*i_rep-1)])
+          alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-2)])
+          se_alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-1)])
           
           
           alpha_select =alpha[idx]
@@ -171,6 +176,7 @@ result.list = list()
       result$i_vec = rep(i,length(method))
       result$l_vec = rep(l,length(method))
       result$v_vec = rep(v,length(method))
+    
       # result.list[[temp]] = result
       # temp = temp + 1
       # 

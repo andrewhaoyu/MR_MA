@@ -72,7 +72,7 @@ system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.fam /lscratch/",sid,"/test/chr",j
       
       sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
       pthr = 0.1
-      r2thr = 0.6
+      r2thr = 0.3
       kbpthr = 500
       for(i_rep in  start:end){
         p = sum.data.m[,(6+3*i_rep)]

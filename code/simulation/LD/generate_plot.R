@@ -179,12 +179,20 @@ result.wmr.sld = result
 result.wmr.sld.sub = result.wmr.sld %>% 
   filter(method%in%paste0("WMR (p<",c(5e-08,1e-04),")")) %>% 
   mutate(method=paste0("High LD ",method))
+
+load("./result/simulation/LD/wmr_simu_result_medLD_pthres.rdata")
+
+result.wmr.mld = result
+result.wmr.mld.sub = result.wmr.sld %>% 
+  filter(method%in%paste0("WMR (p<",c(5e-08,1e-04),")")) %>% 
+  mutate(method=paste0("Med LD ",method))
+
 load("./result/simulation/LD/wmr_simu_result_noLD_pthres.rdata")
 result.wmr.nold = result
 result.wmr.nold.sub = result.wmr.nold %>% 
   filter(method%in%paste0("WMR (p<",c(5e-08,1e-04),")")) %>% 
-  mutate(method=paste0("Low LD ",method))
-result = rbind(result.wmr.nold.sub,result.wmr.sld.sub)
+  mutate(method=paste0("No LD ",method))
+result = rbind(result.wmr.nold.sub,result.wmr.mld.sub,result.wmr.sld.sub)
 result = result %>% 
   mutate(pleo_effect = case_when(v_vec ==1 ~ paste0("No pleiotropic effect"),
                                  v_vec==2 ~paste0("Mild pleiotropic effect"),

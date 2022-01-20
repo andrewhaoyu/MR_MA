@@ -35,7 +35,7 @@ ldscore = left_join(snp.infor.subset,ldscore,
 load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
 temp = 1
 result.list = list()
-
+v =1
 
 
 #for(i in 1:2){

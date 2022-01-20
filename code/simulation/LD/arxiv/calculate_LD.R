@@ -9,18 +9,23 @@ POS <- obj.bigSNP$map$physical.pos
 
 
 
-cor(G[,idx],G[,jdx])
-sum(G[,idx])/(2*nrow(G))
-sum(G[,jdx])/(2*nrow(G))
+# cor(G[,idx],G[,jdx])
+# sum(G[,idx])/(2*nrow(G))
+# sum(G[,jdx])/(2*nrow(G))
 NCORES = 2
 n.sub = nrow(G)
 #POS2 <- snp_asGeneticPos(CHR, POS, dir = paste0(cur.dir), ncores = 2)
 set.seed(666)
 #size present window size for compute correlations
-corr0 <- snp_cor(G, ind.row = sample(c(1:n.sub),3000),
+# corr0 <- snp_cor(G, ind.row = sample(c(1:n.sub),3000),
+#                  ncores = NCORES,
+#                  infos.pos = POS,
+#                   size = 1000)
+corr0 <- snp_cor(G, ind.row = c(40001:80000),
                  ncores = NCORES,
                  infos.pos = POS,
-                  size = 1000)
+                 size = 1000)
+
 save(corr0,file = paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
 G.temp = G[,1:1000]
 

@@ -1,12 +1,12 @@
 args = commandArgs(trailingOnly = T)
 #i for beta vector
 # i = as.numeric(args[[1]])
-# l = as.numeric(args[[2]])
+ l = as.numeric(args[[1]])
 #sub = as.numeric(args[[3]])
 #i1 for pthreshold
 i1 = 5
 #r_ind for clumping grid
-r_ind = as.numeric(args[[1]])
+r_ind = as.numeric(args[[2]])
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
 #install_github('qingyuanzhao/mr.raps')

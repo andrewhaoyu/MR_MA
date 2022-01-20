@@ -1,7 +1,7 @@
 args = commandArgs(trailingOnly = T)
 i = 1
 l = as.numeric(args[[1]])
-r_ind = as.numeric(args[[2]])
+#r_ind = as.numeric(args[[2]])
 #i1 represent the sub id, split 100 replciates into 10
 # i1 = as.numeric(args[[3]])
 j = 22
@@ -24,11 +24,12 @@ system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.bim /lscratch/",sid,"/test/chr",j
 system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.fam /lscratch/",sid,"/test/chr",j,".sub.hm3.fam"))
 
 r2_vec = c(0.001,0.2,0.4,0.6)
-r2 = r2_vec[r_ind]
-# for(i in 1:2){
-#   for(l in 1:3){
-#for(v in 1:3){
- v = 1 
+for(r_ind in 1:4){
+  r2 = r2_vec[r_ind]
+  # for(i in 1:2){
+  #   for(l in 1:3){
+  #for(v in 1:3){
+  v = 1 
   
   sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
   pthr = 0.1
@@ -45,6 +46,8 @@ r2 = r2_vec[r_ind]
     clump.snp = clump.result[,3,drop=F]
     write.table(clump.snp,file = paste0(cur.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,"_rvec_",r_ind,".clumped"),row.names = F,col.names = T,quote=F)
   }
+  
+}
 #}
 #   }
 # }

@@ -38,8 +38,9 @@ temp = 1
 result.list = list()
 v =1
 tau_vec = c(0,1E-05,1E-04,1E-03,1E-02,1E-01)
-for(l in 1:3){
-  for(r_ind in 1:4){
+tau = tau_vec[tau_ind]
+# for(l in 1:3){
+#   for(r_ind in 1:4){
     
     #for(i in 1:2){
     i = 1 
@@ -143,8 +144,8 @@ for(l in 1:3){
     #}
     
     
-  }
-}
+#   }
+# }
 result = rbindlist(result.list)
 save(result,file = paste0(cur.dir,"WMR_result_chr22_rho_",l,"_ple_",v,"r_ind",r_ind,"tau_ind",tau_ind,".rdata"))
 # }

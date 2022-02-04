@@ -7,6 +7,7 @@ args = commandArgs(trailingOnly = T)
 i1 = 5
 #r_ind for clumping grid
 r_ind = as.numeric(args[[2]])
+tau_ind = as.numeric(args[[3]])
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
 #install_github('qingyuanzhao/mr.raps')
@@ -23,7 +24,7 @@ setwd("/data/zhangh24/MR_MA/")
 # l = 3
 j = 22
 #load LD score
-source("./code/simulation/functions/MR_function_temp.R")
+source("./code/simulation/functions/MR_function_grid.R")
 ldscore = fread("/data/zhangh24/MR_MA/data/eur_w_ld_chr/22.l2.ldscore.gz")
 ldscore = ldscore %>% 
   dplyr::select(SNP,L2)
@@ -36,8 +37,9 @@ load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
 temp = 1
 result.list = list()
 v =1
-# for(l in 1:3){
-#   for(r_ind in 1:4){
+tau_vec = c(0,1E-05,1E-04,1E-03,1E-02,1E-01)
+for(l in 1:3){
+  for(r_ind in 1:4){
     
     #for(i in 1:2){
     i = 1 
@@ -96,7 +98,7 @@ v =1
       
       MR_result <- WMRFun(Gamma_select,se_Gamma_select,
                           alpha_select,se_alpha_select,
-                          ld_score_select,R,MAF_select)
+                          ld_score_select,R,MAF_select,tau)
       # MRWeight(Gamma = sumGamma,
       #                     var_Gamma = var_Gamma,
       #                     alpha = sumalpha,
@@ -140,9 +142,9 @@ v =1
     
     #}
     
-    result = rbindlist(result.list)
-    save(result,file = paste0(cur.dir,"WMR_result_chr22_rho_",l,"_ple_",v,"r_ind",r_ind,".rdata"))
-#   }
-# }
-
+    
+  }
+}
+result = rbindlist(result.list)
+save(result,file = paste0(cur.dir,"WMR_result_chr22_rho_",l,"_ple_",v,"r_ind",r_ind,"tau_ind",tau_ind,".rdata"))
 # }

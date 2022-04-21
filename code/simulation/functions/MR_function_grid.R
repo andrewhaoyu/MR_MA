@@ -9,11 +9,13 @@ WMRFun = function(Gamma,se_Gamma,
   beta_est = as.numeric(crossprod(Gamma,alpha)/crossprod(alpha))
   
   #step two: estimate tau
-  # diff_var = (se_Gamma^2+beta_est^2*se_alpha^2)
-  # chi_est = (Gamma-alpha*beta_est)^2/diff_var
-  # scale_ldscore = ldscore/diff_var
-  # tau_est = coefficients(lm(chi_est~scale_ldscore-1))
-  # tau_est = ifelse(tau_est>0,tau_est,0)
+  diff_var = (se_Gamma^2+beta_est^2*se_alpha^2)
+  chi_est = (Gamma-alpha*beta_est)^2/diff_var
+  scale_ldscore = ldscore/diff_var
+  tau_est = coefficients(lm(chi_est~scale_ldscore-1))
+  tau_est = ifelse(tau_est>0,tau_est,0)
+  
+  
   tau_est = tau
   W = GetWtauMat(Gamma,se_Gamma,
                  alpha,se_alpha,
@@ -26,6 +28,17 @@ WMRFun = function(Gamma,se_Gamma,
   beta_var= (awa-quadform(x= as.matrix(se_alpha),M = W*R))^-1
   #beta_var= awa^-1
   beta_se = sqrt(beta_var)
+  
+  
+  W_inv = GetWinv(Gamma,se_Gamma,
+                 alpha,se_alpha,
+                 ldscore,tau_est,beta_est,R)
+   
+  wa = cgsolve(A=W_inv, alpha)
+  awa = crossprod(alpha,wa)
+  awg = crossprod(Gamma,wa)
+  beta_est = awa^1*awg
+  beta_var= cgsolve(A=W_inv, b = se_alpha)
   # best_est = (alpha%*%W%*%Gamma)/(alpha%*%W%*%alpha)
   # print(best_est)
   # print(beta_est)
@@ -39,13 +52,38 @@ GetWtauMat = function(Gamma,se_Gamma,
   #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
   # W_inv = diag(se_Gamma)%*%R%*%diag(se_Gamma)+
   #   beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)
-  W_inv = diag(se_Gamma)%*%R%*%diag(se_Gamma)+
-    beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)+tau*diag(ldscore)
+  # W_inv = t(se_Gamma*t(se_Gamma*R))+
+  #   beta_est^2*t(se_alpha*t(se_alpha*R))+tau*diag(ldscore)
+  #   
+    
+    
+ W_inv =  diag(se_Gamma)%*%R%*%diag(se_Gamma)+
+  beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)+tau*diag(ldscore)
   #W_inv = (se_Gamma+beta_est*se_alpha)%*%(se_Gamma+beta_est*se_alpha)
   #+tau*diag(ldscore)
   W = solve(W_inv)
   #W[abs(W)<=1E-06] = 0
   return(W)
+}
+
+
+etWinv = function(Gamma,se_Gamma,
+                     alpha,se_alpha,
+                     ldscore,tau,beta_est,R){
+  #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
+  # W_inv = diag(se_Gamma)%*%R%*%diag(se_Gamma)+
+  #   beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)
+  W_inv = t(se_Gamma*t(se_Gamma*R))+
+    beta_est^2*t(se_alpha*t(se_alpha*R))+tau*diag(ldscore)
+  
+  
+  
+  # W_inv =  diag(se_Gamma)%*%R%*%diag(se_Gamma)+
+  #   beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)+tau*diag(ldscore)
+  #W_inv = (se_Gamma+beta_est*se_alpha)%*%(se_Gamma+beta_est*se_alpha)
+  #+tau*diag(ldscore)
+  #W[abs(W)<=1E-06] = 0
+  return(W_inv)
 }
 
 

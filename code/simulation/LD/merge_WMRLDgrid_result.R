@@ -4,13 +4,16 @@
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 result.list = list()
 r2_vec = c(0.001,0.2,0.4,0.6)
+tau_vec = c(0,1E-05,1E-04,1E-03,1E-02,1E-01)
 temp = 1
 for(r_ind in 1:4){
   for(l in 1:3){
     load(paste0(cur.dir,"WMR_result_chr22_rho_",l,"_ple_",v,"r_ind",r_ind,".rdata"))
-    result$method = paste0("WMR (LD r2 =",r2_vec[r_ind],")")
+    result$method = paste0("(LD r2 = ",r2_vec[r_ind],")")
+    result$tau = paste0("(tau = ",result$tau_vec,")")
     result$l_vec = l
     result$v_vec = 1
+    result$r_vec = r_ind
     result.list[[temp]] = result  
     temp = temp + 1
   }

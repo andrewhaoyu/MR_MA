@@ -23,7 +23,7 @@ system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.bed /lscratch/",sid,"/test/chr",j
 system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.bim /lscratch/",sid,"/test/chr",j,".sub.hm3.bim"))
 system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.fam /lscratch/",sid,"/test/chr",j,".sub.hm3.fam"))
 
-r2_vec = c(0.001,0.2,0.4,0.6)
+r2_vec = c(0.001,0.2,0.4,0.6,0.8)
 for(r_ind in 1:4){
   r2 = r2_vec[r_ind]
   # for(i in 1:2){
@@ -32,7 +32,7 @@ for(r_ind in 1:4){
   v = 1 
   
   sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
-  pthr = 0.1
+  pthr = 1
   r2thr = r2
   kbpthr = 500
   for(i_rep in  start:end){
@@ -48,6 +48,24 @@ for(r_ind in 1:4){
   }
   
 }
+
+
+
+
+
+# a = matrix(rnorm(9),3,3)
+# A = t(a)%*%a
+# cgsolve(A=A, b = b)
+# b = c(1,2,3)
+# 
+# crossprod(b,cgsolve(A=A, b = b))
+# 
+# t(b)%*%solve(A)%*%b
+# 
+# 
+# t(b*t(b*a))
+# all.equal(diag(b)%*%a%*%diag(b),t(b*t(b*a)))
+
 #}
 #   }
 # }

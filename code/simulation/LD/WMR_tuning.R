@@ -7,15 +7,13 @@ l = as.numeric(args[[1]])
 #i1 for pthreshold
 i1 = 5
 #r_ind for clumping grid
-#r_ind 0.001, 0.2, 0.4, 0.6
 r_ind = as.numeric(args[[2]])
-#tau for pleotropic penalty
-#tau as 0,1E-05,1E-04,1E-03,1E-02,1E-01
-tau_ind = as.numeric(args[[3]])
+#tau_ind = as.numeric(args[[3]])
 library(withr)
 #with_libpaths(new = "/home/zhangh24/R/x86_64-pc-linux-gnu-library/3.6/", install_github('qingyuanzhao/mr.raps'))
 #install_github('qingyuanzhao/mr.raps')
-#Goal: This analyses check the WMR performance under different penalty (tau_vec) with different LD
+#Goal: This analyses check the WMR performance with fixed tau (1E-05) under four different settings
+#LD = 0.6, 1; p-value = 1E-04, 1
 
 library(MASS)
 library(MESS)
@@ -35,10 +33,7 @@ ldscore = ldscore %>%
   dplyr::select(SNP,L2)
 #load SNP id match file
 load("/data/zhangh24/MR_MA/result/LD/chr22_snp_infor.rdata")
-# ldscore = left_join(snp.infor.subset,ldscore,
-#                      by=c("rs_id"="SNP"))
-
-ldscore = inner_join(snp.infor.subset,ldscore,
+ldscore = left_join(snp.infor.subset,ldscore,
                     by=c("rs_id"="SNP"))
 #load LD matrix
 load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
@@ -47,7 +42,7 @@ result.list = list()
 v =1
 tau_vec = c(0,1E-05,1E-04,1E-03,1E-02,1E-01)
 for(tau_ind in 1:length(tau_vec)){
-  tau = tau_vec[tau_ind]
+  tau = 1E-05
   # for(l in 1:3){
   #   for(r_ind in 1:4){
   
@@ -62,19 +57,24 @@ for(tau_ind in 1:length(tau_vec)){
   sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
   sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
   sum.data.m2 = as.data.frame(fread(paste0(cur.dir,"m2_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
-  #sum.data.m = left_join(sum.data.m,ldscore,by = c("ID"="SNP"))
-  sum.data.m = inner_join(sum.data.m,ldscore,by = c("ID"="SNP"))
+  sum.data.m = left_join(sum.data.m,ldscore,by = c("ID"="SNP"))
   n.snp = nrow(sum.data.m)
   n.rep = 100
   
   beta_est = rep(0,n.rep)
   beta_cover = rep(0,n.rep)
   beta_se = rep(0,n.rep)
-  pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02)
+  pthres = c(1E-04,1)
   for(i_rep in  1:n.rep){
+    if(r_ind==2){
+      LD.snp = as.data.frame(fread( paste0(cur.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,"_rvec_",r_ind,".clumped")))  
+    }else{
+      LD.snp = sum.data.m[,"ID",drop=F]
+      colnames(LD.snp) = "SNP"
+    }
     
-    LD.snp = as.data.frame(fread( paste0(cur.dir,"LD_chr_",j,"beta_",i,"_rho_",l,"_ple_",v,"_rep_",i_rep,"_rvec_",r_ind,".clumped")))
-    sum.data.match.m = inner_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
+    
+    sum.data.match.m = left_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
     p = sum.data.match.m[,(6+3*i_rep)]
     
     
@@ -153,10 +153,10 @@ for(tau_ind in 1:length(tau_vec)){
   temp = temp + 1
   
 }
-    
-    #}
-    
-    
+
+#}
+
+
 #   }
 # }
 result = rbindlist(result.list)

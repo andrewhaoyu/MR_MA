@@ -24,7 +24,7 @@ system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.bim /lscratch/",sid,"/test/chr",j
 system(paste0("cp ", cur.dir,"chr",j,".sub.hm3.fam /lscratch/",sid,"/test/chr",j,".sub.hm3.fam"))
 
 r2_vec = c(0.001,0.2,0.4,0.6,0.8)
-for(r_ind in 1:4){
+for(r_ind in 1:5){
   r2 = r2_vec[r_ind]
   # for(i in 1:2){
   #   for(l in 1:3){

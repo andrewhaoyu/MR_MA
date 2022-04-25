@@ -57,6 +57,7 @@ WMRFun = function(Gamma,se_Gamma,
   #se_alpha %*% W as wse
   wse = cgsolve(A=V, b = se_alpha)
   beta_var= (awa-crossprod(se_alpha,wse))^-1
+  beta_se = sqrt(beta_var)
   # best_est = (alpha%*%W%*%Gamma)/(alpha%*%W%*%alpha)
   # print(best_est)
   # print(beta_est)

@@ -107,7 +107,11 @@ for(tau_ind in 1:length(tau_vec)){
     # Gamma = Gamma*sqrt(2*MAF*(1-MAF))
     # se_Gamma = se_Gamma*sqrt(2*MAF*(1-MAF))
     
-    MR_result <- WMRFun(Gamma_select,se_Gamma_select,
+    # MR_result <- WMRFun(Gamma_select,se_Gamma_select,
+    #                     alpha_select,se_alpha_select,
+    #                     ld_score_select,R,MAF_select,tau)
+    
+    MR_result <- WMRFuntest(Gamma_select,se_Gamma_select,
                         alpha_select,se_alpha_select,
                         ld_score_select,R,MAF_select,tau)
     # MRWeight(Gamma = sumGamma,

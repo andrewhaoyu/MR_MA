@@ -31,7 +31,7 @@ startend <- function(num,size,ind){
   end <- temp[length(temp)]
   return(c(start,end))
 }
-size = 4
+size = 25
 num = 100
 startend_result = startend(num,size,rep_ind)
 

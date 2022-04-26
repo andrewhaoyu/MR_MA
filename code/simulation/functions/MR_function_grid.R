@@ -22,7 +22,7 @@ WMRFun = function(Gamma,se_Gamma,
   
   
   SGRSG = GetSGRSG(se_Gamma,R)
-  SARSA = GetSARSA(se_Gamma,R)
+  SARSA = GetSARSA(se_alpha,R)
   TauL = GetTauL(tau_est,ldscore)
   
   
@@ -83,7 +83,7 @@ WMRFun = function(Gamma,se_Gamma,
 GetSGRSG = function(se_Gamma,R){
   return(t(se_Gamma*t(se_Gamma*R)))
 }
-GetSARSA = function(se_Gamma,R){
+GetSARSA = function(se_alpha,R){
   return(t(se_alpha*t(se_alpha*R)))
 }
 GetTauL = function(tau,ldscore){

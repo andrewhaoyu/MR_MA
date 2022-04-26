@@ -137,7 +137,8 @@ v =1
       MR_result <- WMRFun(Gamma_select,se_Gamma_select,
                           alpha_select,se_alpha_select,
                           ld_score_select,R,MAF_select)
-
+      
+     
       # MRWeight(Gamma = sumGamma,
       #                     var_Gamma = var_Gamma,
       #                     alpha = sumalpha,

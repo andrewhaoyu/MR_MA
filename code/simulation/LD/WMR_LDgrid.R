@@ -80,8 +80,8 @@ v =1
   sum.data.m = inner_join(sum.data.m,ldscore,by = c("ID"="SNP"))
   n.snp = nrow(sum.data.m)
   n.rep = end-start+1
-  #pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)
-  pthres = c(1E-01,1)
+  pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)
+  #pthres = c(1E-01,1)
   for(i1 in 1:length(pthres)){
   beta_est = rep(0,n.rep)
   beta_cover = rep(0,n.rep)

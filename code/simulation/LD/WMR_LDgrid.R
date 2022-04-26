@@ -7,9 +7,8 @@ l = as.numeric(args[[2]])
 
 #r_ind for clumping grid
 #r_ind 0.001, 0.2, 0.4, 0.6, 0.8, 1
-r_ind = as.numeric(args[[3]])
-
-rep_ind = as.numeric(args[[4]])
+#r_ind = as.numeric(args[[3]])
+rep_ind = as.numeric(args[[3]])
 #tau for pleotropic penalty
 #tau as 0,1E-05,1E-04,1E-03,1E-02,1E-01
 # tau_ind = as.numeric(args[[3]])
@@ -24,19 +23,22 @@ library(data.table)
 library(dplyr)
 library(Rfast)
 
-startend <- function(num,size,ind){
-  split.all <- split(1:num,cut(1:num,size))
-  temp <- split.all[[ind]]
-  start <- temp[1]
-  end <- temp[length(temp)]
-  return(c(start,end))
-}
-size = 25
-num = 100
-startend_result = startend(num,size,rep_ind)
+# startend <- function(num,size,ind){
+#   split.all <- split(1:num,cut(1:num,size))
+#   temp <- split.all[[ind]]
+#   start <- temp[1]
+#   end <- temp[length(temp)]
+#   return(c(start,end))
+# }
+# size = 25
+# num = 100
+# startend_result = startend(num,size,rep_ind)
+# 
+# start = startend_result[1]
+# end = startend_result[2]
 
-start = startend_result[1]
-end = startend_result[2]
+start = 1
+end = 1
 
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 setwd("/data/zhangh24/MR_MA/")
@@ -65,6 +67,7 @@ v =1
   # for(l in 1:3){
   #   for(r_ind in 1:4){
   
+
   #for(i in 1:2){
   i = 1
   beta_vec = c(0,0.2)
@@ -82,13 +85,14 @@ v =1
   n.rep = end-start+1
   pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)
   #pthres = c(1E-01,1)
-  for(i1 in 1:length(pthres)){
-  beta_est = rep(0,n.rep)
-  beta_cover = rep(0,n.rep)
-  beta_se = rep(0,n.rep)
-
-  
-    for(i_rep in  start:end){
+  for(r_ind in 1:6){
+    for(i1 in 1:length(pthres)){
+    beta_est = rep(0,n.rep)
+    beta_cover = rep(0,n.rep)
+    beta_se = rep(0,n.rep)
+    
+    
+    for(i_rep in  1:1){
       if(r_ind==6){
         #r_ind ==6 means no clumping at all
         LD.snp = sum.data.m[,"ID",drop=F]
@@ -104,7 +108,7 @@ v =1
       matched.snp = sum.data.match.m[,"SNP",drop=F]
       p = sum.data.match.m[,(6+3*i_rep)]
       
-
+      
       #idx = which(p<=pthres[i1])
       #idx = c(1,3,5)
       idx = which(p<=pthres[i1])
@@ -138,7 +142,7 @@ v =1
                           alpha_select,se_alpha_select,
                           ld_score_select,R,MAF_select)
       
-     
+      
       # MRWeight(Gamma = sumGamma,
       #                     var_Gamma = var_Gamma,
       #                     alpha = sumalpha,
@@ -160,7 +164,7 @@ v =1
                         i_vec = rep(i,length(beta_est)),
                         p_vec = rep(pthres[i1],length(beta_est)))
     
-  
+    
     
     # mean.result = data.frame(
     #   beta_est
@@ -192,6 +196,9 @@ v =1
     temp = temp + 1
     
   }
+  
+}
+
     
 #}
     
@@ -201,5 +208,5 @@ v =1
 #   }
 # }
 result = rbindlist(result.list)
-save(result,file = paste0(cur.dir,"WMR_result_chr22_beta_",i,"_rho_",l,"_r_ind",r_ind,"_rep_ind_",rep_ind,".rdata"))
+save(result,file = paste0(cur.dir,"WMR_result_chr22_beta_",i,"_rho_",l,"_rep_ind_",rep_ind,".rdata"))
 # }

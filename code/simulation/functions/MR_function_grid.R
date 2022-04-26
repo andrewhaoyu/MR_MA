@@ -1,6 +1,6 @@
 WMRFun = function(Gamma,se_Gamma,
                   alpha,se_alpha,
-                  ldscore,R,MAF,tau){
+                  ldscore,R,MAF){
   #initial estimate of beta
   alpha = alpha*sqrt(2*MAF*(1-MAF))
   se_alpha=  se_alpha*sqrt(2*MAF*(1-MAF))

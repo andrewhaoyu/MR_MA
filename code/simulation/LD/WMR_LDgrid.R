@@ -1,13 +1,15 @@
 args = commandArgs(trailingOnly = T)
 #i for beta vector
-# i = as.numeric(args[[1]])
-l = as.numeric(args[[1]])
+i = as.numeric(args[[1]])
+l = as.numeric(args[[2]])
 #l is causal SNPs proportion: 0.05, 0.01, 0.001
 #sub = as.numeric(args[[3]])
 
 #r_ind for clumping grid
 #r_ind 0.001, 0.2, 0.4, 0.6, 0.8, 1
-r_ind = as.numeric(args[[2]])
+r_ind = as.numeric(args[[3]])
+
+rep_ind = as.numeric(args[[4]])
 #tau for pleotropic penalty
 #tau as 0,1E-05,1E-04,1E-03,1E-02,1E-01
 # tau_ind = as.numeric(args[[3]])
@@ -22,6 +24,19 @@ library(data.table)
 library(dplyr)
 library(Rfast)
 
+startend <- function(num,size,ind){
+  split.all <- split(1:num,cut(1:num,size))
+  temp <- split.all[[ind]]
+  start <- temp[1]
+  end <- temp[length(temp)]
+  return(c(start,end))
+}
+size = 4
+num = 100
+startend_result = startend(num,size,rep_ind)
+
+start = startend_result[1]
+end = startend_result[2]
 
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 setwd("/data/zhangh24/MR_MA/")
@@ -64,15 +79,16 @@ v =1
   #sum.data.m = left_join(sum.data.m,ldscore,by = c("ID"="SNP"))
   sum.data.m = inner_join(sum.data.m,ldscore,by = c("ID"="SNP"))
   n.snp = nrow(sum.data.m)
-  n.rep = 100
-  pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)
+  n.rep = end-start+1
+  #pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)
+  pthres = c(1E-01,1)
   for(i1 in 1:length(pthres)){
   beta_est = rep(0,n.rep)
   beta_cover = rep(0,n.rep)
   beta_se = rep(0,n.rep)
 
   
-    for(i_rep in  1:n.rep){
+    for(i_rep in  start:end){
       if(r_ind==6){
         #r_ind ==6 means no clumping at all
         LD.snp = sum.data.m[,"ID",drop=F]
@@ -85,6 +101,7 @@ v =1
       
       
       sum.data.match.m = inner_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
+      matched.snp = sum.data.match.m[,"SNP",drop=F]
       p = sum.data.match.m[,(6+3*i_rep)]
       
 
@@ -94,14 +111,14 @@ v =1
       select.snp = data.frame(SNP=sum.data.match.m$SNP[idx])
       #idx = 1
       #if(length(idx)>3){
-      sum.data.match.y = left_join(LD.snp,sum.data.y,by=c("SNP"="ID"))
-      sum.data.match.m2 = left_join(select.snp,sum.data.m2,by=c("SNP"="ID"))
+      sum.data.match.y = left_join(matched.snp,sum.data.y,by=c("SNP"="ID"))
+      sum.data.match.m2 = left_join(matched.snp,sum.data.m2,by=c("SNP"="ID"))
       Gamma = sum.data.match.y[,(6+3*i_rep-2)]
       se_Gamma = as.numeric(sum.data.match.y[,(6+3*i_rep-1)])
       alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-2)])
       se_alpha = as.numeric(sum.data.match.m2[,(6+3*i_rep-1)])
       MAF = sum.data.m[,"MAF"]
-      SNP.select = sum.data.match.m$SNP[idx]
+      SNP.select = matched.snp$SNP[idx]
       idx.match = match(SNP.select,sum.data.m$ID)
       
       alpha_select =alpha[idx]
@@ -119,7 +136,7 @@ v =1
       
       MR_result <- WMRFun(Gamma_select,se_Gamma_select,
                           alpha_select,se_alpha_select,
-                          ld_score_select,R,MAF_select,tau)
+                          ld_score_select,R,MAF_select)
 
       # MRWeight(Gamma = sumGamma,
       #                     var_Gamma = var_Gamma,
@@ -134,32 +151,42 @@ v =1
     
     method = c("WMR")
     
-    mean.result = data.frame(
-      beta_est
-    )
-    colnames(mean.result) = method
     
-    se.result = data.frame(
-      beta_se
-    )
-    colnames(se.result) = method
     
-    cover.result = data.frame(
-      beta_cover
-    )
-    colnames(cover.result) = method
+    result = data.frame(beta_est,
+                        beta_cover,
+                        beta_se,
+                        i_vec = rep(i,length(beta_est)),
+                        p_vec = rep(pthres[i1],length(beta_est)))
     
-    result = data.frame(
-      method = method,
-      bias = apply(mean.result,2,function(x){mean(x,na.rm=T)})-beta,
-      em_se = apply(mean.result,2,function(x){sd(x,na.rm=T)}),
-      es_se = apply(se.result,2,function(x){mean(x,na.rm=T)}),
-      cover = apply(cover.result,2,function(x){mean(x,na.rm=T)}),
-      rmse = apply(mean.result,2,function(x){sqrt(mean((x-beta)^2,na.rm=T))})
-    )
-    print(result)
-    result$i_vec = rep(i,length(method))
-    result$p_vec = phtres[i1]
+  
+    
+    # mean.result = data.frame(
+    #   beta_est
+    # )
+    # colnames(mean.result) = method
+    # 
+    # se.result = data.frame(
+    #   beta_se
+    # )
+    # colnames(se.result) = method
+    # 
+    # cover.result = data.frame(
+    #   beta_cover
+    # )
+    # colnames(cover.result) = method
+    # 
+    # result = data.frame(
+    #   method = method,
+    #   bias = apply(mean.result,2,function(x){mean(x,na.rm=T)})-beta,
+    #   em_se = apply(mean.result,2,function(x){sd(x,na.rm=T)}),
+    #   es_se = apply(se.result,2,function(x){mean(x,na.rm=T)}),
+    #   cover = apply(cover.result,2,function(x){mean(x,na.rm=T)}),
+    #   rmse = apply(mean.result,2,function(x){sqrt(mean((x-beta)^2,na.rm=T))})
+    # )
+    # print(result)
+    # result$i_vec = rep(i,length(method))
+    # result$p_vec = phtres[i1]
     result.list[[temp]] = result
     temp = temp + 1
     
@@ -173,5 +200,5 @@ v =1
 #   }
 # }
 result = rbindlist(result.list)
-save(result,file = paste0(cur.dir,"WMR_result_chr22_rho_",l,"_ple_",v,"r_ind",r_ind,".rdata"))
+save(result,file = paste0(cur.dir,"WMR_result_chr22_beta_",i,"_rho_",l,"_r_ind",r_ind,"_rep_ind_",rep_ind,".rdata"))
 # }

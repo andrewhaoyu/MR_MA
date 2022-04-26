@@ -1,5 +1,5 @@
 args = commandArgs(trailingOnly = T)
-i = 1
+i = 2
 l = as.numeric(args[[1]])
 #r_ind = as.numeric(args[[2]])
 #i1 represent the sub id, split 100 replciates into 10

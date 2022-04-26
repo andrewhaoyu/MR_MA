@@ -51,7 +51,7 @@ v =1
   #   for(r_ind in 1:4){
   
   #for(i in 1:2){
-  i = 1 
+  i = 1
   beta_vec = c(0,0.2)
   beta = beta_vec[i]
   #   for(sub in 1:10){
@@ -75,7 +75,7 @@ v =1
     for(i_rep in  1:n.rep){
       if(r_ind==6){
         #r_ind ==6 means no clumping at all
-        LD.snp = sum.data.m$ID
+        LD.snp = sum.data.m[,"ID",drop=F]
         colnames(LD.snp) = "SNP"
         
       }else{

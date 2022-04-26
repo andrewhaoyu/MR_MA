@@ -13,14 +13,22 @@ WMRFun = function(Gamma,se_Gamma,
   diff_var = (se_Gamma^2+beta_est^2*se_alpha^2)
   chi_est = (Gamma-alpha*beta_est)^2/diff_var
   scale_ldscore = ldscore/diff_var
-  tau_est = coefficients(lm(chi_est~scale_ldscore-1))
-  tau_est = ifelse(tau_est>0,tau_est,0)
-  
+  tau_est = coefficients(lm(chi_est~scale_ldscore))[2]
+  tau_est = ifelse(tau_est>1E-05,tau_est,1E-05)
+  tau = tau_est
   #tau_est = tau
   library(cPCG)
-  V = GetVmat(Gamma,se_Gamma,
-              alpha,se_alpha,
-              ldscore,tau_est,beta_est,R)
+  
+  
+  
+  SGRSG = GetSGRSG(se_Gamma,R)
+  SARSA = GetSARSA(se_Gamma,R)
+  TauL = GetTauL(tau_est,ldscore)
+  
+  
+  
+  V = GetVmat(SGRSG,SARSA,
+              TauL,beta_est)
   #alpha %*%W as wa 
   wa = cgsolve(A=V, alpha)
   #t(alpha) %*%W %*% alpha as awa
@@ -38,11 +46,11 @@ WMRFun = function(Gamma,se_Gamma,
     diff_var = (se_Gamma^2+beta_est^2*se_alpha^2)
     chi_est = (Gamma-alpha*beta_est)^2/diff_var
     scale_ldscore = ldscore/diff_var
-    tau_est = coefficients(lm(chi_est~scale_ldscore-1))
-    tau_est = ifelse(tau_est>0,tau_est,0)
-    V = GetVmat(Gamma,se_Gamma,
-                alpha,se_alpha,
-                ldscore,tau_est,beta_est,R)
+    tau_est = coefficients(lm(chi_est~scale_ldscore))[2]
+    tau_est = ifelse(tau_est>1E-05,tau_est,1E-05)
+    TauL = GetTauL(tau_est,ldscore)
+    V = GetVmat(SGRSG,SARSA,
+                TauL,beta_est)
     wa = cgsolve(A=V, alpha)
     #t(alpha) %*%W %*% alpha as awa
     awa = crossprod(alpha,wa)
@@ -69,35 +77,26 @@ WMRFun = function(Gamma,se_Gamma,
 
 
 
-GetWtauMat = function(Gamma,se_Gamma,
-                      alpha,se_alpha,
-                      ldscore,tau,beta_est,R){
-  #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
-  # W_inv = diag(se_Gamma)%*%R%*%diag(se_Gamma)+
-  #   beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)
-  # W_inv = t(se_Gamma*t(se_Gamma*R))+
-  #   beta_est^2*t(se_alpha*t(se_alpha*R))+tau*diag(ldscore)
-  #   
-    
-    
- W_inv =  diag(se_Gamma)%*%R%*%diag(se_Gamma)+
-  beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)+tau*diag(ldscore)
-  #W_inv = (se_Gamma+beta_est*se_alpha)%*%(se_Gamma+beta_est*se_alpha)
-  #+tau*diag(ldscore)
-  W = solve(W_inv)
-  #W[abs(W)<=1E-06] = 0
-  return(W)
+
+
+
+GetSGRSG = function(se_Gamma,R){
+  return(t(se_Gamma*t(se_Gamma*R)))
+}
+GetSARSA = function(se_Gamma,R){
+  return(t(se_alpha*t(se_alpha*R)))
+}
+GetTauL = function(tau,ldscore){
+  return(tau*diag(ldscore))
 }
 
-
-GetVmat = function(Gamma,se_Gamma,
-                     alpha,se_alpha,
-                     ldscore,tau,beta_est,R){
+GetVmat = function(SGRSG,SARSA,
+                   TauL,beta_est){
   #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
   # W_inv = diag(se_Gamma)%*%R%*%diag(se_Gamma)+
   #   beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)
- V = t(se_Gamma*t(se_Gamma*R))+
-    as.numeric(beta_est)^2*t(se_alpha*t(se_alpha*R))+tau*diag(ldscore)
+ V = SGRSG+
+    as.numeric(beta_est)^2*SARSA+TauL
   
   
   
@@ -179,5 +178,23 @@ ObjFun <- function(Gamma,alpha,W,beta_est){
 # }
 
 
-
-
+# GetWtauMat = function(Gamma,se_Gamma,
+#                       alpha,se_alpha,
+#                       ldscore,tau,beta_est,R){
+#   #  W = diag(1/(se_Gamma^2+beta_est^2*se_alpha^2+tau*ldscore))
+#   # W_inv = diag(se_Gamma)%*%R%*%diag(se_Gamma)+
+#   #   beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)
+#   # W_inv = t(se_Gamma*t(se_Gamma*R))+
+#   #   beta_est^2*t(se_alpha*t(se_alpha*R))+tau*diag(ldscore)
+#   #   
+#   
+#   
+#   W_inv =  diag(se_Gamma)%*%R%*%diag(se_Gamma)+
+#     beta_est^2*diag(se_alpha)%*%R%*%diag(se_alpha)+tau*diag(ldscore)
+#   #W_inv = (se_Gamma+beta_est*se_alpha)%*%(se_Gamma+beta_est*se_alpha)
+#   #+tau*diag(ldscore)
+#   W = solve(W_inv)
+#   #W[abs(W)<=1E-06] = 0
+#   return(W)
+# }
+# 

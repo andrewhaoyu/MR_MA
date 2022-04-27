@@ -69,7 +69,6 @@ v =1
   
 
   #for(i in 1:2){
-  i = 1
   beta_vec = c(0,0.2)
   beta = beta_vec[i]
   #   for(sub in 1:10){
@@ -162,7 +161,8 @@ v =1
                         beta_cover,
                         beta_se,
                         i_vec = rep(i,length(beta_est)),
-                        p_vec = rep(pthres[i1],length(beta_est)))
+                        p_vec = rep(pthres[i1],length(beta_est)),
+                        r_vec = rep(r2_vec[r_ind],length(beta_est)))
     
     
     

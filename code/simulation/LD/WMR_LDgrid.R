@@ -148,53 +148,21 @@ v =1
       #                     alpha = sumalpha,
       #                     var_alpha = var_alpha,
       #                     R = R)
-      beta_est[i_rep] = MR_result[1]
-      beta_cover[i_rep] = ifelse(MR_result[3]<=beta&MR_result[4]>=beta,1,0)
-      beta_se[i_rep] = MR_result[2]
-      
+      beta_est = MR_result[1]
+      beta_cover = ifelse(MR_result[3]<=beta&MR_result[4]>=beta,1,0)
+      beta_se = MR_result[2]
+      result = data.frame(beta_est,
+                          beta_cover,
+                          beta_se,
+                          i_vec = i,
+                          p_vec = pthres[i1],
+                          r_vec = r2_vec[r_ind])
+      result.list[[temp]] = result
+      temp = temp + 1
     }
-    
-    method = c("WMR")
-    
+  
     
     
-    result = data.frame(beta_est,
-                        beta_cover,
-                        beta_se,
-                        i_vec = rep(i,length(beta_est)),
-                        p_vec = rep(pthres[i1],length(beta_est)),
-                        r_vec = rep(r2_vec[r_ind],length(beta_est)))
-    
-    
-    
-    # mean.result = data.frame(
-    #   beta_est
-    # )
-    # colnames(mean.result) = method
-    # 
-    # se.result = data.frame(
-    #   beta_se
-    # )
-    # colnames(se.result) = method
-    # 
-    # cover.result = data.frame(
-    #   beta_cover
-    # )
-    # colnames(cover.result) = method
-    # 
-    # result = data.frame(
-    #   method = method,
-    #   bias = apply(mean.result,2,function(x){mean(x,na.rm=T)})-beta,
-    #   em_se = apply(mean.result,2,function(x){sd(x,na.rm=T)}),
-    #   es_se = apply(se.result,2,function(x){mean(x,na.rm=T)}),
-    #   cover = apply(cover.result,2,function(x){mean(x,na.rm=T)}),
-    #   rmse = apply(mean.result,2,function(x){sqrt(mean((x-beta)^2,na.rm=T))})
-    # )
-    # print(result)
-    # result$i_vec = rep(i,length(method))
-    # result$p_vec = phtres[i1]
-    result.list[[temp]] = result
-    temp = temp + 1
     
   }
   

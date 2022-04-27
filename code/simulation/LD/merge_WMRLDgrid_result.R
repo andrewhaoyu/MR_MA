@@ -11,6 +11,7 @@ for(i in 1:2){
     for(rep_ind in 1:100){
       load(paste0(cur.dir,"WMR_result_chr22_beta_",i,"_rho_",l,"_rep_ind_",rep_ind,".rdata"))
       result$l_vec = rep(l,nrow(result))
+      result$rep_ind = rep(rep_ind,nrow(result))
       result.list[[temp]] = result    
       temp = temp + 1
     }

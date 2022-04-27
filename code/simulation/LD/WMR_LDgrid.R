@@ -91,8 +91,8 @@ v =1
     beta_cover = rep(0,n.rep)
     beta_se = rep(0,n.rep)
     
-    
-    for(i_rep in  1:1){
+    i_rep = rep_ind
+    #for(i_rep in  1:1){
       if(r_ind==6){
         #r_ind ==6 means no clumping at all
         LD.snp = sum.data.m[,"ID",drop=F]
@@ -198,7 +198,7 @@ v =1
     
   }
   
-}
+#}
 
     
 #}

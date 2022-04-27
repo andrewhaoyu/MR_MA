@@ -83,6 +83,7 @@ v =1
   n.snp = nrow(sum.data.m)
   n.rep = end-start+1
   pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)
+  r2_vec = c(0.001,0.2,0.4,0.6,0.8,1)
   #pthres = c(1E-01,1)
   for(r_ind in 1:6){
     for(i1 in 1:length(pthres)){

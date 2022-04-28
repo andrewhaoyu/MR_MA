@@ -67,7 +67,7 @@ sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_r
 sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
 sum.data.m2 = as.data.frame(fread(paste0(cur.dir,"m2_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
 #sum.data.m = left_join(sum.data.m,ldscore,by = c("ID"="SNP"))
-sum.data.m = inner_join(sum.data.m,ldscore,by = c("ID"="SNP"))
+#sum.data.m = inner_join(sum.data.m,ldscore,by = c("ID"="SNP"))
 n.snp = nrow(sum.data.m)
 n.rep = end-start+1
 pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)

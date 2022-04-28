@@ -20,25 +20,48 @@ for(i in 1:2){
 library(data.table)
 result = rbindlist(result.list)
 
-beta = beta_vec[i]
-result.sub = result %>% 
-  filter(i_vec==1&
-           p_vec==5e-08&
-           r_vec==0.001&
-           l_vec == 1)
-beta_est = result.sub$beta_est
-se_est = result.sub$beta_se
-result = data.frame(
-  method = method,
-  bias = apply(beta_est,2,function(x){mean(x,na.rm=T)})-beta,
-  em_se = apply(beta_est,2,function(x){sd(x,na.rm=T)}),
-  es_se = apply(se.result,2,function(x){mean(x,na.rm=T)}),
-  cover = apply(cover.result,2,function(x){mean(x,na.rm=T)}),
-  rmse = apply(mean.result,2,function(x){sqrt(mean((x-beta)^2,na.rm=T))})
-)
-
+result.table.list = list()
+temp = 1
 
 beta_vec = c(0,0.2)
+for(i in 1:2){
+  beta = beta_vec[i]
+  for(l in 1:3){
+    for(r in 1:length(r2_vec)){
+      for(p in 1:length(pthres)){
+        beta = beta_vec[i]
+        result.sub = result %>% 
+          filter(i_vec==i&
+                   p_vec==pthres[p]&
+                   r_vec==r2_vec[r]&
+                   l_vec == l)
+        beta_est = result.sub$beta_est
+        se_est = result.sub$beta_se
+        beta_cover = result.sub$beta_cover
+        result.table = data.frame(
+          method = method,
+          bias = mean(beta_est)-beta,
+          em_se = sd(beta_est),
+          es_se = mean(beta_est),
+          cover = mean(beta_cover),
+          rmse = sqrt(mean((beta_est-beta)^2)),
+          i_vec = i,
+          p_vec = pthres[p],
+          r_vec = r2_vec[r],
+          l_vec = l
+        )
+        result.table.list[[temp]] = result.table
+        temp = temp + 1
+      }      
+    }
+  
+  }
+  }
+sum.result = rbindlist(result.table.list)
+
+result = sum.result
+save(result,file = paste0(cur.dir,"WMR_result_chr22_grid.rdata"))
+
 # mean.result = data.frame(
 #   beta_est
 # )

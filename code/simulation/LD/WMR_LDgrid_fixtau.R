@@ -177,5 +177,5 @@ for(r_ind in 1:6){
 #   }
 # }
 result = rbindlist(result.list)
-save(result,file = paste0(cur.dir,"WMR_result_chr22_beta_",i,"_rho_",l,"_rep_ind_",rep_ind,".rdata"))
+save(result,file = paste0(cur.dir,"WMR_result_chr22_beta_",i,"_rho_",l,"_rep_ind_",rep_ind,"_fixtau_.rdata"))
 # }

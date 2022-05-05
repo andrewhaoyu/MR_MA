@@ -61,7 +61,8 @@ WMRFun = function(Gamma,se_Gamma,
     beta_est = as.numeric(awg/awa)
     beta_new = beta_est
     error = abs(beta_new-beta_old)/abs(beta_old)
-    print(error)
+    #print(error)
+    print(beta_new)
   }
   
   #se_alpha %*% W as wse

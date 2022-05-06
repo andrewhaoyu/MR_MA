@@ -14,7 +14,7 @@ WMRFun = function(Gamma,se_Gamma,
   chi_est = (Gamma-alpha*beta_est)^2/diff_var
   scale_ldscore = ldscore/diff_var
   tau_est = coefficients(lm(chi_est~scale_ldscore))[2]
-  tau_est = ifelse(tau_est>1E-05,tau_est,1E-05)
+  tau_est = ifelse(tau_est>0,tau_est,0)
   tau = tau_est
   #tau_est = tau
   library(cPCG)
@@ -47,7 +47,7 @@ WMRFun = function(Gamma,se_Gamma,
     chi_est = (Gamma-alpha*beta_est)^2/diff_var
     scale_ldscore = ldscore/diff_var
     tau_est = coefficients(lm(chi_est~scale_ldscore))[2]
-    tau_est = ifelse(tau_est>1E-05,tau_est,1E-05)
+    tau_est = ifelse(tau_est>0,tau_est,0)
     TauL = GetTauL(tau_est,ldscore)
     V = GetVmat(SGRSG,SARSA,
                 TauL,beta_est)

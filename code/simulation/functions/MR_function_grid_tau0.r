@@ -18,8 +18,7 @@ WMRFun = function(Gamma,se_Gamma,
   tau = tau_est = 0
   #tau_est = tau
   library(cPCG)
-  
-  
+
   
   SGRSG = GetSGRSG(se_Gamma,R)
   SARSA = GetSARSA(se_alpha,R)
@@ -29,8 +28,12 @@ WMRFun = function(Gamma,se_Gamma,
   
   V = GetVmat(SGRSG,SARSA,
               TauL,beta_est)
+  
   #alpha %*%W as wa 
+  time = proc.time()
   wa = cgsolve(A=V, alpha)
+  time = proc.time()-time
+  #print(time)
   #t(alpha) %*%W %*% alpha as awa
   awa = crossprod(alpha,wa)
   #t(alpha) %*%W %*% gamma as awg
@@ -54,6 +57,8 @@ WMRFun = function(Gamma,se_Gamma,
     V = GetVmat(SGRSG,SARSA,
                 TauL,beta_est)
     wa = cgsolve(A=V, alpha)
+    
+    
     #t(alpha) %*%W %*% alpha as awa
     awa = crossprod(alpha,wa)
     #t(alpha) %*%W %*% gamma as awg
@@ -201,3 +206,7 @@ ObjFun <- function(Gamma,alpha,W,beta_est){
 #   return(W)
 # }
 # 
+#ev = eigen(V)
+library(RSpectra)
+#cv = eigs_sym(V,k=200)
+small_eigs = eigs_sym(V, k=2, which = "LM", sigma = 0)$values 

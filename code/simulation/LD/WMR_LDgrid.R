@@ -46,16 +46,11 @@ setwd("/data/zhangh24/MR_MA/")
 j = 22
 #load LD score
 source("./code/simulation/functions/MR_function_grid.R")
-ldscore = fread("/data/zhangh24/MR_MA/data/eur_w_ld_chr/22.l2.ldscore.gz")
-ldscore = ldscore %>% 
-  dplyr::select(SNP,L2)
-#load SNP id match file
-load("/data/zhangh24/MR_MA/result/LD/chr22_snp_infor.rdata")
-# ldscore = left_join(snp.infor.subset,ldscore,
-#                      by=c("rs_id"="SNP"))
+#ldscore = fread("/data/zhangh24/MR_MA/data/eur_w_ld_chr/22.l2.ldscore.gz")
+#load computed ldscore file based on simulated data
+load("/data/zhangh24/MR_MA/result/LD/ldscore_chr22")
 
-ldscore = inner_join(snp.infor.subset,ldscore,
-                    by=c("rs_id"="SNP"))
+
 #load LD matrix
 load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
 temp = 1
@@ -75,11 +70,16 @@ v =1
   setwd("/data/zhangh24/MR_MA/")
   cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
   j =22
+  
+  #m is used as selection sample; subject 1:40000
+  #m2 is used as exposure sample; subject 40001:80000
+  #y is used as outcome sample; subject 80001:120000
   sum.data.y = as.data.frame(fread(paste0(cur.dir,"y_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
   sum.data.m = as.data.frame(fread(paste0(cur.dir,"m_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
   sum.data.m2 = as.data.frame(fread(paste0(cur.dir,"m2_summary_chr_",j,"beta_",i,"_rho_",l,"_ple_",v)))
   #sum.data.m = left_join(sum.data.m,ldscore,by = c("ID"="SNP"))
-  sum.data.m = inner_join(sum.data.m,ldscore,by = c("ID"="SNP"))
+  all.equal(sum.data.m$ID,ldscore$SNP)
+  sum.data.m = cbind(sum.data.m,ldscore)
   n.snp = nrow(sum.data.m)
   n.rep = end-start+1
   pthres = c(5E-08,1E-07,1E-06,1E-05,1E-04,1E-03,1E-02,1E-01,1)
@@ -104,7 +104,7 @@ v =1
       
       
       
-      sum.data.match.m = inner_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
+      sum.data.match.m = left_join(LD.snp,sum.data.m,by = c("SNP"="ID"))
       matched.snp = sum.data.match.m[,"SNP",drop=F]
       p = sum.data.match.m[,(6+3*i_rep)]
       
@@ -132,6 +132,8 @@ v =1
       ld_score_select = ldscore$L2[idx.match]
       R = as.matrix(corr0[idx.match,idx.match])
       MAF_select = MAF[idx.match]
+      
+      
       
       # alpha = alpha*sqrt(2*MAF*(1-MAF))
       # se_alpha_temp=  se_alpha_select*sqrt(2*MAF_select*(1-MAF_select))

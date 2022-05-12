@@ -11,7 +11,8 @@ POS <- obj.bigSNP$map$physical.pos
 pos_table = fread(paste0(cur.dir,"../../data/ld_block"))
 pos_chr = pos_table %>% 
   filter(chr==paste0("chr",j))
-  
+
+
 # parse LD blocks
 # add the beginning and end to avoid dropping snps
 if (pos_chr$stop[1] > 1) {
@@ -80,6 +81,23 @@ M2 = matrix(rnorm(16),4,4)
 M3 = matrix(rnorm(16),4,4)
 corr0 = bdiag(cor_list)
 save(corr0,file = paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
+load(paste0(cur.dir,"chr_",j,"_LDmat.rdata"))
+n.snp = nrow(obj.bigSNP$map)
+#ldscore = rep(0,n.snp)
+
+ldscore = Matrix::rowSums(corr0^2)
+
+bedfile <- paste0(cur.dir,"chr",j,".hm3.bed")
+obj.bed <- bed(bedfile)
+MAF = bed_MAF(obj.bed, ind.row = 40001:80000)
+
+ldscore = data.frame(SNP = obj.bigSNP$map$marker.ID,
+                          L2 = ldscore,
+                          MAF = MAF$maf)
+save(ldscore, file = "/data/zhangh24/MR_MA/result/LD/ldscore_chr22")
+#compute LD score
+
+
 # 
 # library(rsvd)
 # library(denoiseR)

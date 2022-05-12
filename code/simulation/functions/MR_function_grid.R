@@ -73,16 +73,17 @@ WMRFun = function(Gamma,se_Gamma,
     TauL = GetTauL(tau_est,ldscore)
     V = GetVmat(SGRSG,SARSA,
                 TauL,beta_est)
-    wa = cgsolve(A=V, alpha)
-    #t(alpha) %*%W %*% alpha as awa
-    awa = crossprod(alpha,wa)
-    #t(alpha) %*%W %*% gamma as awg
-    awg = crossprod(Gamma,wa)
-    beta_est = as.numeric(awg/awa)
+    # wa = cgsolve(A=V, alpha)
+    # #t(alpha) %*%W %*% alpha as awa
+    # awa = crossprod(alpha,wa)
+    # #t(alpha) %*%W %*% gamma as awg
+    # awg = crossprod(Gamma,wa)
+    # beta_est = as.numeric(awg/awa)
+    beta_est<- optimize(function(beta) objFun.fixtau(beta, tau_est), c(-1,1)*bound.beta, maximum = F, tol = .Machine$double.eps^0.5)$minimum
     beta_new = beta_est
     error = abs(beta_new-beta_old)/abs(beta_old)
-    #print(error)
-    print(beta_new)
+    print(error)
+    #print(beta_new)
   }
   
   #se_alpha %*% W as wse

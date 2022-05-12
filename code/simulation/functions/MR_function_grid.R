@@ -6,7 +6,7 @@ WMRFun = function(Gamma,se_Gamma,
   se_alpha=  se_alpha*sqrt(2*MAF*(1-MAF))
   Gamma = Gamma*sqrt(2*MAF*(1-MAF))
   se_Gamma = se_Gamma*sqrt(2*MAF*(1-MAF))
-  bound.beta <- quantile(abs(Gamma / alpha), 0.95, na.rm = TRUE) * 10
+  #bound.beta <- quantile(abs(Gamma / alpha), 0.95, na.rm = TRUE) * 10
   beta_est = as.numeric(crossprod(Gamma,alpha)/crossprod(alpha))
   
   beta_old = beta_est  
@@ -28,12 +28,7 @@ WMRFun = function(Gamma,se_Gamma,
   TauL = GetTauL(tau_est,ldscore)
   
   
-  profile.loglike.fixtau <- function(beta, tau2) {
-    alpha.hat <- 0
-    - (1/2) * sum((b_out - alpha.hat - b_exp * beta)^2 / (tau2 + se_out^2 + se_exp^2 * beta^2))
-  }
-  
-  
+ 
   V = GetVmat(SGRSG,SARSA,
               TauL,beta_est)
   
@@ -47,7 +42,8 @@ WMRFun = function(Gamma,se_Gamma,
     return(gwg)
   }
   # 
-  beta_est<- optimize(function(beta) objFun.fixtau(beta, tau_est), c(-1,1)*bound.beta, maximum = F, tol = .Machine$double.eps^0.5)$minimum
+  
+  beta_est<- optimize(function(beta) objFun.fixtau(beta, tau_est), c(-1,1), maximum = F, tol = 1E-04)$minimum
   # 
   # objFun.fixtau(0.1534168, tau_est)
   # objFun.fixtau(0.1977267, tau_est)
@@ -79,7 +75,7 @@ WMRFun = function(Gamma,se_Gamma,
     # #t(alpha) %*%W %*% gamma as awg
     # awg = crossprod(Gamma,wa)
     # beta_est = as.numeric(awg/awa)
-    beta_est<- optimize(function(beta) objFun.fixtau(beta, tau_est), c(-1,1)*bound.beta, maximum = F, tol = .Machine$double.eps^0.5)$minimum
+    beta_est<- optimize(function(beta) objFun.fixtau(beta, tau_est), c(-1,1), maximum = F, tol = 1E-04)$minimum
     beta_new = beta_est
     error = abs(beta_new-beta_old)/abs(beta_old)
     print(error)

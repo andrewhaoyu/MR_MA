@@ -87,6 +87,7 @@ v =1
   #pthres = c(1E-01,1)
   for(r_ind in 1:6){
     for(i1 in 1:length(pthres)){
+    print(c(r_ind,i1))
     beta_est = rep(0,n.rep)
     beta_cover = rep(0,n.rep)
     beta_se = rep(0,n.rep)

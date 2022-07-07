@@ -6,14 +6,18 @@ r2_vec = c(0.001,0.2,0.4,0.6,0.8,1)
 cur.dir <- "/data/zhangh24/MR_MA/result/LD/"
 result.list = list()
 temp = 1
+files = dir(cur.dir,pattern="WMR_result_chr22_beta_",full.names = T)
 for(i in 1:2){
   for(l in 1:3){
     for(rep_ind in 1:100){
-      load(paste0(cur.dir,"WMR_result_chr22_beta_",i,"_rho_",l,"_rep_ind_",rep_ind,".rdata"))
-      result$l_vec = rep(l,nrow(result))
-      result$rep_ind = rep(rep_ind,nrow(result))
-      result.list[[temp]] = result    
-      temp = temp + 1
+      file = paste0(cur.dir,"/WMR_result_chr22_beta_",i,"_rho_",l,"_rep_ind_",rep_ind,".rdata")
+      if(file %in% files==T){
+        load(file)
+        result$l_vec = rep(l,nrow(result))
+        result$rep_ind = rep(rep_ind,nrow(result))
+        result.list[[temp]] = result    
+        temp = temp + 1
+      }  
     }
   }
 }
@@ -126,7 +130,16 @@ for(m in 1:length(method_vec)){
 
 sum.result2 = rbindlist(result.table.list)
 
+
+sum.result2 %>% 
+  filter(l_vec==3&
+           method=="Raps")
+
+
+
+
 result = rbind(sum.result,sum.result2)
+result %>% filter()
 save(result,file = paste0(cur.dir,"WMR_result_chr22_grid.rdata"))
 
 

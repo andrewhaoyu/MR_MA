@@ -6,6 +6,17 @@ setwd("/Users/zhangh24/GoogleDrive/MR_MA/")
 source("./code/simulation/LD/theme_publication.R")
 #this setting N = 60000 p =500 pthres = 5E-08
 load("./result/simulation/LD/WMR_result_chr22_grid.rdata")
+
+i = 2
+r = 0.001
+l = 3
+result %>% filter(i_vec==i&
+                        r_vec==r&
+                        l_vec==l)
+
+result %>% 
+  filter(method=="Raps")
+
 head(result)
 #subset result to WMR
 result = result %>% filter(method=="WMR")
